@@ -18,20 +18,23 @@ project
 			<variant>component:<linkflags>"-Wl,-z,lazy,--warn-once,-fPIC"
 	;
 
-alias all :
-		libadhocutil
-		libdbpp
-		libjsonpp
-		libmysqlpp
-		libodbcpp
-		libpqpp
-		libsqlitepp
-		libtmdb
-		netfs
-		p2pvr
-		project2
-		slicer
-	;
+build-project gentoobrowse-api ;
+build-project gentoobrowse-client ;
+# build-project icetray ;
+build-project libadhocutil ;
+build-project libdbpp ;
+build-project libjsonpp ;
+build-project libmisc ;
+build-project libmysqlpp ;
+build-project libodbcpp ;
+build-project libpqpp ;
+build-project libsqlitepp ;
+build-project libtmdb ;
+build-project mythfs ;
+build-project netfs ;
+# build-project p2pvr ;
+build-project project2 ;
+build-project slicer ;
 
 # Some useful aliases
 
