@@ -1,0 +1,44 @@
+import testing ;
+
+lib adhocutil : : : : <include>/usr/include/adhocutil ;
+lib boost_utf : : <name>boost_unit_test_framework ;
+lib dl ;
+path-constant me : . ;
+
+alias testCommon : :
+	<define>ROOT=\"$(me)\"
+	<library>..//Ice
+	<library>..//IceUtil
+	: :
+	<library>..//IceUtil
+	<library>..//Ice
+	<library>boost_utf
+	<define>ROOT=\"$(me)\"
+	;
+
+run
+	testCompile.cpp
+	: :
+	test-api.ice
+	testRoutes.json
+	:
+	<define>BOOST_TEST_DYN_LINK
+	<library>testCommon
+	<library>test-api
+	<library>dl
+	<library>adhocutil
+	<library>../core//icespider-core
+	<library>../compile//icespider-compile
+	<implicit-dependency>../compile//icespider-compile
+	<dependency>../core
+	: testCompile :
+	;
+
+lib test-api :
+	test-api.ice
+	:
+	<library>..//pthread
+	<library>..//Ice
+	<library>..//IceUtil
+	;
+

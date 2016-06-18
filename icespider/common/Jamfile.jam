@@ -1,0 +1,12 @@
+lib icespider-common :
+	[ glob-tree *.ice *.cpp : bin ]
+	:
+	<library>..//pthread
+	<library>..//Ice
+	<library>..//IceUtil
+	: :
+	<library>..//pthread
+	<library>..//Ice
+	<library>..//IceUtil
+	;
+

@@ -1,0 +1,37 @@
+lib adhocutil : : : : <include>/usr/include/adhocutil ;
+lib slicer : : : : <include>/usr/include/slicer <include>/usr/include/adhocutil ;
+lib slicer-json ;
+lib boost_program_options ;
+lib boost_system ;
+lib boost_filesystem ;
+lib Slice ;
+
+lib icespider-compile :
+	[ glob-tree *.cpp : bin main.cpp ]
+	[ glob ../common/*.ice ]
+	:
+	<slicer>pure
+	<library>slicer
+	<library>adhocutil
+	<library>slicer-json
+	<library>boost_system
+	<library>boost_filesystem
+	<library>Slice
+	<library>../common
+	<implicit-dependency>../common
+	<library>..//Ice
+	<library>..//IceUtil
+	<library>..//pthread
+	: :
+	<library>boost_system
+	<library>boost_filesystem
+	<library>../common
+	;
+
+exe icespider :
+	main.cpp
+	:
+	<library>boost_program_options
+	<library>icespider-compile
+	;
+

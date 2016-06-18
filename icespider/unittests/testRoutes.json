@@ -1,0 +1,44 @@
+{
+	"name": "common",
+	"routes": [
+	{
+		"name": "index",
+		"path": "/",
+		"method": "GET",
+		"operation": "TestIceSpider.TestApi.index"
+	},
+	{
+		"name": "item",
+		"path": "/{s}/{i}",
+		"method": "GET",
+		"operation": "TestIceSpider.TestApi.withParams"
+	},
+	{
+		"name": "del",
+		"path": "/{s}",
+		"method": "DELETE",
+		"operation": "TestIceSpider.TestApi.returnNothing"
+	},
+	{
+		"name": "update",
+		"path": "/{id}",
+		"method": "POST",
+		"operation": "TestIceSpider.TestApi.complexParam",
+		"params": [
+		{
+			"name": "s",
+			"source": "URL",
+			"key": "id"
+		},
+		{
+			"name": "m",
+			"source": "Body"
+		}
+		]
+	}
+	],
+	"slices": [
+		"test-api.ice"
+	]
+}
+

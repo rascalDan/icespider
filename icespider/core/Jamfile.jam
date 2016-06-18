@@ -1,0 +1,9 @@
+lib adhocutil : : : : <include>/usr/include/adhocutil ;
+
+lib icespider-core :
+	[ glob-tree *.cpp : bin ]
+	:
+	<library>../common
+	<library>adhocutil
+	<implicit-dependency>../common
+	;

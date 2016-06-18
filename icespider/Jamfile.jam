@@ -1,0 +1,9 @@
+build-project core ;
+build-project compile ;
+build-project unittests ;
+build-project fcgi ;
+
+lib Ice ;
+lib IceUtil ;
+lib pthread ;
+
