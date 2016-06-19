@@ -1,6 +1,6 @@
 module UserIceSpider {
 	enum HttpMethod {
-		GET, POST, DELETE
+		GET, HEAD, POST, PUT, DELETE, OPTIONS
 	};
 	enum ParameterSource {
 		URL, Body, QueryString, Header
