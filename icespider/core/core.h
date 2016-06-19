@@ -4,6 +4,7 @@
 #include <visibility.h>
 #include <vector>
 #include "irouteHandler.h"
+#include <Ice/Communicator.h>
 
 namespace IceSpider {
 	class DLL_PUBLIC Core {
@@ -21,6 +22,7 @@ namespace IceSpider {
 			Ice::ObjectPrx getProxy(const char * type) const;
 
 			MethodRoutes routes;
+			Ice::CommunicatorPtr communicator;
 	};
 }
 

@@ -1,6 +1,7 @@
 #include "core.h"
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <Ice/Initialize.h>
 
 namespace ba = boost::algorithm;
 
@@ -18,10 +19,13 @@ namespace IceSpider {
 			}
 			mroutes[r->pathElementCount()].push_back(r);
 		}
+
+		communicator = Ice::initialize({});
 	}
 
 	Core::~Core()
 	{
+		if (communicator) communicator->destroy();
 	}
 
 	void
@@ -62,8 +66,7 @@ namespace IceSpider {
 	Ice::ObjectPrx
 	Core::getProxy(const char * type) const
 	{
-		fprintf(stderr, "request for proxy type %s\n", type);
-		return NULL;
+		return communicator->propertyToProxy(type);
 	}
 }
 

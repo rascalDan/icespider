@@ -4,6 +4,8 @@
 #include <plugins.h>
 #include <irouteHandler.h>
 #include <core.h>
+#include <test-api.h>
+#include <Ice/ObjectAdapter.h>
 
 using namespace UserIceSpider;
 
@@ -84,6 +86,39 @@ BOOST_AUTO_TEST_CASE( testFindRoutes )
 
 	TestRequest requestDeleteThing(this, HttpMethod::DELETE, "/something");
 	BOOST_REQUIRE(findRoute(&requestDeleteThing));
+}
+
+class TestSerice : public TestIceSpider::TestApi {
+	public:
+		TestIceSpider::SomeModelPtr index(const Ice::Current &) override
+		{
+			return NULL;
+		}
+
+		TestIceSpider::SomeModelPtr withParams(const std::string &, Ice::Int, const Ice::Current &) override
+		{
+			return NULL;
+		}
+
+		void returnNothing(const std::string &, const Ice::Current &) override
+		{
+		}
+
+		void complexParam(const std::string &, const TestIceSpider::SomeModelPtr &, const Ice::Current &) override
+		{
+		}
+};
+
+BOOST_AUTO_TEST_CASE( testGetIndex )
+{
+	auto adp = communicator->createObjectAdapterWithEndpoints("test", "default");
+	auto obj = adp->addWithUUID(new TestSerice());
+	adp->activate();
+	TestRequest requestGetIndex(this, HttpMethod::GET, "/");
+	fprintf(stderr, "%s\n", obj->ice_id().c_str());
+	communicator->getProperties()->setProperty("N13TestIceSpider7TestApiE", communicator->proxyToString(obj));
+	process(&requestGetIndex);
+	adp->deactivate();
 }
 
 BOOST_AUTO_TEST_SUITE_END();
