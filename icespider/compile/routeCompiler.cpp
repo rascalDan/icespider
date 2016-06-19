@@ -239,7 +239,7 @@ namespace IceSpider {
 				fprintbf(3, output, "}\n\n");
 				fprintbf(2, output, "private:\n");
 				for (const auto & p : r->params) {
-					fprintbf(3, output, "std::string _pn_%s;\n", p->name);
+					fprintbf(3, output, "const std::string _pn_%s;\n", p->name);
 				}
 				fprintbf(1, output, "};\n\n");
 			}
