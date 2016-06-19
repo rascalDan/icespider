@@ -221,7 +221,7 @@ namespace IceSpider {
 					fprintbf(4, output, "auto _p_%s(request->get%sParam<%s>(_pn_%s));\n",
 									 p->name, getEnumString(p->source), Slice::typeToString(ip->type()), p->name);
 				}
-				fprintbf(4, output, "auto prx = getProxy<%s>();\n", proxyName);
+				fprintbf(4, output, "auto prx = getProxy<%s>(request);\n", proxyName);
 				if (o->returnsData()) {
 					fprintbf(4, output, "request->response(prx->%s(", operation);
 				}

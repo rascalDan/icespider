@@ -9,7 +9,7 @@
 	},
 	{
 		"name": "item",
-		"path": "/{s}/{i}",
+		"path": "/view/{s}/{i}",
 		"method": "GET",
 		"operation": "TestIceSpider.TestApi.withParams"
 	},

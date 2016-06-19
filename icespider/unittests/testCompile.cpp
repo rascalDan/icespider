@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 	BOOST_REQUIRE_EQUAL(0, cfg->routes[0]->params.size());
 
 	BOOST_REQUIRE_EQUAL("item", cfg->routes[1]->name);
-	BOOST_REQUIRE_EQUAL("/{s}/{i}", cfg->routes[1]->path);
+	BOOST_REQUIRE_EQUAL("/view/{s}/{i}", cfg->routes[1]->path);
 	BOOST_REQUIRE_EQUAL(2, cfg->routes[1]->params.size());
 
 	BOOST_REQUIRE_EQUAL("del", cfg->routes[2]->name);
@@ -77,10 +77,6 @@ BOOST_AUTO_TEST_CASE( testCompile )
 	BOOST_REQUIRE_EQUAL(0, compileResult);
 }
 
-class DuffRequest : public IceSpider::IHttpRequest {
-
-};
-
 BOOST_AUTO_TEST_CASE( testLoad )
 {
 	auto outputso = binDir / "testRoutes.so";
@@ -93,9 +89,6 @@ BOOST_AUTO_TEST_CASE( testLoad )
 	{
 		auto route = AdHoc::PluginManager::getDefault()->get<IceSpider::IRouteHandler>("common::index");
 		BOOST_REQUIRE(route);
-		BOOST_REQUIRE_THROW({
-			route->implementation()->execute(new DuffRequest());
-		}, IceUtil::NullHandleException);
 	}
 
 	BOOST_REQUIRE_EQUAL(0, dlclose(lib));
