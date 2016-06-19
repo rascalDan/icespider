@@ -26,6 +26,7 @@ lib icespider-compile :
 	<library>boost_system
 	<library>boost_filesystem
 	<library>../common
+	<implicit-dependency>../common
 	;
 
 exe icespider :

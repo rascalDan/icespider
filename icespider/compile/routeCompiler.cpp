@@ -27,7 +27,7 @@ namespace IceSpider {
 
 		RouteCompiler::RouteCompiler()
 		{
-			searchPath.insert(boost::filesystem::current_path());
+			searchPath.push_back(boost::filesystem::current_path());
 		}
 
 		UserIceSpider::RouteConfigurationPtr

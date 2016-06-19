@@ -22,7 +22,7 @@ BOOST_FIXTURE_TEST_SUITE(cf, CoreFixture)
 BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 {
 	IceSpider::Compile::RouteCompiler rc;
-	rc.searchPath.insert(rootDir);
+	rc.searchPath.push_back(rootDir);
 	auto cfg = rc.loadConfiguration(rootDir / "testRoutes.json");
 	auto u = rc.loadUnits(cfg);
 	rc.applyDefaults(cfg, u);
@@ -55,13 +55,13 @@ BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 BOOST_AUTO_TEST_CASE( testCompile )
 {
 	IceSpider::Compile::RouteCompiler rc;
-	rc.searchPath.insert(rootDir);
+	rc.searchPath.push_back(rootDir);
 	auto input = rootDir / "testRoutes.json";
 	auto output = binDir / "testRoutes.cpp";
 	auto outputso = boost::filesystem::change_extension(output, ".so");
 	auto libGenDir = (rootDir / "bin" / modeDir);
 	rc.compile(input, output);
-	
+
 	auto compileCommand = boost::algorithm::join<std::vector<std::string>>({
 		"gcc", "-shared", "-std=c++1y", "-fPIC", " -fvisibility=hidden", "-O3", "-Wl,--warn-once,--gc-sections",
 		"-I", "/usr/include/adhocutil",

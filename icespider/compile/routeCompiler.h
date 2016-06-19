@@ -3,7 +3,7 @@
 
 #include <boost/filesystem/path.hpp>
 #include <visibility.h>
-#include <set>
+#include <vector>
 #include <routes.h>
 #include <Slice/Parser.h>
 #include <Ice/BuiltinSequences.h>
@@ -22,7 +22,7 @@ namespace IceSpider {
 				void applyDefaults(UserIceSpider::RouteConfigurationPtr, const Units & u) const;
 				void compile(const boost::filesystem::path & input, const boost::filesystem::path & output) const;
 
-				std::set<boost::filesystem::path> searchPath;
+				std::vector<boost::filesystem::path> searchPath;
 
 			private:
 				void processConfiguration(FILE * output, UserIceSpider::RouteConfigurationPtr, const Units &) const;
