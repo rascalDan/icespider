@@ -132,6 +132,10 @@ namespace IceSpider {
 					throw std::runtime_error("Could not find slice file");
 				}
 				std::vector<std::string> cppArgs;
+				for (const auto & p : searchPath) {
+					cppArgs.push_back("-I");
+					cppArgs.push_back(p.string());
+				}
 				Slice::PreprocessorPtr icecpp = Slice::Preprocessor::create("IceSpider", realSlice.string(), cppArgs);
 				FILE * cppHandle = icecpp->preprocess(false);
 
