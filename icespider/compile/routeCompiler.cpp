@@ -222,11 +222,20 @@ namespace IceSpider {
 									 p->name, getEnumString(p->source), Slice::typeToString(ip->type()), p->name);
 				}
 				fprintbf(4, output, "auto prx = getProxy<%s>();\n", proxyName);
-				fprintbf(4, output, "prx->%s(", operation);
+				if (o->returnsData()) {
+					fprintbf(4, output, "request->response(prx->%s(", operation);
+				}
+				else {
+					fprintbf(4, output, "prx->%s(", operation);
+				}
 				for (const auto & p : r->params) {
 					fprintbf(output, "_p_%s, ", p->name);
 				}
-				fprintbf(output, "request->getContext());\n");
+				fprintbf(output, "request->getContext())");
+				if (o->returnsData()) {
+					fprintbf(output, ")");
+				}
+				fprintbf(output, ";\n");
 				fprintbf(3, output, "}\n\n");
 				fprintbf(2, output, "private:\n");
 				for (const auto & p : r->params) {

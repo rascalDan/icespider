@@ -18,6 +18,8 @@ namespace IceSpider {
 			T getQueryStringParam(const std::string & key) const { (void)key; return T(); }
 			template<typename T>
 			T getHeaderParam(const std::string & key) const { (void)key; return T(); }
+			template<typename T>
+			void response(const T &) const { }
 	};
 }
 
