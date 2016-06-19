@@ -59,12 +59,13 @@ BOOST_AUTO_TEST_CASE( testCompile )
 	auto input = rootDir / "testRoutes.json";
 	auto output = binDir / "testRoutes.cpp";
 	auto outputso = boost::filesystem::change_extension(output, ".so");
-	auto libGenDir = (rootDir / "bin" / modeDir);
+	auto libGenDir = (rootDir / "bin" / modeDir / "slicer-yes");
 	rc.compile(input, output);
 
 	auto compileCommand = boost::algorithm::join<std::vector<std::string>>({
 		"gcc", "-shared", "-std=c++1y", "-fPIC", " -fvisibility=hidden", "-O3", "-Wl,--warn-once,--gc-sections",
 		"-I", "/usr/include/adhocutil",
+		"-I", "/usr/include/slicer",
 		"-I", (rootDir.parent_path() / "core").string(),
 		"-I", (rootDir.parent_path() / "common").string(),
 		"-I", (rootDir.parent_path() / "common" / "bin" / modeDir).string(),

@@ -6,6 +6,7 @@
 #include <Ice/Current.h>
 #include <visibility.h>
 #include <routes.h>
+#include <slicer/slicer.h>
 
 namespace IceSpider {
 	class Core;
@@ -18,16 +19,30 @@ namespace IceSpider {
 			virtual std::string getRequestPath() const = 0;
 			virtual UserIceSpider::HttpMethod getRequestMethod() const = 0;
 
+			virtual std::string getURLParam(const std::string &) const = 0;
+			virtual std::string getQueryStringParam(const std::string &) const = 0;
+			virtual std::string getHeaderParam(const std::string &) const = 0;
+			virtual Slicer::DeserializerPtr getDeserializer() const;
+			virtual Slicer::SerializerPtr getSerializer() const;
+			virtual std::istream & getInputStream() const = 0;
+			virtual std::ostream & getOutputStream() const = 0;
+
 			template<typename T>
-			T getURLParam(const std::string & key) const { (void)key; return T(); }
+			T getURLParam(const std::string & key) const;
 			template<typename T>
-			T getBodyParam(const std::string & key) const { (void)key; return T(); }
+			T getBodyParam(const std::string &) const
+			{
+				return Slicer::DeserializeAnyWith<T>(getDeserializer());
+			}
 			template<typename T>
-			T getQueryStringParam(const std::string & key) const { (void)key; return T(); }
+			T getQueryStringParam(const std::string & key) const;
 			template<typename T>
-			T getHeaderParam(const std::string & key) const { (void)key; return T(); }
+			T getHeaderParam(const std::string & key) const;
 			template<typename T>
-			void response(const T &) const { }
+			void response(const T & t) const
+			{
+				Slicer::SerializeAnyWith<T>(t, getSerializer());
+			}
 
 			const Core * core;
 	};

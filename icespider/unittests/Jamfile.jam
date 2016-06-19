@@ -17,6 +17,8 @@ actions routes2cpp bind ICESPIDER
 }
 
 lib adhocutil : : : : <include>/usr/include/adhocutil ;
+lib slicer : : : : <include>/usr/include/slicer ;
+lib slicer-json : : : : <include>/usr/include/slicer ;
 lib boost_utf : : <name>boost_unit_test_framework ;
 lib dl ;
 path-constant me : . ;
@@ -58,6 +60,8 @@ run
 	<library>testCommon
 	<library>test-api
 	<library>adhocutil
+	<library>slicer
+	<library>slicer-json
 	<library>../common//icespider-common
 	<library>../core//icespider-core
 	<implicit-dependency>../common//icespider-common
@@ -69,6 +73,9 @@ run
 lib test-api :
 	test-api.ice
 	:
+	<slicer>yes
+	<library>slicer
+	<library>adhocutil
 	<library>..//pthread
 	<library>..//Ice
 	<library>..//IceUtil

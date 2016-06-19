@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <plugins.h>
+#include <safeMapFind.h>
 #include <irouteHandler.h>
 #include <core.h>
 #include <test-api.h>
@@ -54,6 +55,38 @@ class TestRequest : public IceSpider::IHttpRequest {
 			return method;
 		}
 
+		std::string getURLParam(const std::string & key) const override
+		{
+			return AdHoc::safeMapLookup<std::runtime_error>(url, key);
+		}
+
+		std::string getQueryStringParam(const std::string & key) const override
+		{
+			return AdHoc::safeMapLookup<std::runtime_error>(qs, key);
+		}
+
+		std::string getHeaderParam(const std::string & key) const override
+		{
+			return AdHoc::safeMapLookup<std::runtime_error>(hdr, key);
+		}
+
+		std::istream & getInputStream() const override
+		{
+			return input;
+		}
+
+		std::ostream & getOutputStream() const override
+		{
+			return output;
+		}
+
+		typedef std::map<std::string, std::string> MapVars;
+		MapVars url;
+		MapVars qs;
+		MapVars hdr;
+		mutable std::stringstream input;
+		mutable std::stringstream output;
+
 		const HttpMethod method;
 		const std::string path;
 };
@@ -92,33 +125,61 @@ class TestSerice : public TestIceSpider::TestApi {
 	public:
 		TestIceSpider::SomeModelPtr index(const Ice::Current &) override
 		{
-			return NULL;
+			return new TestIceSpider::SomeModel("index");
 		}
 
-		TestIceSpider::SomeModelPtr withParams(const std::string &, Ice::Int, const Ice::Current &) override
+		TestIceSpider::SomeModelPtr withParams(const std::string & s, Ice::Int i, const Ice::Current &) override
 		{
-			return NULL;
+			BOOST_REQUIRE_EQUAL(s, "something");
+			BOOST_REQUIRE_EQUAL(i, 1234);
+			return new TestIceSpider::SomeModel("withParams");
 		}
 
-		void returnNothing(const std::string &, const Ice::Current &) override
+		void returnNothing(const std::string & s, const Ice::Current &) override
 		{
+			BOOST_REQUIRE_EQUAL(s, "some value");
 		}
 
-		void complexParam(const std::string &, const TestIceSpider::SomeModelPtr &, const Ice::Current &) override
+		void complexParam(const std::string & s, const TestIceSpider::SomeModelPtr & m, const Ice::Current &) override
 		{
+			BOOST_REQUIRE_EQUAL(s, "1234");
+			BOOST_REQUIRE(m);
+			BOOST_REQUIRE_EQUAL("some value", m->value);
 		}
 };
 
-BOOST_AUTO_TEST_CASE( testGetIndex )
+BOOST_AUTO_TEST_CASE( testCallMethods )
 {
 	auto adp = communicator->createObjectAdapterWithEndpoints("test", "default");
 	auto obj = adp->addWithUUID(new TestSerice());
 	adp->activate();
-	TestRequest requestGetIndex(this, HttpMethod::GET, "/");
 	fprintf(stderr, "%s\n", obj->ice_id().c_str());
 	communicator->getProperties()->setProperty("N13TestIceSpider7TestApiE", communicator->proxyToString(obj));
+
+	TestRequest requestGetIndex(this, HttpMethod::GET, "/");
 	process(&requestGetIndex);
+	BOOST_REQUIRE_EQUAL(requestGetIndex.output.str(), "{\"value\":\"index\"}");
+
+	TestRequest requestGetItem(this, HttpMethod::GET, "/view/something/1234");
+	requestGetItem.url["s"] = "something";
+	requestGetItem.url["i"] = "1234";
+	process(&requestGetItem);
+	BOOST_REQUIRE_EQUAL(requestGetItem.output.str(), "{\"value\":\"withParams\"}");
+
+	TestRequest requestDeleteItem(this, HttpMethod::DELETE, "/some value");
+	requestDeleteItem.url["s"] = "some value";
+	process(&requestDeleteItem);
+	BOOST_REQUIRE(requestDeleteItem.output.str().empty());
+
+	TestRequest requestUpdateItem(this, HttpMethod::POST, "/1234");
+	requestUpdateItem.url["id"] = "1234";
+	requestUpdateItem.hdr["Content-Type"] = "application/json";
+	requestUpdateItem.input << "{\"value\": \"some value\"}";
+	process(&requestUpdateItem);
+	BOOST_REQUIRE(requestDeleteItem.output.str().empty());
+
 	adp->deactivate();
 }
 
 BOOST_AUTO_TEST_SUITE_END();
+
