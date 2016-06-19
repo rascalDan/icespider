@@ -1,0 +1,15 @@
+import type : register ;
+import generators : register-standard ;
+import type ;
+
+type.register JSON : json ;
+
+generators.register-standard icespider.routes2cpp : JSON : CPP ;
+
+actions icespider.routes2cpp bind ICESPIDER
+{
+  icespider -I"$(INCLUDES)" $(2) $(1)
+}
+
+IMPORT $(__name__) : icespider.routes2cpp : : icespider.routes2cpp ;
+

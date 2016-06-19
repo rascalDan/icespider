@@ -1,4 +1,20 @@
 import testing ;
+import type : register ;
+import generators : register-standard ;
+import type ;
+import feature : feature ;
+import toolset : flags ;
+
+type.register JSON : json ;
+
+generators.register-standard $(__name__).routes2cpp : JSON : CPP ;
+feature icespider : : free dependency ;
+flags routes2cpp ICESPIDER <icespider> ;
+
+actions routes2cpp bind ICESPIDER
+{
+	"$(ICESPIDER)" -I"$(INCLUDES)" $(2) $(1)
+}
 
 lib adhocutil : : : : <include>/usr/include/adhocutil ;
 lib boost_utf : : <name>boost_unit_test_framework ;
@@ -19,7 +35,6 @@ alias testCommon : :
 run
 	testCompile.cpp
 	: :
-	test-api.ice
 	testRoutes.json
 	:
 	<define>BOOST_TEST_DYN_LINK
@@ -33,6 +48,23 @@ run
 	<dependency>../core
 	: testCompile :
 	;
+
+run
+	testApp.cpp
+	testRoutes.json
+	: : :
+	<define>BOOST_TEST_DYN_LINK
+	<icespider>../compile//icespider
+	<library>testCommon
+	<library>test-api
+	<library>adhocutil
+	<library>../common//icespider-common
+	<library>../core//icespider-core
+	<implicit-dependency>../common//icespider-common
+	<implicit-dependency>test-api
+	<dependency>../compile
+	: testApp ;
+
 
 lib test-api :
 	test-api.ice

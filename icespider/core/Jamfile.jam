@@ -6,4 +6,6 @@ lib icespider-core :
 	<library>../common
 	<library>adhocutil
 	<implicit-dependency>../common
+	: :
+	<include>.
 	;
