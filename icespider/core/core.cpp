@@ -20,7 +20,8 @@ namespace IceSpider {
 			mroutes[r->pathElementCount()].push_back(r);
 		}
 
-		communicator = Ice::initialize({});
+		Ice::InitializationData id;
+		communicator = Ice::initialize(id);
 	}
 
 	Core::~Core()
