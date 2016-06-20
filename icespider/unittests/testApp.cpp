@@ -55,17 +55,17 @@ class TestRequest : public IceSpider::IHttpRequest {
 			return method;
 		}
 
-		std::string getURLParam(const std::string & key) const override
+		IceUtil::Optional<std::string> getURLParam(const std::string & key) const override
 		{
 			return AdHoc::safeMapLookup<std::runtime_error>(url, key);
 		}
 
-		std::string getQueryStringParam(const std::string & key) const override
+		IceUtil::Optional<std::string> getQueryStringParam(const std::string & key) const override
 		{
 			return AdHoc::safeMapLookup<std::runtime_error>(qs, key);
 		}
 
-		std::string getHeaderParam(const std::string & key) const override
+		IceUtil::Optional<std::string> getHeaderParam(const std::string & key) const override
 		{
 			return AdHoc::safeMapLookup<std::runtime_error>(hdr, key);
 		}
@@ -140,9 +140,10 @@ class TestSerice : public TestIceSpider::TestApi {
 			BOOST_REQUIRE_EQUAL(s, "some value");
 		}
 
-		void complexParam(const std::string & s, const TestIceSpider::SomeModelPtr & m, const Ice::Current &) override
+		void complexParam(const IceUtil::Optional<std::string> & s, const TestIceSpider::SomeModelPtr & m, const Ice::Current &) override
 		{
-			BOOST_REQUIRE_EQUAL(s, "1234");
+			BOOST_REQUIRE(s);
+			BOOST_REQUIRE_EQUAL("1234", *s);
 			BOOST_REQUIRE(m);
 			BOOST_REQUIRE_EQUAL("some value", m->value);
 		}

@@ -2,6 +2,7 @@
 #define ICESPIDER_IROUTEHANDLER_H
 
 #include "ihttpRequest.h"
+#include "util.h"
 #include "paths.h"
 #include <routes.h>
 #include <plugins.h>
@@ -16,6 +17,12 @@ namespace IceSpider {
 			const UserIceSpider::HttpMethod method;
 
 		protected:
+			template <typename T>
+			inline T requiredParameterNotFound(const char *, const std::string & key) const
+			{
+				throw std::runtime_error("Required parameter not found: " + key);
+			}
+
 			Ice::ObjectPrx getProxy(IHttpRequest *, const char *) const;
 
 			template<typename Interface>

@@ -7,7 +7,7 @@ module TestIceSpider {
 		SomeModel index();	
 		SomeModel withParams(string s, int i);
 		void returnNothing(string s);
-		void complexParam(string s, SomeModel m);
+		void complexParam(optional(0) string s, SomeModel m);
 	};
 };
 

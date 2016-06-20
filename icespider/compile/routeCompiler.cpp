@@ -86,7 +86,7 @@ namespace IceSpider {
 						if (!d->key) d->key = d->name;
 						continue;
 					}
-					r->params.push_back(new UserIceSpider::Parameter(p->name(), UserIceSpider::ParameterSource::URL, p->name()));
+					r->params.push_back(new UserIceSpider::Parameter(p->name(), UserIceSpider::ParameterSource::URL, p->name(), false));
 				}
 			}
 		}
@@ -222,8 +222,14 @@ namespace IceSpider {
 				auto o = findOperation(r, units);
 				for (const auto & p : r->params) {
 					auto ip = *std::find_if(o->parameters().begin(), o->parameters().end(), [p](const auto & ip) { return ip->name() == p->name; });
-					fprintbf(4, output, "auto _p_%s(request->get%sParam<%s>(_pn_%s));\n",
+					fprintbf(4, output, "auto _p_%s(request->get%sParam<%s>(_pn_%s)",
 									 p->name, getEnumString(p->source), Slice::typeToString(ip->type()), p->name);
+					if (!p->isOptional) {
+						fprintbf(0, output, " /\n");
+						fprintbf(5, output, " [this]() { return requiredParameterNotFound<%s>(\"%s\", _pn_%s); }",
+								Slice::typeToString(ip->type()), getEnumString(p->source), p->name);
+					}
+					fprintbf(0, output, ");\n");
 				}
 				fprintbf(4, output, "auto prx = getProxy<%s>(request);\n", proxyName);
 				if (o->returnsData()) {

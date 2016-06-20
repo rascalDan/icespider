@@ -9,6 +9,7 @@ module UserIceSpider {
 		string name;
 		ParameterSource source;
 		optional(0) string key;
+		bool isOptional = false;
 	};
 	sequence<Parameter> Parameters;
 	class Route {

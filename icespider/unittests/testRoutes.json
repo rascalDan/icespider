@@ -28,7 +28,8 @@
 		{
 			"name": "s",
 			"source": "URL",
-			"key": "id"
+			"key": "id",
+			"isOptional": true
 		},
 		{
 			"name": "m",
