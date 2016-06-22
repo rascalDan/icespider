@@ -33,7 +33,9 @@ namespace IceSpider {
 	Core::process(IHttpRequest * request) const
 	{
 		auto routeHandler = findRoute(request);
-		routeHandler->execute(request);
+		if (routeHandler) {
+			routeHandler->execute(request);
+		}
 	}
 
 	const IRouteHandler *
