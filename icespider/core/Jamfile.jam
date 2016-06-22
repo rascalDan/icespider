@@ -12,4 +12,6 @@ lib icespider-core :
 	<implicit-dependency>../common
 	: :
 	<include>.
+	<library>../common
+	<implicit-dependency>../common
 	;

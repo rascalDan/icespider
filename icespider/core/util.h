@@ -12,5 +12,13 @@ namespace IceUtil {
 	}
 }
 
+template <typename T>
+T orelse(const T & a, const T & b)
+{
+	if (a) return a;
+	return b;
+}
+
+
 #endif
 

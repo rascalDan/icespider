@@ -69,6 +69,16 @@ run
 	<dependency>../compile
 	: testApp ;
 
+run
+	testFcgi.cpp
+	:
+	'QUERY_STRING=noeq&noval=&someval=here&another=here'
+	'REDIRECT_URL=/'
+	: :
+	<library>../common//icespider-common
+	<library>../core//icespider-core
+	<library>../fcgi//icespider-fcgi
+	: testFcgi ;
 
 lib test-api :
 	test-api.ice

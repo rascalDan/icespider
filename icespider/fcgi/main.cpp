@@ -1,8 +1,14 @@
-#include <fcgio.h>
+#include <visibility.h>
+#include "fcgiRequest.h"
+#include "cgiRequest.h"
 
+using namespace IceSpider;
+
+DLL_PUBLIC
 int
-main(void)
+main(int argc, char ** argv, char ** env)
 {
+	IceSpider::Core core;
 	if (!FCGX_IsCGI()) {
 		FCGX_Request request;
 
@@ -10,13 +16,15 @@ main(void)
 		FCGX_InitRequest(&request, 0, 0);
 
 		while (FCGX_Accept_r(&request) == 0) {
-			// app.process(IO, &IO, IO);
+			FcgiRequest r(&core, &request);
+			core.process(&r);
 			FCGX_Finish_r(&request);
 		}
-		return 0;
 	}
 	else {
-		return 1;
+		CgiRequest r(&core, argc, argv, env);
+		core.process(&r);
 	}
+	return 0;
 }
 
