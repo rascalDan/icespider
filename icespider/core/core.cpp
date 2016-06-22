@@ -8,8 +8,8 @@ namespace ba = boost::algorithm;
 namespace IceSpider {
 	Core::Core()
 	{
-		// Big enough to map all the request methods
-		routes.resize(UserIceSpider::HttpMethod::OPTIONS + 1);
+		// Big enough to map all the request methods (an empty of zero lenght routes as default)
+		routes.resize(UserIceSpider::HttpMethod::OPTIONS + 1, {{ }});
 		// Initialize routes
 		for (const auto & rp : AdHoc::PluginManager::getDefault()->getAll<IRouteHandler>()) {
 			auto r = rp->implementation();

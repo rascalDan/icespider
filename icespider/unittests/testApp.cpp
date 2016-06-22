@@ -25,15 +25,15 @@ BOOST_AUTO_TEST_CASE( testCoreSettings )
 	BOOST_REQUIRE_EQUAL(0, routes[HttpMethod::GET][1].size());
 	BOOST_REQUIRE_EQUAL(0, routes[HttpMethod::GET][2].size());
 	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::GET][3].size());
-	BOOST_REQUIRE_EQUAL(0, routes[HttpMethod::HEAD].size());
+	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::HEAD].size());
 	BOOST_REQUIRE_EQUAL(2, routes[HttpMethod::POST].size());
 	BOOST_REQUIRE_EQUAL(0, routes[HttpMethod::POST][0].size());
 	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::POST][1].size());
-	BOOST_REQUIRE_EQUAL(0, routes[HttpMethod::PUT].size());
+	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::PUT].size());
 	BOOST_REQUIRE_EQUAL(2, routes[HttpMethod::DELETE].size());
 	BOOST_REQUIRE_EQUAL(0, routes[HttpMethod::DELETE][0].size());
 	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::DELETE][1].size());
-	BOOST_REQUIRE_EQUAL(0, routes[HttpMethod::OPTIONS].size());
+	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::OPTIONS].size());
 }
 
 class TestRequest : public IceSpider::IHttpRequest {
