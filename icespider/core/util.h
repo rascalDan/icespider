@@ -5,7 +5,7 @@
 
 namespace IceUtil {
 	template <typename T, typename TF>
-	T operator/(const IceUtil::Optional<T> & o, const TF & tf)
+	auto operator/(const IceUtil::Optional<T> & o, const TF & tf) -> decltype(tf())
 	{
 		if (o) return *o;
 		return tf();
