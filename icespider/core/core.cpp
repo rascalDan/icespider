@@ -36,6 +36,9 @@ namespace IceSpider {
 		if (routeHandler) {
 			routeHandler->execute(request);
 		}
+		else {
+			request->response(404, "Not found");
+		}
 	}
 
 	const IRouteHandler *

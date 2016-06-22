@@ -37,6 +37,14 @@ namespace IceSpider {
 		return IceUtil::Optional<T>();
 	}
 
+	void IHttpRequest::response(short statusCode, const std::string & statusMsg) const
+	{
+		getOutputStream()
+			<< statusCode << " " << statusMsg << "\r\n"
+			<< "\r\n";
+	}
+
+
 #define getParams(T) \
 	template<> IceUtil::Optional<T> IHttpRequest::getURLParam<T>(const std::string & key) const { \
 		return optionalLexicalCast<T>(getURLParam(key)); } \

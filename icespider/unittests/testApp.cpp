@@ -159,27 +159,34 @@ BOOST_AUTO_TEST_CASE( testCallMethods )
 
 	TestRequest requestGetIndex(this, HttpMethod::GET, "/");
 	process(&requestGetIndex);
-	BOOST_REQUIRE_EQUAL(requestGetIndex.output.str(), "{\"value\":\"index\"}");
+	BOOST_REQUIRE_EQUAL(requestGetIndex.output.str(), "200 OK\r\n\r\n{\"value\":\"index\"}");
 
 	TestRequest requestGetItem(this, HttpMethod::GET, "/view/something/1234");
 	requestGetItem.url["s"] = "something";
 	requestGetItem.url["i"] = "1234";
 	process(&requestGetItem);
-	BOOST_REQUIRE_EQUAL(requestGetItem.output.str(), "{\"value\":\"withParams\"}");
+	BOOST_REQUIRE_EQUAL(requestGetItem.output.str(), "200 OK\r\n\r\n{\"value\":\"withParams\"}");
 
 	TestRequest requestDeleteItem(this, HttpMethod::DELETE, "/some value");
 	requestDeleteItem.url["s"] = "some value";
 	process(&requestDeleteItem);
-	BOOST_REQUIRE(requestDeleteItem.output.str().empty());
+	BOOST_REQUIRE_EQUAL(requestDeleteItem.output.str(), "200 OK\r\n\r\n");
 
 	TestRequest requestUpdateItem(this, HttpMethod::POST, "/1234");
 	requestUpdateItem.url["id"] = "1234";
 	requestUpdateItem.hdr["Content-Type"] = "application/json";
 	requestUpdateItem.input << "{\"value\": \"some value\"}";
 	process(&requestUpdateItem);
-	BOOST_REQUIRE(requestDeleteItem.output.str().empty());
+	BOOST_REQUIRE_EQUAL(requestDeleteItem.output.str(), "200 OK\r\n\r\n");
 
 	adp->deactivate();
+}
+
+BOOST_AUTO_TEST_CASE( test404 )
+{
+	TestRequest requestGetIndex(this, HttpMethod::GET, "/404");
+	process(&requestGetIndex);
+	BOOST_REQUIRE_EQUAL(requestGetIndex.output.str(), "404 Not found\r\n\r\n");
 }
 
 BOOST_AUTO_TEST_SUITE_END();

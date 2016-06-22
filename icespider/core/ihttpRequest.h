@@ -39,10 +39,13 @@ namespace IceSpider {
 			IceUtil::Optional<T> getQueryStringParam(const std::string & key) const;
 			template<typename T>
 			IceUtil::Optional<T> getHeaderParam(const std::string & key) const;
+			void response(short, const std::string &) const;
 			template<typename T>
 			void response(const T & t) const
 			{
-				Slicer::SerializeAnyWith<T>(t, getSerializer());
+				auto s = getSerializer();
+				response(200, "OK");
+				Slicer::SerializeAnyWith<T>(t, s);
 			}
 
 			const Core * core;
