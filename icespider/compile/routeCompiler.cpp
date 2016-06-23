@@ -247,7 +247,7 @@ namespace IceSpider {
 				}
 				fprintbf(output, ";\n");
 				if (!o->returnsData()) {
-					fprintbf(4, output, "request->response(200, \"OK\");");
+					fprintbf(4, output, "request->response(200, \"OK\");\n");
 				}
 				fprintbf(3, output, "}\n\n");
 				fprintbf(2, output, "private:\n");
