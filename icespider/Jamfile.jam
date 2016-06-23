@@ -15,6 +15,8 @@ package.install install : :
 	core//icespider-core
 	common//icespider-common
 	fcgi//icespider-fcgi
+	:
+	[ glob-tree *.h : fcgi ]
 	;
 package.install-data install-tools : boost-build/tools : compile/icespider.jam ;
 package.install-data install-ice : icespider/ice : [ glob common/*.ice ] ;
