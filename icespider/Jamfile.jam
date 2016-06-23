@@ -1,3 +1,5 @@
+import package ;
+
 build-project core ;
 build-project compile ;
 build-project unittests ;
@@ -6,4 +8,14 @@ build-project fcgi ;
 lib Ice ;
 lib IceUtil ;
 lib pthread ;
+
+package.install install : :
+	compile//icespider
+	:
+	core//icespider-core
+	common//icespider-common
+	fcgi//icespider-fcgi
+	;
+package.install-data install-tools : boost-build/tools : compile/icespider.jam ;
+package.install-data install-ice : icespider/ice : [ glob common/*.ice ] ;
 
