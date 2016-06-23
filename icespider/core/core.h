@@ -13,7 +13,7 @@ namespace IceSpider {
 			typedef std::vector<Routes> LengthRoutes;
 			typedef std::vector<LengthRoutes> MethodRoutes;
 
-			Core();
+			Core(int = 0, char ** = NULL);
 			~Core();
 
 			void process(IHttpRequest *) const;

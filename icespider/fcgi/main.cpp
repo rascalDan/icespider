@@ -8,7 +8,7 @@ DLL_PUBLIC
 int
 main(int argc, char ** argv, char ** env)
 {
-	IceSpider::Core core;
+	IceSpider::Core core(argc, argv);
 	if (!FCGX_IsCGI()) {
 		FCGX_Request request;
 

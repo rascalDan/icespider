@@ -6,7 +6,7 @@
 namespace ba = boost::algorithm;
 
 namespace IceSpider {
-	Core::Core()
+	Core::Core(int argc, char ** argv)
 	{
 		// Big enough to map all the request methods (an empty of zero lenght routes as default)
 		routes.resize(UserIceSpider::HttpMethod::OPTIONS + 1, {{ }});
@@ -21,6 +21,7 @@ namespace IceSpider {
 		}
 
 		Ice::InitializationData id;
+		id.properties = Ice::createProperties(argc, argv);
 		communicator = Ice::initialize(id);
 	}
 
