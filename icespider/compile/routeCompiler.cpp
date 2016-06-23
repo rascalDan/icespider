@@ -238,8 +238,8 @@ namespace IceSpider {
 				else {
 					fprintbf(4, output, "prx->%s(", operation);
 				}
-				for (const auto & p : r->params) {
-					fprintbf(output, "_p_%s, ", p->name);
+				for (const auto & p : o->parameters()) {
+					fprintbf(output, "_p_%s, ", p->name());
 				}
 				fprintbf(output, "request->getContext())");
 				if (o->returnsData()) {
