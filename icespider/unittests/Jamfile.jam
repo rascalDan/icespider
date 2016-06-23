@@ -10,6 +10,7 @@ type.register JSON : json ;
 generators.register-standard $(__name__).routes2cpp : JSON : CPP ;
 feature icespider : : free dependency ;
 flags routes2cpp ICESPIDER <icespider> ;
+flags routes2cpp INCLUDES <include> ;
 
 actions routes2cpp bind ICESPIDER
 {

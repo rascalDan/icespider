@@ -1,10 +1,12 @@
 import type : register ;
 import generators : register-standard ;
 import type ;
+import toolset : flags ;
 
 type.register JSON : json ;
 
 generators.register-standard icespider.routes2cpp : JSON : CPP ;
+flags icespider.routes2cpp INCLUDES <include> ;
 
 actions icespider.routes2cpp bind ICESPIDER
 {
