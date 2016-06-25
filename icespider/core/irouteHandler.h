@@ -3,7 +3,7 @@
 
 #include "ihttpRequest.h"
 #include "util.h"
-#include "paths.h"
+#include <pathparts.h>
 #include <routes.h>
 #include <plugins.h>
 #include <visibility.h>

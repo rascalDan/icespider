@@ -7,15 +7,20 @@ module UserIceSpider {
 	};
 	class Parameter {
 		string name;
-		ParameterSource source;
+		ParameterSource source = URL;
 		optional(0) string key;
 		bool isOptional = false;
+		["slicer:name:default"]
+		optional(1) string defaultExpr;
+
+		["slicer:ignore"]
+		bool hasUserSource;
 	};
 	sequence<Parameter> Parameters;
 	class Route {
 		string name;
 		string path;
-		HttpMethod method;
+		HttpMethod method = GET;
 		string operation;
 		Parameters params;
 	};

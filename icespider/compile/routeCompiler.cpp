@@ -1,4 +1,5 @@
 #include "routeCompiler.h"
+#include <pathparts.h>
 #include <slicer/slicer.h>
 #include <slicer/modelPartsTypes.h>
 #include <Slice/Preprocessor.h>
@@ -84,9 +85,21 @@ namespace IceSpider {
 					if (defined != r->params.end()) {
 						auto d = *defined;
 						if (!d->key) d->key = d->name;
-						continue;
 					}
-					r->params.push_back(new UserIceSpider::Parameter(p->name(), UserIceSpider::ParameterSource::URL, p->name(), false));
+					else {
+						r->params.push_back(new UserIceSpider::Parameter(p->name(), UserIceSpider::ParameterSource::URL, p->name(), false, IceUtil::Optional<std::string>(), false));
+						defined = --r->params.end();
+					}
+					auto d = *defined;
+					if (d->source == UserIceSpider::ParameterSource::URL) {
+						IceSpider::Path path(r->path);
+						d->hasUserSource = std::find_if(path.parts.begin(), path.parts.end(), [d](const auto & pp) {
+							if (auto par = dynamic_cast<PathParameter *>(pp.get())) {
+								return par->name == d->key;
+							}
+							return false;
+						}) != path.parts.end();
+					}
 				}
 			}
 		}
@@ -211,8 +224,15 @@ namespace IceSpider {
 				fprintbf(3, output, "%s() :\n", r->name);
 				fprintbf(4, output, "IceSpider::IRouteHandler(UserIceSpider::HttpMethod::%s, \"%s\")", methodName, r->path);
 				for (const auto & p : r->params) {
-					fprintf(output, ",\n");
-					fprintbf(4, output, "_pn_%s(\"%s\")", p->name, *p->key);
+					if (p->hasUserSource) {
+						fprintf(output, ",\n");
+						fprintbf(4, output, "_pn_%s(\"%s\")", p->name, *p->key);
+					}
+					if (p->defaultExpr) {
+						fprintf(output, ",\n");
+						fprintbf(4, output, "_pd_%s(%s)",
+								p->name, p->defaultExpr.get());
+					}
 				}
 				fprintf(output, "\n");
 				fprintbf(3, output, "{\n");
@@ -221,15 +241,23 @@ namespace IceSpider {
 				fprintbf(3, output, "{\n");
 				auto o = findOperation(r, units);
 				for (const auto & p : r->params) {
-					auto ip = *std::find_if(o->parameters().begin(), o->parameters().end(), [p](const auto & ip) { return ip->name() == p->name; });
-					fprintbf(4, output, "auto _p_%s(request->get%sParam<%s>(_pn_%s)",
-									 p->name, getEnumString(p->source), Slice::typeToString(ip->type()), p->name);
-					if (!p->isOptional) {
-						fprintbf(0, output, " /\n");
-						fprintbf(5, output, " [this]() { return requiredParameterNotFound<%s>(\"%s\", _pn_%s); }",
-								Slice::typeToString(ip->type()), getEnumString(p->source), p->name);
+					if (p->hasUserSource) {
+						auto ip = *std::find_if(o->parameters().begin(), o->parameters().end(), [p](const auto & ip) { return ip->name() == p->name; });
+						fprintbf(4, output, "auto _p_%s(request->get%sParam<%s>(_pn_%s)",
+										 p->name, getEnumString(p->source), Slice::typeToString(ip->type()), p->name);
+						if (!p->isOptional) {
+							fprintbf(0, output, " /\n");
+							if (p->defaultExpr) {
+								fprintbf(5, output, " [this]() { return _pd_%s; }",
+												 p->name);
+							}
+							else {
+								fprintbf(5, output, " [this]() { return requiredParameterNotFound<%s>(\"%s\", _pn_%s); }",
+												 Slice::typeToString(ip->type()), getEnumString(p->source), p->name);
+							}
+						}
+						fprintbf(0, output, ");\n");
 					}
-					fprintbf(0, output, ");\n");
 				}
 				fprintbf(4, output, "auto prx = getProxy<%s>(request);\n", proxyName);
 				if (o->returnsData()) {
@@ -239,7 +267,15 @@ namespace IceSpider {
 					fprintbf(4, output, "prx->%s(", operation);
 				}
 				for (const auto & p : o->parameters()) {
-					fprintbf(output, "_p_%s, ", p->name());
+					auto rp = *std::find_if(r->params.begin(), r->params.end(), [p](const auto & rp) {
+						return rp->name == p->name();
+					});
+					if (rp->hasUserSource) {
+						fprintbf(output, "_p_%s, ", p->name());
+					}
+					else {
+						fprintbf(output, "_pd_%s, ", p->name());
+					}
 				}
 				fprintbf(output, "request->getContext())");
 				if (o->returnsData()) {
@@ -252,7 +288,15 @@ namespace IceSpider {
 				fprintbf(3, output, "}\n\n");
 				fprintbf(2, output, "private:\n");
 				for (const auto & p : r->params) {
-					fprintbf(3, output, "const std::string _pn_%s;\n", p->name);
+					if (p->hasUserSource) {
+						fprintbf(3, output, "const std::string _pn_%s;\n", p->name);
+					}
+					if (p->defaultExpr) {
+						auto ip = *std::find_if(o->parameters().begin(), o->parameters().end(), [p](const auto & ip) { return ip->name() == p->name; });
+						fprintbf(3, output, "const %s _pd_%s;\n",
+								Slice::typeToString(ip->type()), p->name);
+
+					}
 				}
 				fprintbf(1, output, "};\n\n");
 			}

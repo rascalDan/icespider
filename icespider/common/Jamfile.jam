@@ -1,6 +1,9 @@
+lib adhocutil : : : : <include>/usr/include/adhocutil ;
+
 lib icespider-common :
 	[ glob-tree *.ice *.cpp : bin ]
 	:
+	<library>adhocutil
 	<library>..//pthread
 	<library>..//Ice
 	<library>..//IceUtil
@@ -8,5 +11,6 @@ lib icespider-common :
 	<library>..//pthread
 	<library>..//Ice
 	<library>..//IceUtil
+	<include>.
 	;
 

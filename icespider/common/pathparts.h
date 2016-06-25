@@ -4,30 +4,34 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <visibility.h>
 
 namespace IceSpider {
-
-	class PathPart {
+	class DLL_PUBLIC PathPart {
 		public:
 			virtual bool matches(const std::string &) const = 0;
 	};
 	typedef std::shared_ptr<PathPart> PathPartPtr;
 
-	class PathLiteral : public PathPart {
+	class DLL_PUBLIC PathLiteral : public PathPart {
 		public:
 			PathLiteral(const std::string & v);
 
 			bool matches(const std::string &) const;
 
-		private:
 			const std::string value;
 	};
 
-	class PathParameter : public PathPart {
+	class DLL_PUBLIC PathParameter : public PathPart {
 		public:
+			PathParameter(const std::string &);
+
 			bool matches(const std::string &) const;
+
+			const std::string name;
 	};
-	class Path {
+
+	class DLL_PUBLIC Path {
 		public:
 			typedef std::vector<PathPartPtr> PathParts;
 

@@ -12,7 +12,7 @@ using namespace UserIceSpider;
 
 BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 {
-	BOOST_REQUIRE_EQUAL(4, AdHoc::PluginManager::getDefault()->getAll<IceSpider::IRouteHandler>().size());
+	BOOST_REQUIRE_EQUAL(6, AdHoc::PluginManager::getDefault()->getAll<IceSpider::IRouteHandler>().size());
 }
 
 BOOST_FIXTURE_TEST_SUITE(c, IceSpider::Core);
@@ -23,8 +23,8 @@ BOOST_AUTO_TEST_CASE( testCoreSettings )
 	BOOST_REQUIRE_EQUAL(4, routes[HttpMethod::GET].size());
 	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::GET][0].size());
 	BOOST_REQUIRE_EQUAL(0, routes[HttpMethod::GET][1].size());
-	BOOST_REQUIRE_EQUAL(0, routes[HttpMethod::GET][2].size());
-	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::GET][3].size());
+	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::GET][2].size());
+	BOOST_REQUIRE_EQUAL(2, routes[HttpMethod::GET][3].size());
 	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::HEAD].size());
 	BOOST_REQUIRE_EQUAL(2, routes[HttpMethod::POST].size());
 	BOOST_REQUIRE_EQUAL(0, routes[HttpMethod::POST][0].size());
@@ -44,7 +44,7 @@ class TestRequest : public IceSpider::IHttpRequest {
 			path(p)
 		{
 		}
-			
+
 		std::string getRequestPath() const override
 		{
 			return path;
@@ -108,6 +108,12 @@ BOOST_AUTO_TEST_CASE( testFindRoutes )
 	TestRequest requestGetItem(this, HttpMethod::GET, "/view/something/something");
 	BOOST_REQUIRE(findRoute(&requestGetItem));
 
+	TestRequest requestGetItemParam(this, HttpMethod::GET, "/item/something/1234");
+	BOOST_REQUIRE(findRoute(&requestGetItemParam));
+
+	TestRequest requestGetItemDefault(this, HttpMethod::GET, "/item/something");
+	BOOST_REQUIRE(findRoute(&requestGetItemDefault));
+
 	TestRequest requestGetItemLong(this, HttpMethod::GET, "/view/something/something/extra");
 	BOOST_REQUIRE(!findRoute(&requestGetItemLong));
 
@@ -166,6 +172,17 @@ BOOST_AUTO_TEST_CASE( testCallMethods )
 	requestGetItem.url["i"] = "1234";
 	process(&requestGetItem);
 	BOOST_REQUIRE_EQUAL(requestGetItem.output.str(), "200 OK\r\n\r\n{\"value\":\"withParams\"}");
+
+	TestRequest requestGetItemGiven(this, HttpMethod::GET, "/item/something/1234");
+	requestGetItemGiven.url["s"] = "something";
+	requestGetItemGiven.url["i"] = "1234";
+	process(&requestGetItemGiven);
+	BOOST_REQUIRE_EQUAL(requestGetItemGiven.output.str(), "200 OK\r\n\r\n{\"value\":\"withParams\"}");
+
+	TestRequest requestGetItemDefault(this, HttpMethod::GET, "/item/something");
+	requestGetItemDefault.url["s"] = "something";
+	process(&requestGetItemDefault);
+	BOOST_REQUIRE_EQUAL(requestGetItemDefault.output.str(), "200 OK\r\n\r\n{\"value\":\"withParams\"}");
 
 	TestRequest requestDeleteItem(this, HttpMethod::DELETE, "/some value");
 	requestDeleteItem.url["s"] = "some value";

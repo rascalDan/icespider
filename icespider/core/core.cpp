@@ -51,7 +51,7 @@ namespace IceSpider {
 		if (!path.empty()) {
 			ba::split(pathparts, path, ba::is_any_of("/"), ba::token_compress_off);
 		}
-		if (pathparts.size() > mroutes.size()) {
+		if (pathparts.size() >= mroutes.size()) {
 			// Not found error
 			return NULL;
 		}

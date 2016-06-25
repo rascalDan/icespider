@@ -36,6 +36,30 @@
 			"source": "Body"
 		}
 		]
+	},
+	{
+		"name": "defaultItem",
+		"path": "/item/{s}",
+		"method": "GET",
+		"operation": "TestIceSpider.TestApi.withParams",
+		"params": [
+		{
+			"name": "i",
+			"default": "1234"
+		}
+		]
+	},
+	{
+		"name": "itemWithDefault",
+		"path": "/item/{s}/{i}",
+		"method": "GET",
+		"operation": "TestIceSpider.TestApi.withParams",
+		"params": [
+		{
+			"name": "i",
+			"default": "1234"
+		}
+		]
 	}
 	],
 	"slices": [

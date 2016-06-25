@@ -1,5 +1,6 @@
-#include "paths.h"
+#include "pathparts.h"
 #include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 namespace ba = boost::algorithm;
 
@@ -12,7 +13,7 @@ namespace IceSpider {
 		for (auto pi = ba::make_split_iterator(relp, ba::first_finder("/", ba::is_equal())); pi != decltype(pi)(); ++pi) {
 			std::string pp(pi->begin(), pi->end());
 			if (pp.front() == '{' && pp.back() == '}') {
-				parts.push_back(PathPartPtr(new PathParameter()));
+				parts.push_back(PathPartPtr(new PathParameter(pp)));
 			}
 			else {
 				parts.push_back(PathPartPtr(new PathLiteral(pp)));
@@ -36,6 +37,11 @@ namespace IceSpider {
 	PathLiteral::matches(const std::string & v) const
 	{
 		return value == v;
+	}
+
+	PathParameter::PathParameter(const std::string & s) :
+		name(boost::algorithm::trim_copy_if(s, ispunct))
+	{
 	}
 
 	bool
