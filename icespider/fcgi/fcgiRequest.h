@@ -7,7 +7,7 @@
 namespace IceSpider {
 	class FcgiRequest : public CgiRequestBase {
 		public:
-			FcgiRequest(IceSpider::Core * c, FCGX_Request * r);
+			FcgiRequest(Core * c, FCGX_Request * r);
 
 			std::istream & getInputStream() const override;
 			std::ostream & getOutputStream() const override;

@@ -1,7 +1,7 @@
 #include "cgiRequest.h"
 
 namespace IceSpider {
-	CgiRequest::CgiRequest(IceSpider::Core * c, int argc, char ** argv, char ** env) :
+	CgiRequest::CgiRequest(Core * c, int argc, char ** argv, char ** env) :
 		CgiRequestBase(c, env)
 	{
 		for (; argc > 0;) {

@@ -12,17 +12,20 @@
 namespace IceSpider {
 	class Core;
 
+	typedef std::vector<std::string> PathElements;
+	typedef IceUtil::Optional<std::string> OptionalString;
+
 	class DLL_PUBLIC IHttpRequest {
 		public:
 			IHttpRequest(const Core *);
 
 			Ice::Context getContext() const;
-			virtual const std::vector<std::string> & getRequestPath() const = 0;
-			virtual UserIceSpider::HttpMethod getRequestMethod() const = 0;
+			virtual const PathElements & getRequestPath() const = 0;
+			virtual HttpMethod getRequestMethod() const = 0;
 
 			const std::string & getURLParam(unsigned int) const;
-			virtual IceUtil::Optional<std::string> getQueryStringParam(const std::string &) const = 0;
-			virtual IceUtil::Optional<std::string> getHeaderParam(const std::string &) const = 0;
+			virtual OptionalString getQueryStringParam(const std::string &) const = 0;
+			virtual OptionalString getHeaderParam(const std::string &) const = 0;
 			virtual Slicer::DeserializerPtr getDeserializer() const;
 			virtual Slicer::SerializerPtr getSerializer() const;
 			virtual std::istream & getInputStream() const = 0;

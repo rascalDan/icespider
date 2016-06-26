@@ -5,7 +5,7 @@ namespace IceSpider {
 	Core::Core(int argc, char ** argv)
 	{
 		// Big enough to map all the request methods (an empty of zero lenght routes as default)
-		routes.resize(UserIceSpider::HttpMethod::OPTIONS + 1, {{ }});
+		routes.resize(HttpMethod::OPTIONS + 1, {{ }});
 		// Initialize routes
 		for (const auto & rp : AdHoc::PluginManager::getDefault()->getAll<IRouteHandler>()) {
 			auto r = rp->implementation();
@@ -41,7 +41,7 @@ namespace IceSpider {
 	const IRouteHandler *
 	Core::findRoute(const IHttpRequest * request) const
 	{
-		auto & pathparts = request->getRequestPath();
+		const auto & pathparts = request->getRequestPath();
 		const auto & mroutes = routes[request->getRequestMethod()];
 		if (pathparts.size() >= mroutes.size()) {
 			// Not found error

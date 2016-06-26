@@ -1,10 +1,9 @@
-module UserIceSpider {
-	enum HttpMethod {
-		GET, HEAD, POST, PUT, DELETE, OPTIONS
-	};
-	enum ParameterSource {
-		URL, Body, QueryString, Header
-	};
+#ifndef ICESPIDER_ROUTES_ICE
+#define ICESPIDER_ROUTES_ICE
+
+#include "http.ice"
+
+module IceSpider {
 	class Parameter {
 		string name;
 		ParameterSource source = URL;
@@ -16,7 +15,9 @@ module UserIceSpider {
 		["slicer:ignore"]
 		bool hasUserSource;
 	};
+
 	sequence<Parameter> Parameters;
+
 	class Route {
 		string name;
 		string path;
@@ -24,12 +25,17 @@ module UserIceSpider {
 		string operation;
 		Parameters params;
 	};
+
 	sequence<Route> Routes;
+
 	sequence<string> Slices;
+
 	class RouteConfiguration {
 		string name;
 		Routes routes;
 		Slices slices;
 	};
 };
+
+#endif
 

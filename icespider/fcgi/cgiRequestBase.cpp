@@ -7,8 +7,8 @@
 namespace ba = boost::algorithm;
 
 namespace IceSpider {
-	CgiRequestBase::CgiRequestBase(IceSpider::Core * c, char ** env) :
-		IceSpider::IHttpRequest(c)
+	CgiRequestBase::CgiRequestBase(Core * c, char ** env) :
+		IHttpRequest(c)
 	{
 		for(char * const * e = env; *e; ++e) {
 			addenv(*e);
@@ -33,7 +33,7 @@ namespace IceSpider {
 			[this]() -> std::string { throw std::runtime_error("Couldn't determine request path"); })
 			.substr(1);
 		if (!path.empty()) {
-			ba::split(pathmap, path, ba::is_any_of("/"), ba::token_compress_off);
+			ba::split(pathElements, path, ba::is_any_of("/"), ba::token_compress_off);
 		}
 
 		auto qs = envmap.find("QUERY_STRING");
@@ -58,7 +58,7 @@ namespace IceSpider {
 		}
 	}
 
-	IceUtil::Optional<std::string>
+	OptionalString
 	CgiRequestBase::optionalLookup(const std::string & key, const VarMap & vm)
 	{
 		auto i = vm.find(key.c_str());
@@ -68,25 +68,25 @@ namespace IceSpider {
 		return std::string(std::get<0>(i->second), std::get<1>(i->second));
 	}
 
-	const std::vector<std::string> &
+	const PathElements &
 	CgiRequestBase::getRequestPath() const
 	{
-		return pathmap;
+		return pathElements;
 	}
 
-	UserIceSpider::HttpMethod
+	HttpMethod
 	CgiRequestBase::getRequestMethod() const
 	{
-		return UserIceSpider::HttpMethod::GET;
+		return HttpMethod::GET;
 	}
 
-	IceUtil::Optional<std::string>
+	OptionalString
 	CgiRequestBase::getQueryStringParam(const std::string & key) const
 	{
 		return optionalLookup(key, qsmap);
 	}
 
-	IceUtil::Optional<std::string>
+	OptionalString
 	CgiRequestBase::getHeaderParam(const std::string & key) const
 	{
 		return optionalLookup(("HTTP_" + boost::algorithm::to_upper_copy(key)).c_str(), envmap);

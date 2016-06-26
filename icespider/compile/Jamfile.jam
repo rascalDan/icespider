@@ -11,6 +11,7 @@ lib icespider-compile :
 	[ glob ../common/*.ice ]
 	:
 	<slicer>pure
+	<allow-ice>yes
 	<library>slicer
 	<library>adhocutil
 	<library>slicer-json

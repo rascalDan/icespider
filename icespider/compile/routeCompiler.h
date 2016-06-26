@@ -16,18 +16,18 @@ namespace IceSpider {
 
 				RouteCompiler();
 
-				UserIceSpider::RouteConfigurationPtr loadConfiguration(const boost::filesystem::path &) const;
-				Units loadUnits(UserIceSpider::RouteConfigurationPtr) const;
+				RouteConfigurationPtr loadConfiguration(const boost::filesystem::path &) const;
+				Units loadUnits(RouteConfigurationPtr) const;
 
-				void applyDefaults(UserIceSpider::RouteConfigurationPtr, const Units & u) const;
+				void applyDefaults(RouteConfigurationPtr, const Units & u) const;
 				void compile(const boost::filesystem::path & input, const boost::filesystem::path & output) const;
 
 				std::vector<boost::filesystem::path> searchPath;
 
 			private:
-				void processConfiguration(FILE * output, UserIceSpider::RouteConfigurationPtr, const Units &) const;
-				static Slice::OperationPtr findOperation(UserIceSpider::RoutePtr, const Units &);
-				static Slice::OperationPtr findOperation(UserIceSpider::RoutePtr, const Slice::ContainerPtr &, const Ice::StringSeq & = Ice::StringSeq());
+				void processConfiguration(FILE * output, RouteConfigurationPtr, const Units &) const;
+				static Slice::OperationPtr findOperation(RoutePtr, const Units &);
+				static Slice::OperationPtr findOperation(RoutePtr, const Slice::ContainerPtr &, const Ice::StringSeq & = Ice::StringSeq());
 		};
 	}
 }

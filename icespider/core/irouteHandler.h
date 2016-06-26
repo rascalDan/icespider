@@ -12,10 +12,10 @@
 namespace IceSpider {
 	class DLL_PUBLIC IRouteHandler : public AdHoc::AbstractPluginImplementation, public Path {
 		public:
-			IRouteHandler(UserIceSpider::HttpMethod, const std::string & path);
+			IRouteHandler(HttpMethod, const std::string & path);
 			virtual void execute(IHttpRequest * request) const = 0;
 
-			const UserIceSpider::HttpMethod method;
+			const HttpMethod method;
 
 		protected:
 			template <typename T, typename K>

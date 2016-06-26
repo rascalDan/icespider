@@ -6,7 +6,7 @@
 namespace IceSpider {
 	class CgiRequest : public CgiRequestBase {
 		public:
-			CgiRequest(IceSpider::Core * c, int argc, char ** argv, char ** env);
+			CgiRequest(Core * c, int argc, char ** argv, char ** env);
 
 			std::istream & getInputStream() const override;
 			std::ostream & getOutputStream() const override;

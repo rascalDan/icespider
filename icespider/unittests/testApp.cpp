@@ -10,14 +10,14 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 
-using namespace UserIceSpider;
+using namespace IceSpider;
 
 BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 {
-	BOOST_REQUIRE_EQUAL(6, AdHoc::PluginManager::getDefault()->getAll<IceSpider::IRouteHandler>().size());
+	BOOST_REQUIRE_EQUAL(6, AdHoc::PluginManager::getDefault()->getAll<IRouteHandler>().size());
 }
 
-BOOST_FIXTURE_TEST_SUITE(c, IceSpider::Core);
+BOOST_FIXTURE_TEST_SUITE(c, Core);
 
 BOOST_AUTO_TEST_CASE( testCoreSettings )
 {
@@ -38,9 +38,9 @@ BOOST_AUTO_TEST_CASE( testCoreSettings )
 	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::OPTIONS].size());
 }
 
-class TestRequest : public IceSpider::IHttpRequest {
+class TestRequest : public IHttpRequest {
 	public:
-		TestRequest(const IceSpider::Core * c, HttpMethod m, const std::string & p) :
+		TestRequest(const Core * c, HttpMethod m, const std::string & p) :
 			IHttpRequest(c),
 			method(m)
 		{

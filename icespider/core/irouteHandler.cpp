@@ -5,7 +5,7 @@
 INSTANTIATEPLUGINOF(IceSpider::IRouteHandler);
 
 namespace IceSpider {
-	IRouteHandler::IRouteHandler(UserIceSpider::HttpMethod m, const std::string & p) :
+	IRouteHandler::IRouteHandler(HttpMethod m, const std::string & p) :
 		Path(p),
 		method(m)
 	{

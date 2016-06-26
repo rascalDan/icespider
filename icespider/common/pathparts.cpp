@@ -30,7 +30,6 @@ namespace IceSpider {
 	PathLiteral::PathLiteral(const std::string & p) :
 		value(p)
 	{
-		
 	}
 
 	bool

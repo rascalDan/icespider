@@ -4,6 +4,7 @@ lib icespider-common :
 	[ glob-tree *.ice *.cpp : bin ]
 	:
 	<library>adhocutil
+	<allow-ice>yes
 	<library>..//pthread
 	<library>..//Ice
 	<library>..//IceUtil

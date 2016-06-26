@@ -8,6 +8,8 @@
 #include "../core/irouteHandler.h"
 #include <boost/algorithm/string/join.hpp>
 
+using namespace IceSpider;
+
 class CoreFixture {
 	protected:
 		CoreFixture() :
@@ -21,7 +23,7 @@ BOOST_FIXTURE_TEST_SUITE(cf, CoreFixture)
 
 BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 {
-	IceSpider::Compile::RouteCompiler rc;
+	Compile::RouteCompiler rc;
 	rc.searchPath.push_back(rootDir);
 	auto cfg = rc.loadConfiguration(rootDir / "testRoutes.json");
 	auto u = rc.loadUnits(cfg);
@@ -32,7 +34,7 @@ BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 
 	BOOST_REQUIRE_EQUAL("index", cfg->routes[0]->name);
 	BOOST_REQUIRE_EQUAL("/", cfg->routes[0]->path);
-	BOOST_REQUIRE_EQUAL(UserIceSpider::HttpMethod::GET, cfg->routes[0]->method);
+	BOOST_REQUIRE_EQUAL(HttpMethod::GET, cfg->routes[0]->method);
 	BOOST_REQUIRE_EQUAL("TestIceSpider.TestApi.index", cfg->routes[0]->operation);
 	BOOST_REQUIRE_EQUAL(0, cfg->routes[0]->params.size());
 
@@ -41,11 +43,11 @@ BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 	BOOST_REQUIRE_EQUAL(2, cfg->routes[1]->params.size());
 
 	BOOST_REQUIRE_EQUAL("del", cfg->routes[2]->name);
-	BOOST_REQUIRE_EQUAL(UserIceSpider::HttpMethod::DELETE, cfg->routes[2]->method);
+	BOOST_REQUIRE_EQUAL(HttpMethod::DELETE, cfg->routes[2]->method);
 	BOOST_REQUIRE_EQUAL(1, cfg->routes[2]->params.size());
 
 	BOOST_REQUIRE_EQUAL("update", cfg->routes[3]->name);
-	BOOST_REQUIRE_EQUAL(UserIceSpider::HttpMethod::POST, cfg->routes[3]->method);
+	BOOST_REQUIRE_EQUAL(HttpMethod::POST, cfg->routes[3]->method);
 	BOOST_REQUIRE_EQUAL(2, cfg->routes[3]->params.size());
 
 	BOOST_REQUIRE_EQUAL(1, cfg->slices.size());
@@ -54,7 +56,7 @@ BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 
 BOOST_AUTO_TEST_CASE( testCompile )
 {
-	IceSpider::Compile::RouteCompiler rc;
+	Compile::RouteCompiler rc;
 	rc.searchPath.push_back(rootDir);
 	auto input = rootDir / "testRoutes.json";
 	auto output = binDir / "testRoutes.cpp";
@@ -68,7 +70,7 @@ BOOST_AUTO_TEST_CASE( testCompile )
 		"-I", "/usr/include/slicer",
 		"-I", (rootDir.parent_path() / "core").string(),
 		"-I", (rootDir.parent_path() / "common").string(),
-		"-I", (rootDir.parent_path() / "common" / "bin" / modeDir).string(),
+		"-I", (rootDir.parent_path() / "common" / "bin" / modeDir / "allow-ice-yes").string(),
 		"-I", libGenDir.string(),
 		"-o", outputso.string(),
 		output.string(),
@@ -85,10 +87,10 @@ BOOST_AUTO_TEST_CASE( testLoad )
 	BOOST_TEST_INFO(dlerror());
 	BOOST_REQUIRE(lib);
 
-	BOOST_REQUIRE_EQUAL(6, AdHoc::PluginManager::getDefault()->getAll<IceSpider::IRouteHandler>().size());
+	BOOST_REQUIRE_EQUAL(6, AdHoc::PluginManager::getDefault()->getAll<IRouteHandler>().size());
 	// smoke test (block ensure dlclose dones't cause segfault)
 	{
-		auto route = AdHoc::PluginManager::getDefault()->get<IceSpider::IRouteHandler>("common::index");
+		auto route = AdHoc::PluginManager::getDefault()->get<IRouteHandler>("common::index");
 		BOOST_REQUIRE(route);
 	}
 
