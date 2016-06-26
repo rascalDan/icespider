@@ -1,6 +1,7 @@
 #include "cgiRequestBase.h"
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
 #include <util.h>
 
 namespace ba = boost::algorithm;
@@ -26,6 +27,15 @@ namespace IceSpider {
 	void
 	CgiRequestBase::initialize()
 	{
+		namespace ba = boost::algorithm;
+		auto path = (optionalLookup("REDIRECT_URL", envmap) /
+			[this]() { return optionalLookup("SCRIPT_NAME", envmap); } /
+			[this]() -> std::string { throw std::runtime_error("Couldn't determine request path"); })
+			.substr(1);
+		if (!path.empty()) {
+			ba::split(pathmap, path, ba::is_any_of("/"), ba::token_compress_off);
+		}
+
 		auto qs = envmap.find("QUERY_STRING");
 		if (qs != envmap.end()) {
 			auto start = std::get<0>(qs->second);
@@ -58,24 +68,16 @@ namespace IceSpider {
 		return std::string(std::get<0>(i->second), std::get<1>(i->second));
 	}
 
-	std::string
+	const std::vector<std::string> &
 	CgiRequestBase::getRequestPath() const
 	{
-		return optionalLookup("REDIRECT_URL", envmap) /
-			[this]() { return optionalLookup("SCRIPT_NAME", envmap); } /
-			[this]() -> std::string { throw std::runtime_error("Couldn't determine request path"); };
+		return pathmap;
 	}
 
 	UserIceSpider::HttpMethod
 	CgiRequestBase::getRequestMethod() const
 	{
 		return UserIceSpider::HttpMethod::GET;
-	}
-
-	IceUtil::Optional<std::string>
-	CgiRequestBase::getURLParam(const std::string & key) const
-	{
-		return optionalLookup(key, pathmap);
 	}
 
 	IceUtil::Optional<std::string>

@@ -30,6 +30,16 @@ namespace IceSpider {
 			"application/json", getOutputStream());
 	}
 
+	const std::string &
+	IHttpRequest::getURLParam(unsigned int idx) const
+	{
+		auto & url = getRequestPath();
+		if (idx >= url.size()) {
+			throw std::runtime_error("Bad Url parameter index");
+		}
+		return url[idx];
+	}
+
 	template <typename T>
 	inline IceUtil::Optional<T> optionalLexicalCast(const IceUtil::Optional<std::string> & p)
 	{
@@ -46,14 +56,14 @@ namespace IceSpider {
 
 
 #define getParams(T) \
-	template<> IceUtil::Optional<T> IHttpRequest::getURLParam<T>(const std::string & key) const { \
-		return optionalLexicalCast<T>(getURLParam(key)); } \
+	template<> T IHttpRequest::getURLParam<T>(unsigned int idx) const { \
+		return boost::lexical_cast<T>(getURLParam(idx)); } \
 	template<> IceUtil::Optional<T> IHttpRequest::getQueryStringParam<T>(const std::string & key) const { \
 		return optionalLexicalCast<T>(getQueryStringParam(key)); } \
 	template<> IceUtil::Optional<T> IHttpRequest::getHeaderParam<T>(const std::string & key) const { \
 		return optionalLexicalCast<T>(getHeaderParam(key)); }
-	template<> IceUtil::Optional<std::string> IHttpRequest::getURLParam<std::string>(const std::string & key) const { \
-		return getURLParam(key); }
+	template<> std::string IHttpRequest::getURLParam<std::string>(unsigned int idx) const {
+		return getURLParam(idx); }
 	template<> IceUtil::Optional<std::string> IHttpRequest::getQueryStringParam<std::string>(const std::string & key) const { \
 		return getQueryStringParam(key); }
 	template<> IceUtil::Optional<std::string> IHttpRequest::getHeaderParam<std::string>(const std::string & key) const { \

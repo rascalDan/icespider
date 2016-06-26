@@ -7,6 +7,8 @@
 #include <core.h>
 #include <test-api.h>
 #include <Ice/ObjectAdapter.h>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
 
 using namespace UserIceSpider;
 
@@ -40,24 +42,23 @@ class TestRequest : public IceSpider::IHttpRequest {
 	public:
 		TestRequest(const IceSpider::Core * c, HttpMethod m, const std::string & p) :
 			IHttpRequest(c),
-			method(m),
-			path(p)
+			method(m)
 		{
+			namespace ba = boost::algorithm;
+			auto path = p.substr(1);
+			if (!path.empty()) {
+				ba::split(url, path, ba::is_any_of("/"), ba::token_compress_off);
+			}
 		}
 
-		std::string getRequestPath() const override
+		const std::vector<std::string> & getRequestPath() const override
 		{
-			return path;
+			return url;
 		}
 
 		HttpMethod getRequestMethod() const override
 		{
 			return method;
-		}
-
-		IceUtil::Optional<std::string> getURLParam(const std::string & key) const override
-		{
-			return AdHoc::safeMapLookup<std::runtime_error>(url, key);
 		}
 
 		IceUtil::Optional<std::string> getQueryStringParam(const std::string & key) const override
@@ -81,14 +82,14 @@ class TestRequest : public IceSpider::IHttpRequest {
 		}
 
 		typedef std::map<std::string, std::string> MapVars;
-		MapVars url;
+		typedef std::vector<std::string> UrlVars;
+		UrlVars url;
 		MapVars qs;
 		MapVars hdr;
 		mutable std::stringstream input;
 		mutable std::stringstream output;
 
 		const HttpMethod method;
-		const std::string path;
 };
 
 BOOST_AUTO_TEST_CASE( testFindRoutes )
@@ -168,29 +169,22 @@ BOOST_AUTO_TEST_CASE( testCallMethods )
 	BOOST_REQUIRE_EQUAL(requestGetIndex.output.str(), "200 OK\r\n\r\n{\"value\":\"index\"}");
 
 	TestRequest requestGetItem(this, HttpMethod::GET, "/view/something/1234");
-	requestGetItem.url["s"] = "something";
-	requestGetItem.url["i"] = "1234";
 	process(&requestGetItem);
 	BOOST_REQUIRE_EQUAL(requestGetItem.output.str(), "200 OK\r\n\r\n{\"value\":\"withParams\"}");
 
 	TestRequest requestGetItemGiven(this, HttpMethod::GET, "/item/something/1234");
-	requestGetItemGiven.url["s"] = "something";
-	requestGetItemGiven.url["i"] = "1234";
 	process(&requestGetItemGiven);
 	BOOST_REQUIRE_EQUAL(requestGetItemGiven.output.str(), "200 OK\r\n\r\n{\"value\":\"withParams\"}");
 
 	TestRequest requestGetItemDefault(this, HttpMethod::GET, "/item/something");
-	requestGetItemDefault.url["s"] = "something";
 	process(&requestGetItemDefault);
 	BOOST_REQUIRE_EQUAL(requestGetItemDefault.output.str(), "200 OK\r\n\r\n{\"value\":\"withParams\"}");
 
 	TestRequest requestDeleteItem(this, HttpMethod::DELETE, "/some value");
-	requestDeleteItem.url["s"] = "some value";
 	process(&requestDeleteItem);
 	BOOST_REQUIRE_EQUAL(requestDeleteItem.output.str(), "200 OK\r\n\r\n");
 
 	TestRequest requestUpdateItem(this, HttpMethod::POST, "/1234");
-	requestUpdateItem.url["id"] = "1234";
 	requestUpdateItem.hdr["Content-Type"] = "application/json";
 	requestUpdateItem.input << "{\"value\": \"some value\"}";
 	process(&requestUpdateItem);

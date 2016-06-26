@@ -226,7 +226,21 @@ namespace IceSpider {
 				for (const auto & p : r->params) {
 					if (p->hasUserSource) {
 						fprintf(output, ",\n");
-						fprintbf(4, output, "_pn_%s(\"%s\")", p->name, *p->key);
+						if (p->source == UserIceSpider::ParameterSource::URL) {
+							IceSpider::Path path(r->path);
+							unsigned int idx = -1;
+							for (const auto & pp : path.parts) {
+								if (auto par = dynamic_cast<PathParameter *>(pp.get())) {
+									if (par->name == p->key) {
+										idx = &pp - &path.parts.front();
+									}
+								}
+							};
+							fprintbf(4, output, "_pi_%s(%d)", p->name, idx);
+						}
+						else {
+							fprintbf(4, output, "_pn_%s(\"%s\")", p->name, *p->key);
+						}
 					}
 					if (p->defaultExpr) {
 						fprintf(output, ",\n");
@@ -243,9 +257,11 @@ namespace IceSpider {
 				for (const auto & p : r->params) {
 					if (p->hasUserSource) {
 						auto ip = *std::find_if(o->parameters().begin(), o->parameters().end(), [p](const auto & ip) { return ip->name() == p->name; });
-						fprintbf(4, output, "auto _p_%s(request->get%sParam<%s>(_pn_%s)",
-										 p->name, getEnumString(p->source), Slice::typeToString(ip->type()), p->name);
-						if (!p->isOptional) {
+						fprintbf(4, output, "auto _p_%s(request->get%sParam<%s>(_p%c_%s)",
+										 p->name, getEnumString(p->source), Slice::typeToString(ip->type()),
+										 p->source == UserIceSpider::ParameterSource::URL ? 'i' : 'n',
+										 p->name);
+						if (!p->isOptional && p->source != UserIceSpider::ParameterSource::URL) {
 							fprintbf(0, output, " /\n");
 							if (p->defaultExpr) {
 								fprintbf(5, output, " [this]() { return _pd_%s; }",
@@ -289,7 +305,12 @@ namespace IceSpider {
 				fprintbf(2, output, "private:\n");
 				for (const auto & p : r->params) {
 					if (p->hasUserSource) {
-						fprintbf(3, output, "const std::string _pn_%s;\n", p->name);
+						if (p->source == UserIceSpider::ParameterSource::URL) {
+							fprintbf(3, output, "const unsigned int _pi_%s;\n", p->name);
+						}
+						else {
+							fprintbf(3, output, "const std::string _pn_%s;\n", p->name);
+						}
 					}
 					if (p->defaultExpr) {
 						auto ip = *std::find_if(o->parameters().begin(), o->parameters().end(), [p](const auto & ip) { return ip->name() == p->name; });

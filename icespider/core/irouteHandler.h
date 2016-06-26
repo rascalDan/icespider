@@ -7,6 +7,7 @@
 #include <routes.h>
 #include <plugins.h>
 #include <visibility.h>
+#include <boost/lexical_cast.hpp>
 
 namespace IceSpider {
 	class DLL_PUBLIC IRouteHandler : public AdHoc::AbstractPluginImplementation, public Path {
@@ -17,10 +18,11 @@ namespace IceSpider {
 			const UserIceSpider::HttpMethod method;
 
 		protected:
-			template <typename T>
-			inline T requiredParameterNotFound(const char *, const std::string & key) const
+			template <typename T, typename K>
+			inline T requiredParameterNotFound(const char *, const K & key) const
 			{
-				throw std::runtime_error("Required parameter not found: " + key);
+				throw std::runtime_error("Required parameter not found: " +
+						boost::lexical_cast<std::string>(key));
 			}
 
 			Ice::ObjectPrx getProxy(IHttpRequest *, const char *) const;

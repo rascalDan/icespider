@@ -17,10 +17,10 @@ namespace IceSpider {
 			IHttpRequest(const Core *);
 
 			Ice::Context getContext() const;
-			virtual std::string getRequestPath() const = 0;
+			virtual const std::vector<std::string> & getRequestPath() const = 0;
 			virtual UserIceSpider::HttpMethod getRequestMethod() const = 0;
 
-			virtual IceUtil::Optional<std::string> getURLParam(const std::string &) const = 0;
+			const std::string & getURLParam(unsigned int) const;
 			virtual IceUtil::Optional<std::string> getQueryStringParam(const std::string &) const = 0;
 			virtual IceUtil::Optional<std::string> getHeaderParam(const std::string &) const = 0;
 			virtual Slicer::DeserializerPtr getDeserializer() const;
@@ -29,7 +29,7 @@ namespace IceSpider {
 			virtual std::ostream & getOutputStream() const = 0;
 
 			template<typename T>
-			IceUtil::Optional<T> getURLParam(const std::string & key) const;
+			T getURLParam(unsigned int) const;
 			template<typename T>
 			IceUtil::Optional<T> getBodyParam(const std::string &) const
 			{

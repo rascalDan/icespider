@@ -1,9 +1,5 @@
 #include "core.h"
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/classification.hpp>
 #include <Ice/Initialize.h>
-
-namespace ba = boost::algorithm;
 
 namespace IceSpider {
 	Core::Core(int argc, char ** argv)
@@ -45,12 +41,8 @@ namespace IceSpider {
 	const IRouteHandler *
 	Core::findRoute(const IHttpRequest * request) const
 	{
-		auto path = request->getRequestPath().substr(1);
+		auto & pathparts = request->getRequestPath();
 		const auto & mroutes = routes[request->getRequestMethod()];
-		std::vector<std::string> pathparts;
-		if (!path.empty()) {
-			ba::split(pathparts, path, ba::is_any_of("/"), ba::token_compress_off);
-		}
 		if (pathparts.size() >= mroutes.size()) {
 			// Not found error
 			return NULL;

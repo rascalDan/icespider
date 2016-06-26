@@ -15,14 +15,14 @@ namespace IceSpider {
 
 			typedef std::tuple<char *, char *> Env;
 			typedef std::map<const char *, Env, cmp_str> VarMap;
+			typedef std::vector<std::string> UrlMap;
 
 			CgiRequestBase(IceSpider::Core * c, char ** env);
 			void addenv(char *);
 			void initialize();
 
-			std::string getRequestPath() const override;
+			const std::vector<std::string> & getRequestPath() const override;
 			UserIceSpider::HttpMethod getRequestMethod() const override;
-			IceUtil::Optional<std::string> getURLParam(const std::string & key) const override;
 			IceUtil::Optional<std::string> getQueryStringParam(const std::string & key) const override;
 			IceUtil::Optional<std::string> getHeaderParam(const std::string & key) const override;
 
@@ -30,7 +30,7 @@ namespace IceSpider {
 
 			VarMap envmap;
 			VarMap qsmap;
-			VarMap pathmap;
+			UrlMap pathmap;
 	};
 }
 
