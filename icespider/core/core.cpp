@@ -1,7 +1,10 @@
 #include "core.h"
 #include <Ice/Initialize.h>
+#include <boost/filesystem/convenience.hpp>
 
 namespace IceSpider {
+	const boost::filesystem::path Core::defaultConfig("config/ice.properties");
+
 	Core::Core(int argc, char ** argv)
 	{
 		// Big enough to map all the request methods (an empty of zero lenght routes as default)
@@ -18,6 +21,9 @@ namespace IceSpider {
 
 		Ice::InitializationData id;
 		id.properties = Ice::createProperties(argc, argv);
+		if (boost::filesystem::exists(defaultConfig)) {
+			id.properties->load(defaultConfig.string());
+		}
 		communicator = Ice::initialize(id);
 	}
 

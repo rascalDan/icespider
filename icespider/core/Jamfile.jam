@@ -1,6 +1,7 @@
 lib adhocutil : : : : <include>/usr/include/adhocutil ;
 lib slicer : : : : <include>/usr/include/slicer ;
 lib boost_system ;
+lib boost_filesystem ;
 
 lib icespider-core :
 	[ glob-tree *.cpp : bin ]
@@ -9,6 +10,7 @@ lib icespider-core :
 	<library>adhocutil
 	<library>slicer
 	<library>boost_system
+	<library>boost_filesystem
 	<implicit-dependency>../common
 	: :
 	<include>.

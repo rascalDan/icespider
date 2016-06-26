@@ -5,6 +5,7 @@
 #include <vector>
 #include "irouteHandler.h"
 #include <Ice/Communicator.h>
+#include <boost/filesystem/path.hpp>
 
 namespace IceSpider {
 	class DLL_PUBLIC Core {
@@ -23,6 +24,8 @@ namespace IceSpider {
 
 			MethodRoutes routes;
 			Ice::CommunicatorPtr communicator;
+
+			static const boost::filesystem::path defaultConfig;
 	};
 }
 
