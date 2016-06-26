@@ -50,7 +50,7 @@ namespace IceSpider {
 	void IHttpRequest::response(short statusCode, const std::string & statusMsg) const
 	{
 		getOutputStream()
-			<< statusCode << " " << statusMsg << "\r\n"
+			<< "Status: " << statusCode << " " << statusMsg << "\r\n"
 			<< "\r\n";
 	}
 
