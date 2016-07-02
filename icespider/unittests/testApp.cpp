@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( testCallMethods )
 	auto obj = adp->addWithUUID(new TestSerice());
 	adp->activate();
 	fprintf(stderr, "%s\n", obj->ice_id().c_str());
-	communicator->getProperties()->setProperty("N13TestIceSpider7TestApiE", communicator->proxyToString(obj));
+	communicator->getProperties()->setProperty("TestIceSpider::TestApi", communicator->proxyToString(obj));
 
 	TestRequest requestGetIndex(this, HttpMethod::GET, "/");
 	process(&requestGetIndex);

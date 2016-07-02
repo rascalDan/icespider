@@ -71,7 +71,10 @@ namespace IceSpider {
 	Ice::ObjectPrx
 	Core::getProxy(const char * type) const
 	{
-		return communicator->propertyToProxy(type);
+		char * buf = __cxxabiv1::__cxa_demangle(type, NULL, NULL, NULL);
+		auto i = communicator->propertyToProxy(buf);
+		free(buf);
+		return i;
 	}
 }
 
