@@ -13,11 +13,20 @@ namespace IceSpider {
 	class DLL_PUBLIC IRouteHandler : public AdHoc::AbstractPluginImplementation, public Path {
 		public:
 			IRouteHandler(HttpMethod, const std::string & path);
+
 			virtual void execute(IHttpRequest * request) const = 0;
+			virtual void initialize();
+			virtual Slicer::SerializerPtr getSerializer(const char *, const char *, std::ostream &) const;
+			virtual Slicer::SerializerPtr defaultSerializer(std::ostream &) const;
 
 			const HttpMethod method;
 
 		protected:
+			typedef boost::shared_ptr<const AdHoc::PluginOf<Slicer::StreamSerializerFactory>> StreamSerializerFactoryPtr;
+			typedef std::pair<std::string, std::string> ContentType;
+			typedef std::map<ContentType, StreamSerializerFactoryPtr> RouteSerializers;
+			RouteSerializers routeSerializers;
+
 			template <typename T, typename K>
 			inline T requiredParameterNotFound(const char *, const K & key) const
 			{

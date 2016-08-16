@@ -1,4 +1,5 @@
 #include "ihttpRequest.h"
+#include "irouteHandler.h"
 #include "util.h"
 #include <boost/lexical_cast.hpp>
 
@@ -24,10 +25,38 @@ namespace IceSpider {
 	}
 
 	Slicer::SerializerPtr
-	IHttpRequest::getSerializer() const
+	IHttpRequest::getSerializer(const IRouteHandler * handler) const
 	{
-		return Slicer::StreamSerializerFactory::createNew(
-			"application/json", getOutputStream());
+		auto acceptHdr = getHeaderParam("Accept");
+		if (acceptHdr) {
+			auto accept = acceptHdr->c_str();
+			std::vector<Acceptable> accepts;
+			accepts.reserve(5);
+			char * grp = NULL, * type = NULL;
+			float pri = 0.0f;
+			int chars, v;
+			while ((v = sscanf(accept, " %m[^/] / %m[^;,] %n ; q = %f , %n", &grp, &type, &chars, &pri, &chars)) >= 2) {
+				accepts.push_back( { grp, type, (v < 3 ? 1.0f : pri) } );
+				grp = NULL;
+				type = NULL;
+				accept += chars;
+			}
+			free(grp);
+			free(type);
+			std::stable_sort(accepts.begin(), accepts.end(), [](const auto & a, const auto & b) { return a.pri < b.pri; });
+			Slicer::SerializerPtr serializer;
+			auto & strm = getOutputStream();
+			for(auto & a : accepts) {
+				if (!serializer) {
+					serializer = handler->getSerializer(a.grp, a.type, strm);
+				}
+				a.free();
+			}
+			return serializer;
+		}
+		else {
+			return handler->defaultSerializer(getOutputStream());
+		}
 	}
 
 	const std::string &

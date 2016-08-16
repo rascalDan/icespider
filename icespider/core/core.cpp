@@ -12,6 +12,7 @@ namespace IceSpider {
 		// Initialize routes
 		for (const auto & rp : AdHoc::PluginManager::getDefault()->getAll<IRouteHandler>()) {
 			auto r = rp->implementation();
+			r->initialize();
 			auto & mroutes = routes[r->method];
 			if (mroutes.size() <= r->pathElementCount()) {
 				mroutes.resize(r->pathElementCount() + 1);

@@ -277,7 +277,7 @@ namespace IceSpider {
 				}
 				fprintbf(4, output, "auto prx = getProxy<%s>(request);\n", proxyName);
 				if (o->returnsData()) {
-					fprintbf(4, output, "request->response(prx->%s(", operation);
+					fprintbf(4, output, "request->response(this, prx->%s(", operation);
 				}
 				else {
 					fprintbf(4, output, "prx->%s(", operation);

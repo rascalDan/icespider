@@ -68,7 +68,7 @@ class TestRequest : public IHttpRequest {
 
 		IceUtil::Optional<std::string> getHeaderParam(const std::string & key) const override
 		{
-			return AdHoc::safeMapLookup<std::runtime_error>(hdr, key);
+			return hdr.find(key) == hdr.end() ? IceUtil::Optional<std::string>() : hdr.find(key)->second;
 		}
 
 		std::istream & getInputStream() const override
@@ -161,7 +161,6 @@ BOOST_AUTO_TEST_CASE( testCallMethods )
 	auto adp = communicator->createObjectAdapterWithEndpoints("test", "default");
 	auto obj = adp->addWithUUID(new TestSerice());
 	adp->activate();
-	fprintf(stderr, "%s\n", obj->ice_id().c_str());
 	communicator->getProperties()->setProperty("TestIceSpider::TestApi", communicator->proxyToString(obj));
 
 	TestRequest requestGetIndex(this, HttpMethod::GET, "/");
@@ -189,6 +188,21 @@ BOOST_AUTO_TEST_CASE( testCallMethods )
 	requestUpdateItem.input << "{\"value\": \"some value\"}";
 	process(&requestUpdateItem);
 	BOOST_REQUIRE_EQUAL(requestDeleteItem.output.str(), "Status: 200 OK\r\n\r\n");
+
+	TestRequest requestJson(this, HttpMethod::GET, "/");
+	requestJson.hdr["Accept"] = "application/json";
+	process(&requestJson);
+	BOOST_REQUIRE_EQUAL(requestJson.output.str(), "Status: 200 OK\r\n\r\n{\"value\":\"index\"}");
+
+	TestRequest requestXml(this, HttpMethod::GET, "/");
+	requestXml.hdr["Accept"] = "application/xml";
+	process(&requestXml);
+	BOOST_REQUIRE_EQUAL(requestXml.output.str(), "Status: 200 OK\r\n\r\n<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SomeModel><value>index</value></SomeModel>\n");
+
+	TestRequest requestBadAccept(this, HttpMethod::GET, "/");
+	requestBadAccept.hdr["Accept"] = "not/supported";
+	process(&requestBadAccept);
+	BOOST_REQUIRE_EQUAL(requestBadAccept.output.str(), "Status: 406 Unacceptable\r\n\r\n");
 
 	adp->deactivate();
 }
