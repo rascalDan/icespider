@@ -194,6 +194,16 @@ BOOST_AUTO_TEST_CASE( testCallMethods )
 	process(&requestJson);
 	BOOST_REQUIRE_EQUAL(requestJson.output.str(), "Status: 200 OK\r\n\r\n{\"value\":\"index\"}");
 
+	TestRequest requestAnyAny(this, HttpMethod::GET, "/");
+	requestAnyAny.hdr["Accept"] = "*/*";
+	process(&requestAnyAny);
+	BOOST_REQUIRE_EQUAL(requestAnyAny.output.str(), "Status: 200 OK\r\n\r\n{\"value\":\"index\"}");
+
+	TestRequest requestApplicationAny(this, HttpMethod::GET, "/");
+	requestApplicationAny.hdr["Accept"] = "application/*";
+	process(&requestApplicationAny);
+	BOOST_REQUIRE_EQUAL(requestApplicationAny.output.str(), "Status: 200 OK\r\n\r\n{\"value\":\"index\"}");
+
 	TestRequest requestXml(this, HttpMethod::GET, "/");
 	requestXml.hdr["Accept"] = "application/xml";
 	process(&requestXml);
@@ -203,6 +213,11 @@ BOOST_AUTO_TEST_CASE( testCallMethods )
 	requestBadAccept.hdr["Accept"] = "not/supported";
 	process(&requestBadAccept);
 	BOOST_REQUIRE_EQUAL(requestBadAccept.output.str(), "Status: 406 Unacceptable\r\n\r\n");
+
+	TestRequest requestChoice(this, HttpMethod::GET, "/");
+	requestChoice.hdr["Accept"] = "something/special ; q = 20, application/json, application/xml;q=1.1";
+	process(&requestChoice);
+	BOOST_REQUIRE_EQUAL(requestChoice.output.str(), "Status: 200 OK\r\n\r\n<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SomeModel><value>index</value></SomeModel>\n");
 
 	adp->deactivate();
 }

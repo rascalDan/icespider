@@ -35,15 +35,28 @@ namespace IceSpider {
 			char * grp = NULL, * type = NULL;
 			float pri = 0.0f;
 			int chars, v;
-			while ((v = sscanf(accept, " %m[^/] / %m[^;,] %n ; q = %f , %n", &grp, &type, &chars, &pri, &chars)) >= 2) {
-				accepts.push_back( { grp, type, (v < 3 ? 1.0f : pri) } );
+			while ((v = sscanf(accept, " %m[^ /] / %m[^ ;,] %n , %n", &grp, &type, &chars, &chars)) == 2) {
+				accept += chars;
+				chars = 0;
+				if ((v = sscanf(accept, " ; q = %f %n , %n", &pri, &chars, &chars)) != 1) {
+					pri = 1.0;
+				}
+				if (!strcmp(grp, "*")) {
+					free(grp);
+					grp = NULL;
+				}
+				if (!strcmp(type, "*")) {
+					free(type);
+					type = NULL;
+				}
+				accepts.push_back( { grp, type, pri } );
 				grp = NULL;
 				type = NULL;
 				accept += chars;
 			}
 			free(grp);
 			free(type);
-			std::stable_sort(accepts.begin(), accepts.end(), [](const auto & a, const auto & b) { return a.pri < b.pri; });
+			std::stable_sort(accepts.begin(), accepts.end(), [](const auto & a, const auto & b) { return a.pri > b.pri; });
 			Slicer::SerializerPtr serializer;
 			auto & strm = getOutputStream();
 			for(auto & a : accepts) {
