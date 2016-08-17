@@ -13,7 +13,7 @@ module IceSpider {
 		optional(1) string defaultExpr;
 
 		["slicer:ignore"]
-		bool hasUserSource;
+		bool hasUserSource = true;
 	};
 
 	sequence<Parameter> Parameters;
