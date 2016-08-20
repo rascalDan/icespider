@@ -17,27 +17,6 @@ BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 	BOOST_REQUIRE_EQUAL(6, AdHoc::PluginManager::getDefault()->getAll<IRouteHandler>().size());
 }
 
-BOOST_FIXTURE_TEST_SUITE(c, Core);
-
-BOOST_AUTO_TEST_CASE( testCoreSettings )
-{
-	BOOST_REQUIRE_EQUAL(6, routes.size());
-	BOOST_REQUIRE_EQUAL(4, routes[HttpMethod::GET].size());
-	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::GET][0].size());
-	BOOST_REQUIRE_EQUAL(0, routes[HttpMethod::GET][1].size());
-	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::GET][2].size());
-	BOOST_REQUIRE_EQUAL(2, routes[HttpMethod::GET][3].size());
-	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::HEAD].size());
-	BOOST_REQUIRE_EQUAL(2, routes[HttpMethod::POST].size());
-	BOOST_REQUIRE_EQUAL(0, routes[HttpMethod::POST][0].size());
-	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::POST][1].size());
-	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::PUT].size());
-	BOOST_REQUIRE_EQUAL(2, routes[HttpMethod::DELETE].size());
-	BOOST_REQUIRE_EQUAL(0, routes[HttpMethod::DELETE][0].size());
-	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::DELETE][1].size());
-	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::OPTIONS].size());
-}
-
 class TestRequest : public IHttpRequest {
 	public:
 		TestRequest(const Core * c, HttpMethod m, const std::string & p) :
@@ -92,6 +71,27 @@ class TestRequest : public IHttpRequest {
 		const HttpMethod method;
 };
 
+BOOST_FIXTURE_TEST_SUITE(c, Core);
+
+BOOST_AUTO_TEST_CASE( testCoreSettings )
+{
+	BOOST_REQUIRE_EQUAL(6, routes.size());
+	BOOST_REQUIRE_EQUAL(4, routes[HttpMethod::GET].size());
+	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::GET][0].size());
+	BOOST_REQUIRE_EQUAL(0, routes[HttpMethod::GET][1].size());
+	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::GET][2].size());
+	BOOST_REQUIRE_EQUAL(2, routes[HttpMethod::GET][3].size());
+	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::HEAD].size());
+	BOOST_REQUIRE_EQUAL(2, routes[HttpMethod::POST].size());
+	BOOST_REQUIRE_EQUAL(0, routes[HttpMethod::POST][0].size());
+	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::POST][1].size());
+	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::PUT].size());
+	BOOST_REQUIRE_EQUAL(2, routes[HttpMethod::DELETE].size());
+	BOOST_REQUIRE_EQUAL(0, routes[HttpMethod::DELETE][0].size());
+	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::DELETE][1].size());
+	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::OPTIONS].size());
+}
+
 BOOST_AUTO_TEST_CASE( testFindRoutes )
 {
 	TestRequest requestGetIndex(this, HttpMethod::GET, "/");
@@ -128,6 +128,8 @@ BOOST_AUTO_TEST_CASE( testFindRoutes )
 	BOOST_REQUIRE(findRoute(&requestDeleteThing));
 }
 
+BOOST_AUTO_TEST_SUITE_END();
+
 class TestSerice : public TestIceSpider::TestApi {
 	public:
 		TestIceSpider::SomeModelPtr index(const Ice::Current &) override
@@ -156,73 +158,118 @@ class TestSerice : public TestIceSpider::TestApi {
 		}
 };
 
-BOOST_AUTO_TEST_CASE( testCallMethods )
-{
-	auto adp = communicator->createObjectAdapterWithEndpoints("test", "default");
-	auto obj = adp->addWithUUID(new TestSerice());
-	adp->activate();
-	communicator->getProperties()->setProperty("TestIceSpider::TestApi", communicator->proxyToString(obj));
+class TestApp : public Core {
+	public:
+		TestApp() :
+			adp(communicator->createObjectAdapterWithEndpoints("test", "default"))
+		{
+			adp->activate();
+			communicator->getProperties()->setProperty("TestIceSpider::TestApi", communicator->proxyToString(adp->addWithUUID(new TestSerice())));
+		}
 
+		~TestApp()
+		{
+			adp->deactivate();
+		}
+
+		Ice::ObjectAdapterPtr adp;
+};
+
+BOOST_FIXTURE_TEST_SUITE(ta, TestApp);
+
+BOOST_AUTO_TEST_CASE( testCallIndex )
+{
 	TestRequest requestGetIndex(this, HttpMethod::GET, "/");
 	process(&requestGetIndex);
 	BOOST_REQUIRE_EQUAL(requestGetIndex.output.str(), "Status: 200 OK\r\n\r\n{\"value\":\"index\"}");
+}
 
+BOOST_AUTO_TEST_CASE( testCallViewSomething1234 )
+{
 	TestRequest requestGetItem(this, HttpMethod::GET, "/view/something/1234");
 	process(&requestGetItem);
 	BOOST_REQUIRE_EQUAL(requestGetItem.output.str(), "Status: 200 OK\r\n\r\n{\"value\":\"withParams\"}");
+}
 
+BOOST_AUTO_TEST_CASE( testCallViewSomething1234_ )
+{
 	TestRequest requestGetItemGiven(this, HttpMethod::GET, "/item/something/1234");
 	process(&requestGetItemGiven);
 	BOOST_REQUIRE_EQUAL(requestGetItemGiven.output.str(), "Status: 200 OK\r\n\r\n{\"value\":\"withParams\"}");
+}
 
+BOOST_AUTO_TEST_CASE( testCallViewSomething )
+{
 	TestRequest requestGetItemDefault(this, HttpMethod::GET, "/item/something");
 	process(&requestGetItemDefault);
 	BOOST_REQUIRE_EQUAL(requestGetItemDefault.output.str(), "Status: 200 OK\r\n\r\n{\"value\":\"withParams\"}");
+}
 
+BOOST_AUTO_TEST_CASE( testCallDeleteSomeValue )
+{
 	TestRequest requestDeleteItem(this, HttpMethod::DELETE, "/some value");
 	process(&requestDeleteItem);
 	BOOST_REQUIRE_EQUAL(requestDeleteItem.output.str(), "Status: 200 OK\r\n\r\n");
+}
 
+BOOST_AUTO_TEST_CASE( testCallPost1234 )
+{
 	TestRequest requestUpdateItem(this, HttpMethod::POST, "/1234");
 	requestUpdateItem.hdr["Content-Type"] = "application/json";
 	requestUpdateItem.input << "{\"value\": \"some value\"}";
 	process(&requestUpdateItem);
-	BOOST_REQUIRE_EQUAL(requestDeleteItem.output.str(), "Status: 200 OK\r\n\r\n");
+	BOOST_REQUIRE_EQUAL(requestUpdateItem.output.str(), "Status: 200 OK\r\n\r\n");
+}
 
+BOOST_AUTO_TEST_CASE( testCallIndexAcceptJson )
+{
 	TestRequest requestJson(this, HttpMethod::GET, "/");
 	requestJson.hdr["Accept"] = "application/json";
 	process(&requestJson);
 	BOOST_REQUIRE_EQUAL(requestJson.output.str(), "Status: 200 OK\r\n\r\n{\"value\":\"index\"}");
+}
 
+BOOST_AUTO_TEST_CASE( testCallIndexAcceptAny )
+{
 	TestRequest requestAnyAny(this, HttpMethod::GET, "/");
 	requestAnyAny.hdr["Accept"] = "*/*";
 	process(&requestAnyAny);
 	BOOST_REQUIRE_EQUAL(requestAnyAny.output.str(), "Status: 200 OK\r\n\r\n{\"value\":\"index\"}");
+}
 
+BOOST_AUTO_TEST_CASE( testCallIndexAcceptApplicationAny )
+{
 	TestRequest requestApplicationAny(this, HttpMethod::GET, "/");
 	requestApplicationAny.hdr["Accept"] = "application/*";
 	process(&requestApplicationAny);
 	BOOST_REQUIRE_EQUAL(requestApplicationAny.output.str(), "Status: 200 OK\r\n\r\n{\"value\":\"index\"}");
+}
 
+BOOST_AUTO_TEST_CASE( testCallIndexAcceptXml )
+{
 	TestRequest requestXml(this, HttpMethod::GET, "/");
 	requestXml.hdr["Accept"] = "application/xml";
 	process(&requestXml);
 	BOOST_REQUIRE_EQUAL(requestXml.output.str(), "Status: 200 OK\r\n\r\n<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SomeModel><value>index</value></SomeModel>\n");
+}
 
+BOOST_AUTO_TEST_CASE( testCallIndexAcceptNotSupported )
+{
 	TestRequest requestBadAccept(this, HttpMethod::GET, "/");
 	requestBadAccept.hdr["Accept"] = "not/supported";
 	process(&requestBadAccept);
 	BOOST_REQUIRE_EQUAL(requestBadAccept.output.str(), "Status: 406 Unacceptable\r\n\r\n");
+}
 
+BOOST_AUTO_TEST_CASE( testCallIndexComplexAccept )
+{
 	TestRequest requestChoice(this, HttpMethod::GET, "/");
 	requestChoice.hdr["Accept"] = "something/special ; q = 20, application/json, application/xml;q=1.1";
 	process(&requestChoice);
 	BOOST_REQUIRE_EQUAL(requestChoice.output.str(), "Status: 200 OK\r\n\r\n<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SomeModel><value>index</value></SomeModel>\n");
-
-	adp->deactivate();
 }
 
-BOOST_AUTO_TEST_CASE( test404 )
+BOOST_AUTO_TEST_CASE( testCall404 )
 {
 	TestRequest requestGetIndex(this, HttpMethod::GET, "/404");
 	process(&requestGetIndex);
