@@ -22,7 +22,7 @@ namespace IceSpider {
 			const HttpMethod method;
 
 		protected:
-			typedef boost::shared_ptr<const AdHoc::PluginOf<Slicer::StreamSerializerFactory>> StreamSerializerFactoryPtr;
+			typedef Slicer::StreamSerializerFactory * StreamSerializerFactoryPtr;
 			typedef std::pair<std::string, std::string> ContentType;
 			typedef std::map<ContentType, StreamSerializerFactoryPtr> RouteSerializers;
 			RouteSerializers routeSerializers;

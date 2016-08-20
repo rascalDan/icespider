@@ -17,7 +17,7 @@ namespace IceSpider {
 		auto globalSerializers = AdHoc::PluginManager::getDefault()->getAll<Slicer::StreamSerializerFactory>();
 		for (const auto & gs : globalSerializers) {
 			auto slash = gs->name.find('/');
-			routeSerializers.insert({ { gs->name.substr(0, slash), gs->name.substr(slash + 1) }, gs });
+			routeSerializers.insert({ { gs->name.substr(0, slash), gs->name.substr(slash + 1) }, gs->implementation() });
 		}
 	}
 
@@ -32,7 +32,7 @@ namespace IceSpider {
 	{
 		for (const auto & rs : routeSerializers) {
 			if ((!grp || rs.first.first == grp) && (!type || rs.first.second == type)) {
-				return rs.second->implementation()->create(strm);
+				return rs.second->create(strm);
 			}
 		}
 		return nullptr;
