@@ -1,5 +1,6 @@
 {
 	"name": "common",
+	"headers": [ "xsltStreamSerializer.h" ],
 	"routes": [
 	{
 		"name": "index",

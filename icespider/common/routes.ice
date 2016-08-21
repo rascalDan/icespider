@@ -4,6 +4,8 @@
 #include "http.ice"
 
 module IceSpider {
+	sequence<string> StringSeq;
+
 	class Parameter {
 		string name;
 		ParameterSource source = URL;
@@ -28,12 +30,11 @@ module IceSpider {
 
 	sequence<Route> Routes;
 
-	sequence<string> Slices;
-
 	class RouteConfiguration {
 		string name;
 		Routes routes;
-		Slices slices;
+		StringSeq slices;
+		StringSeq headers;
 	};
 };
 

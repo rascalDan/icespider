@@ -208,6 +208,13 @@ namespace IceSpider {
 				fprintbf(output, "#include <%s>\n", slicePath.string());
 			}
 
+			if (!c->headers.empty()) {
+				fprintf(output, "\n// Extra headers.\n");
+				for (const auto & h : c->headers) {
+					fprintbf(output, "#include <%s>\n", h);
+				}
+			}
+
 			fprintf(output, "\n");
 			fprintbf(output, "namespace %s {\n", c->name);
 			fprintbf(1, output, "// Implementation classes.\n\n");
