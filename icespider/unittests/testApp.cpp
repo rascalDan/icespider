@@ -9,8 +9,16 @@
 #include <Ice/ObjectAdapter.h>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <boost/filesystem/operations.hpp>
+#include <definedDirs.h>
 
 using namespace IceSpider;
+
+static void forceEarlyChangeDir() __attribute__((constructor(101)));
+void forceEarlyChangeDir()
+{
+	boost::filesystem::current_path(XSTR(ROOT));
+}
 
 BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 {
@@ -251,6 +259,22 @@ BOOST_AUTO_TEST_CASE( testCallIndexAcceptXml )
 	requestXml.hdr["Accept"] = "application/xml";
 	process(&requestXml);
 	BOOST_REQUIRE_EQUAL(requestXml.output.str(), "Status: 200 OK\r\n\r\n<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SomeModel><value>index</value></SomeModel>\n");
+}
+
+BOOST_AUTO_TEST_CASE( testCallIndexAcceptTextHtml )
+{
+	TestRequest requestHtml(this, HttpMethod::GET, "/");
+	requestHtml.hdr["Accept"] = "text/html";
+	process(&requestHtml);
+	BOOST_REQUIRE_EQUAL(requestHtml.output.str(), "Status: 200 OK\r\n\r\n<html><head><title>Some Model</title></head><body><p><b>value</b>: index</p></body></html>\n");
+}
+
+BOOST_AUTO_TEST_CASE( testCallViewSomethingAcceptHtml )
+{
+	TestRequest requestHtml(this, HttpMethod::GET, "/view/something/1234");
+	requestHtml.hdr["Accept"] = "text/html";
+	process(&requestHtml);
+	BOOST_REQUIRE_EQUAL(requestHtml.output.str(), "Status: 406 Unacceptable\r\n\r\n");
 }
 
 BOOST_AUTO_TEST_CASE( testCallIndexAcceptNotSupported )

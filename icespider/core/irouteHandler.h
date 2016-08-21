@@ -13,9 +13,9 @@ namespace IceSpider {
 	class DLL_PUBLIC IRouteHandler : public AdHoc::AbstractPluginImplementation, public Path {
 		public:
 			IRouteHandler(HttpMethod, const std::string & path);
+			virtual ~IRouteHandler();
 
 			virtual void execute(IHttpRequest * request) const = 0;
-			virtual void initialize();
 			virtual Slicer::SerializerPtr getSerializer(const char *, const char *, std::ostream &) const;
 			virtual Slicer::SerializerPtr defaultSerializer(std::ostream &) const;
 
@@ -41,6 +41,9 @@ namespace IceSpider {
 			{
 				return Interface::ProxyType::uncheckedCast(getProxy(request, typeid(Interface).name()));
 			}
+
+			void addRouteSerializer(const ContentType &, StreamSerializerFactoryPtr);
+			void removeRouteSerializer(const ContentType &);
 	};
 	typedef AdHoc::PluginOf<IRouteHandler> RouteHandlers;
 }

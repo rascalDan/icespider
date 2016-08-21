@@ -20,12 +20,21 @@ module IceSpider {
 
 	sequence<Parameter> Parameters;
 
+	class OutputSerializer {
+		string contentType;
+		string serializer;
+		StringSeq params;
+	};
+
+	sequence<OutputSerializer> OutputSerializers;
+
 	class Route {
 		string name;
 		string path;
 		HttpMethod method = GET;
 		string operation;
 		Parameters params;
+		OutputSerializers outputSerializers;
 	};
 
 	sequence<Route> Routes;

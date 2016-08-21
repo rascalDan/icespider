@@ -46,6 +46,8 @@ run
 	<library>test-api
 	<library>dl
 	<library>adhocutil
+	<library>slicer-xml
+	<library>../xslt//icespider-xslt
 	<library>../core//icespider-core
 	<library>../compile//icespider-compile
 	<implicit-dependency>../compile//icespider-compile
@@ -56,7 +58,9 @@ run
 run
 	testApp.cpp
 	testRoutes.json
-	: : :
+	: :
+	xslt/transform.xslt
+	:
 	<define>BOOST_TEST_DYN_LINK
 	<icespider>../compile//icespider
 	<library>testCommon
@@ -67,6 +71,7 @@ run
 	<library>slicer-xml
 	<library>../common//icespider-common
 	<library>../core//icespider-core
+	<library>../xslt//icespider-xslt
 	<implicit-dependency>../common//icespider-common
 	<implicit-dependency>test-api
 	<dependency>../compile

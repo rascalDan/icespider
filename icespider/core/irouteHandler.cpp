@@ -9,16 +9,15 @@ namespace IceSpider {
 		Path(p),
 		method(m)
 	{
-	}
-
-	void
-	IRouteHandler::initialize()
-	{
 		auto globalSerializers = AdHoc::PluginManager::getDefault()->getAll<Slicer::StreamSerializerFactory>();
 		for (const auto & gs : globalSerializers) {
 			auto slash = gs->name.find('/');
 			routeSerializers.insert({ { gs->name.substr(0, slash), gs->name.substr(slash + 1) }, gs->implementation() });
 		}
+	}
+
+	IRouteHandler::~IRouteHandler()
+	{
 	}
 
 	Ice::ObjectPrx
@@ -43,6 +42,22 @@ namespace IceSpider {
 	{
 		return Slicer::StreamSerializerFactory::createNew(
 			"application/json", strm);
+	}
+
+	void
+	IRouteHandler::addRouteSerializer(const ContentType & ct, StreamSerializerFactoryPtr ssfp)
+	{
+		routeSerializers.insert({ ct, ssfp });
+	}
+
+	void
+	IRouteHandler::removeRouteSerializer(const ContentType & ct)
+	{
+		auto i = routeSerializers.find(ct);
+		if (i != routeSerializers.end()) {
+			delete i->second;
+			routeSerializers.erase(i);
+		}
 	}
 }
 

@@ -10,6 +10,12 @@
 
 using namespace IceSpider;
 
+static void forceEarlyChangeDir() __attribute__((constructor(101)));
+void forceEarlyChangeDir()
+{
+	boost::filesystem::current_path(XSTR(ROOT));
+}
+
 class CoreFixture {
 	protected:
 		CoreFixture() :
@@ -73,9 +79,18 @@ BOOST_AUTO_TEST_CASE( testCompile )
 	auto compileCommand = boost::algorithm::join<std::vector<std::string>>({
 		"gcc", "-c", "-std=c++1y", "-fPIC", "-fvisibility=hidden", "-O3",
 		"-I", "/usr/include/adhocutil",
+		"-I", "/usr/include/glib-2.0",
+		"-I", "/usr/include/glibmm-2.4",
+		"-I", "/usr/include/libxml2",
+		"-I", "/usr/include/libxml++-2.6",
+		"-I", "/usr/include/libxslt",
 		"-I", "/usr/include/slicer",
+		"-I", "/usr/lib/glib-2.0/include",
+		"-I", "/usr/lib/glibmm-2.4/include",
+		"-I", "/usr/lib/libxml++-2.6/include",
 		"-I", (rootDir.parent_path() / "core").string(),
 		"-I", (rootDir.parent_path() / "common").string(),
+		"-I", (rootDir.parent_path() / "xslt").string(),
 		"-I", (rootDir.parent_path() / "common" / "bin" / modeDir / "allow-ice-yes").string(),
 		"-I", libGenDir.string(),
 		"-o", outputo.string(),

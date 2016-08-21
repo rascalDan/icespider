@@ -1,0 +1,22 @@
+lib adhocutil : : : : <include>/usr/include/adhocutil ;
+lib slicer-xml : : : : <include>/usr/include/slicer ;
+lib boost_system ;
+lib IceUtil ;
+lib xslt ;
+lib exslt ;
+
+lib icespider-xslt :
+	[ glob-tree *.cpp : bin ]
+	:
+	<library>adhocutil
+	<library>slicer-xml
+	<library>boost_system
+	<library>IceUtil
+	<library>xslt
+	<library>exslt
+	<library>../..//libxmlpp
+	: :
+	<include>.
+	<library>../..//libxmlpp
+	;
+

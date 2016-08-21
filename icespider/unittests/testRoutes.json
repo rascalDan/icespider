@@ -6,6 +6,13 @@
 		"name": "index",
 		"path": "/",
 		"method": "GET",
+		"outputSerializers": [
+		{
+			"contentType": "text/html",
+			"serializer": "IceSpider.XsltStreamSerializer",
+			"params": [ "\"xslt/transform.xslt\"" ]
+		}
+		],
 		"operation": "TestIceSpider.TestApi.index"
 	},
 	{

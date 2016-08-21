@@ -26,6 +26,8 @@ namespace IceSpider {
 
 			private:
 				void processConfiguration(FILE * output, RouteConfigurationPtr, const Units &) const;
+				void registerOutputSerializers(FILE * output, RoutePtr) const;
+				void releaseOutputSerializers(FILE * output, RoutePtr) const;
 				static Slice::OperationPtr findOperation(RoutePtr, const Units &);
 				static Slice::OperationPtr findOperation(RoutePtr, const Slice::ContainerPtr &, const Ice::StringSeq & = Ice::StringSeq());
 		};
