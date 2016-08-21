@@ -8,7 +8,6 @@
 #include <routes.h>
 #include <slicer/slicer.h>
 #include <IceUtil/Optional.h>
-#include "acceptable.h"
 
 namespace IceSpider {
 	class Core;
@@ -16,6 +15,7 @@ namespace IceSpider {
 
 	typedef std::vector<std::string> PathElements;
 	typedef IceUtil::Optional<std::string> OptionalString;
+	typedef std::pair<MimeType, Slicer::SerializerPtr> ContentTypeSerializer;
 
 	class DLL_PUBLIC IHttpRequest {
 		public:
@@ -29,7 +29,7 @@ namespace IceSpider {
 			virtual OptionalString getQueryStringParam(const std::string &) const = 0;
 			virtual OptionalString getHeaderParam(const std::string &) const = 0;
 			virtual Slicer::DeserializerPtr getDeserializer() const;
-			virtual Slicer::SerializerPtr getSerializer(const IRouteHandler *) const;
+			virtual ContentTypeSerializer getSerializer(const IRouteHandler *) const;
 			virtual std::istream & getInputStream() const = 0;
 			virtual std::ostream & getOutputStream() const = 0;
 
@@ -49,9 +49,10 @@ namespace IceSpider {
 			void response(const IRouteHandler * route, const T & t) const
 			{
 				auto s = getSerializer(route);
-				if (s) {
+				if (s.second) {
+					getOutputStream() << "Content-Type: " << s.first.group << "/" << s.first.type << "\r\n";
 					response(200, "OK");
-					Slicer::SerializeAnyWith<T>(t, s);
+					Slicer::SerializeAnyWith<T>(t, s.second);
 				}
 				else {
 					response(406, "Unacceptable");

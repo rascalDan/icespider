@@ -9,6 +9,7 @@
 #include <Ice/ObjectAdapter.h>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <definedDirs.h>
 #include <slicer/slicer.h>
@@ -211,6 +212,7 @@ BOOST_AUTO_TEST_CASE( testCallIndex )
 	process(&requestGetIndex);
 	auto h = parseHeaders(requestGetIndex.output);
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
+	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/json");
 	auto v = Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::SomeModelPtr>(requestGetIndex.output);
 	BOOST_REQUIRE_EQUAL(v->value, "index");
 }
@@ -221,6 +223,7 @@ BOOST_AUTO_TEST_CASE( testCallViewSomething1234 )
 	process(&requestGetItem);
 	auto h = parseHeaders(requestGetItem.output);
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
+	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/json");
 	auto v = Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::SomeModelPtr>(requestGetItem.output);
 	BOOST_REQUIRE_EQUAL(v->value, "withParams");
 }
@@ -231,6 +234,7 @@ BOOST_AUTO_TEST_CASE( testCallViewSomething1234_ )
 	process(&requestGetItemGiven);
 	auto h = parseHeaders(requestGetItemGiven.output);
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
+	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/json");
 	auto v = Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::SomeModelPtr>(requestGetItemGiven.output);
 	BOOST_REQUIRE_EQUAL(v->value, "withParams");
 }
@@ -241,6 +245,7 @@ BOOST_AUTO_TEST_CASE( testCallViewSomething )
 	process(&requestGetItemDefault);
 	auto h = parseHeaders(requestGetItemDefault.output);
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
+	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/json");
 	auto v = Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::SomeModelPtr>(requestGetItemDefault.output);
 	BOOST_REQUIRE_EQUAL(v->value, "withParams");
 }
@@ -274,6 +279,7 @@ BOOST_AUTO_TEST_CASE( testCallIndexAcceptJson )
 	process(&requestJson);
 	auto h = parseHeaders(requestJson.output);
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
+	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/json");
 	auto v = Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::SomeModelPtr>(requestJson.output);
 	BOOST_REQUIRE_EQUAL(v->value, "index");
 }
@@ -296,6 +302,7 @@ BOOST_AUTO_TEST_CASE( testCallIndexAcceptApplicationAny )
 	process(&requestApplicationAny);
 	auto h = parseHeaders(requestApplicationAny.output);
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
+	BOOST_REQUIRE(boost::algorithm::starts_with(h["Content-Type"], "application/"));
 	auto v = Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::SomeModelPtr>(requestApplicationAny.output);
 	BOOST_REQUIRE_EQUAL(v->value, "index");
 }
@@ -307,6 +314,7 @@ BOOST_AUTO_TEST_CASE( testCallIndexAcceptXml )
 	process(&requestXml);
 	auto h = parseHeaders(requestXml.output);
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
+	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/xml");
 	auto v = Slicer::DeserializeAny<Slicer::XmlStreamDeserializer, TestIceSpider::SomeModelPtr>(requestXml.output);
 	BOOST_REQUIRE_EQUAL(v->value, "index");
 }
@@ -318,6 +326,7 @@ BOOST_AUTO_TEST_CASE( testCallIndexAcceptTextHtml )
 	process(&requestHtml);
 	auto h = parseHeaders(requestHtml.output);
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
+	BOOST_REQUIRE_EQUAL(h["Content-Type"], "text/html");
 	xmlpp::DomParser d;
 	d.parse_stream(requestHtml.output);
 	BOOST_REQUIRE_EQUAL(d.get_document()->get_root_node()->get_name(), "html");
@@ -352,6 +361,7 @@ BOOST_AUTO_TEST_CASE( testCallIndexComplexAccept )
 	process(&requestChoice);
 	auto h = parseHeaders(requestChoice.output);
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
+	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/xml");
 	auto v = Slicer::DeserializeAny<Slicer::XmlStreamDeserializer, TestIceSpider::SomeModelPtr>(requestChoice.output);
 	BOOST_REQUIRE_EQUAL(v->value, "index");
 }

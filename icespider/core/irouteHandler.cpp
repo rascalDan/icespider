@@ -26,32 +26,34 @@ namespace IceSpider {
 		return request->core->getProxy(type);
 	}
 
-	Slicer::SerializerPtr
-	IRouteHandler::getSerializer(const char * grp, const char * type, std::ostream & strm) const
+	ContentTypeSerializer
+	IRouteHandler::getSerializer(const AcceptPtr & a, std::ostream & strm) const
 	{
 		for (const auto & rs : routeSerializers) {
-			if ((!grp || rs.first.first == grp) && (!type || rs.first.second == type)) {
-				return rs.second->create(strm);
+			if ((!a->group || rs.first.group == a->group) && (!a->type || rs.first.type == a->type)) {
+				return { rs.first, rs.second->create(strm) };
 			}
 		}
-		return nullptr;
+		return ContentTypeSerializer();
 	}
 
-	Slicer::SerializerPtr
+	ContentTypeSerializer
 	IRouteHandler::defaultSerializer(std::ostream & strm) const
 	{
-		return Slicer::StreamSerializerFactory::createNew(
-			"application/json", strm);
+		return {
+			{ "application", "json" },
+			Slicer::StreamSerializerFactory::createNew("application/json", strm)
+		};
 	}
 
 	void
-	IRouteHandler::addRouteSerializer(const ContentType & ct, StreamSerializerFactoryPtr ssfp)
+	IRouteHandler::addRouteSerializer(const MimeType & ct, StreamSerializerFactoryPtr ssfp)
 	{
 		routeSerializers.insert({ ct, ssfp });
 	}
 
 	void
-	IRouteHandler::removeRouteSerializer(const ContentType & ct)
+	IRouteHandler::removeRouteSerializer(const MimeType & ct)
 	{
 		auto i = routeSerializers.find(ct);
 		if (i != routeSerializers.end()) {

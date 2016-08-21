@@ -16,15 +16,14 @@ namespace IceSpider {
 			virtual ~IRouteHandler();
 
 			virtual void execute(IHttpRequest * request) const = 0;
-			virtual Slicer::SerializerPtr getSerializer(const char *, const char *, std::ostream &) const;
-			virtual Slicer::SerializerPtr defaultSerializer(std::ostream &) const;
+			virtual ContentTypeSerializer getSerializer(const AcceptPtr &, std::ostream &) const;
+			virtual ContentTypeSerializer defaultSerializer(std::ostream &) const;
 
 			const HttpMethod method;
 
 		protected:
 			typedef Slicer::StreamSerializerFactory * StreamSerializerFactoryPtr;
-			typedef std::pair<std::string, std::string> ContentType;
-			typedef std::map<ContentType, StreamSerializerFactoryPtr> RouteSerializers;
+			typedef std::map<MimeType, StreamSerializerFactoryPtr> RouteSerializers;
 			RouteSerializers routeSerializers;
 
 			template <typename T, typename K>
@@ -42,8 +41,8 @@ namespace IceSpider {
 				return Interface::ProxyType::uncheckedCast(getProxy(request, typeid(Interface).name()));
 			}
 
-			void addRouteSerializer(const ContentType &, StreamSerializerFactoryPtr);
-			void removeRouteSerializer(const ContentType &);
+			void addRouteSerializer(const MimeType &, StreamSerializerFactoryPtr);
+			void removeRouteSerializer(const MimeType &);
 	};
 	typedef AdHoc::PluginOf<IRouteHandler> RouteHandlers;
 }

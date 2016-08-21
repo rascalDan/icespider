@@ -9,6 +9,17 @@ module IceSpider {
 	enum ParameterSource {
 		URL, Body, QueryString, Header
 	};
+
+	struct MimeType {
+		string group;
+		string type;
+	};
+
+	class Accept {
+		optional(0) string group;
+		optional(1) string type;
+		float q = 1.0;
+	};
 };
 
 #endif

@@ -24,48 +24,42 @@ namespace IceSpider {
 			}, getInputStream());
 	}
 
-	Slicer::SerializerPtr
+	ContentTypeSerializer
 	IHttpRequest::getSerializer(const IRouteHandler * handler) const
 	{
 		auto acceptHdr = getHeaderParam("Accept");
 		if (acceptHdr) {
 			auto accept = acceptHdr->c_str();
-			std::vector<Acceptable> accepts;
+			std::vector<AcceptPtr> accepts;
 			accepts.reserve(5);
-			char * grp = NULL, * type = NULL;
+			char grp[BUFSIZ], type[BUFSIZ];
 			float pri = 0.0f;
 			int chars, v;
-			while ((v = sscanf(accept, " %m[^ /] / %m[^ ;,] %n , %n", &grp, &type, &chars, &chars)) == 2) {
+			while ((v = sscanf(accept, " %[^ /] / %[^ ;,] %n , %n", grp, type, &chars, &chars)) == 2) {
 				accept += chars;
 				chars = 0;
-				if ((v = sscanf(accept, " ; q = %f %n , %n", &pri, &chars, &chars)) != 1) {
-					pri = 1.0;
+				auto a = new Accept();
+				if ((v = sscanf(accept, " ; q = %f %n , %n", &pri, &chars, &chars)) == 1) {
+					a->q = pri;
 				}
-				if (!strcmp(grp, "*")) {
-					free(grp);
-					grp = NULL;
+				if (strcmp(grp, "*")) {
+					a->group = grp;
 				}
-				if (!strcmp(type, "*")) {
-					free(type);
-					type = NULL;
+				if (strcmp(type, "*")) {
+					a->type = type;
 				}
-				accepts.push_back( { grp, type, pri } );
-				grp = NULL;
-				type = NULL;
 				accept += chars;
+				accepts.push_back(a);
 			}
-			free(grp);
-			free(type);
-			std::stable_sort(accepts.begin(), accepts.end(), [](const auto & a, const auto & b) { return a.pri > b.pri; });
-			Slicer::SerializerPtr serializer;
+			std::stable_sort(accepts.begin(), accepts.end(), [](const auto & a, const auto & b) { return a->q > b->q; });
 			auto & strm = getOutputStream();
 			for(auto & a : accepts) {
-				if (!serializer) {
-					serializer = handler->getSerializer(a.grp, a.type, strm);
+				ContentTypeSerializer serializer = handler->getSerializer(a, strm);
+				if (serializer.second) {
+					return serializer;
 				}
-				a.free();
 			}
-			return serializer;
+			return ContentTypeSerializer();
 		}
 		else {
 			return handler->defaultSerializer(getOutputStream());
