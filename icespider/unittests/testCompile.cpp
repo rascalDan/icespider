@@ -54,35 +54,57 @@ BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 	BOOST_REQUIRE_EQUAL("test-api.ice", cfg->slices[0]);
 }
 
-BOOST_AUTO_TEST_CASE( testCompile )
+BOOST_AUTO_TEST_CASE( testRouteCompile )
 {
+	auto input = rootDir / "testRoutes.json";
+	auto outputc = binDir / "testRoutes.cpp";
+
 	Compile::RouteCompiler rc;
 	rc.searchPath.push_back(rootDir);
-	auto input = rootDir / "testRoutes.json";
-	auto output = binDir / "testRoutes.cpp";
-	auto outputso = boost::filesystem::change_extension(output, ".so");
+	rc.compile(input, outputc);
+}
+
+BOOST_AUTO_TEST_CASE( testCompile )
+{
+	auto outputc = binDir / "testRoutes.cpp";
+	auto outputo = binDir / "testRoutes.o";
 	auto libGenDir = (rootDir / "bin" / modeDir / "slicer-yes");
-	rc.compile(input, output);
 
 	auto compileCommand = boost::algorithm::join<std::vector<std::string>>({
-		"gcc", "-shared", "-std=c++1y", "-fPIC", " -fvisibility=hidden", "-O3", "-Wl,--warn-once,--gc-sections",
+		"gcc", "-c", "-std=c++1y", "-fPIC", "-fvisibility=hidden", "-O3",
 		"-I", "/usr/include/adhocutil",
 		"-I", "/usr/include/slicer",
 		"-I", (rootDir.parent_path() / "core").string(),
 		"-I", (rootDir.parent_path() / "common").string(),
 		"-I", (rootDir.parent_path() / "common" / "bin" / modeDir / "allow-ice-yes").string(),
 		"-I", libGenDir.string(),
-		"-o", outputso.string(),
-		output.string(),
+		"-o", outputo.string(),
+		outputc.string(),
 	}, " ");
 	BOOST_TEST_INFO("Compile command: " << compileCommand);
 	int compileResult = system(compileCommand.c_str());
 	BOOST_REQUIRE_EQUAL(0, compileResult);
 }
 
+BOOST_AUTO_TEST_CASE( testLink )
+{
+	auto outputo = binDir / "testRoutes.o";
+	auto outputso = binDir / "testRoutes.so";
+
+	auto linkCommand = boost::algorithm::join<std::vector<std::string>>({
+		"gcc", "-shared", "-Wl,--warn-once,--gc-sections",
+		"-o", outputso.string(),
+		outputo.string(),
+	}, " ");
+	BOOST_TEST_INFO("Link command: " << linkCommand);
+	int linkResult = system(linkCommand.c_str());
+	BOOST_REQUIRE_EQUAL(0, linkResult);
+}
+
 BOOST_AUTO_TEST_CASE( testLoad )
 {
 	auto outputso = binDir / "testRoutes.so";
+
 	auto lib = dlopen(outputso.c_str(), RTLD_NOW);
 	BOOST_TEST_INFO(dlerror());
 	BOOST_REQUIRE(lib);
