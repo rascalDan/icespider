@@ -46,12 +46,12 @@ namespace IceSpider {
 				if (eq < amp) {
 					*eq = '\0';
 					*amp = '\0';
-					qsmap.insert({ eq, Env( eq + 1, amp ) });
+					qsmap.insert({ start, Env( eq + 1, amp ) });
 				}
 				else {
 					*eq = '\0';
 					*amp = '\0';
-					qsmap.insert({ eq, Env( eq + 1, eq + 1 ) });
+					qsmap.insert({ start, Env( eq + 1, eq + 1 ) });
 				}
 				start = amp + 1;
 			}
