@@ -4,6 +4,7 @@ build-project core ;
 build-project compile ;
 build-project unittests ;
 build-project fcgi ;
+build-project xslt ;
 
 lib Ice ;
 lib IceUtil ;
@@ -15,8 +16,9 @@ package.install install : :
 	core//icespider-core
 	common//icespider-common
 	fcgi//icespider-fcgi
+	xslt//icespider-xslt
 	:
-	[ glob-tree *.h : fcgi ]
+	[ glob-tree *.h : fcgi unittests compile ]
 	;
 package.install-data install-tools : boost-build/tools : compile/icespider.jam ;
 package.install-data install-ice : icespider/ice : [ glob common/*.ice ] ;
