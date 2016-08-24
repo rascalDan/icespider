@@ -43,14 +43,12 @@ namespace IceSpider {
 			while (start < end) {
 				auto amp = orelse(strchr(start, '&'), end);
 				auto eq = orelse(strchr(start, '='), end);
+				*amp = '\0';
 				if (eq < amp) {
 					*eq = '\0';
-					*amp = '\0';
 					qsmap.insert({ start, Env( eq + 1, amp ) });
 				}
 				else {
-					*eq = '\0';
-					*amp = '\0';
 					qsmap.insert({ start, Env( eq + 1, eq + 1 ) });
 				}
 				start = amp + 1;
