@@ -45,39 +45,39 @@ namespace IceSpider {
 		}
 
 		Slice::OperationPtr
-		RouteCompiler::findOperation(RoutePtr r, const Slice::ContainerPtr & c, const Ice::StringSeq & ns)
+		RouteCompiler::findOperation(const std::string & on, const Slice::ContainerPtr & c, const Ice::StringSeq & ns)
 		{
 			for (const auto & cls : c->classes()) {
 				auto fqcn = ns + cls->name();
 				for (const auto & op : cls->allOperations()) {
 					auto fqon = boost::algorithm::join(fqcn + op->name(), ".");
-					if (fqon == r->operation) {
+					if (fqon == on) {
 						return op;
 					}
 				}
 			}
 			for (const auto & m : c->modules()) {
-				auto op = findOperation(r, m, ns + m->name());
+				auto op = findOperation(on, m, ns + m->name());
 				if (op) return op;
 			}
 			return NULL;
 		}
 
 		Slice::OperationPtr
-		RouteCompiler::findOperation(RoutePtr r, const Units & us)
+		RouteCompiler::findOperation(const std::string & on, const Units & us)
 		{
 			for (const auto & u : us) {
-				auto op = findOperation(r, u.second);
+				auto op = findOperation(on, u.second);
 				if (op) return op;
 			}
-			throw std::runtime_error("Find operator failed for " + r->name);
+			throw std::runtime_error("Find operation " + on + " failed.");
 		}
 
 		void
 		RouteCompiler::applyDefaults(RouteConfigurationPtr c, const Units & u) const
 		{
 			for (const auto & r : c->routes) {
-				auto o = findOperation(r, u);
+				auto o = findOperation(r->operation, u);
 				for (const auto & p : o->parameters()) {
 					auto defined = std::find_if(r->params.begin(), r->params.end(), [p](const auto & rp) {
 						return p->name() == rp->name;
@@ -294,7 +294,7 @@ namespace IceSpider {
 				fprintbf(3, output, "}\n\n");
 				fprintbf(3, output, "void execute(IceSpider::IHttpRequest * request) const\n");
 				fprintbf(3, output, "{\n");
-				auto o = findOperation(r, units);
+				auto o = findOperation(r->operation, units);
 				for (const auto & p : r->params) {
 					if (p->hasUserSource) {
 						auto ip = *std::find_if(o->parameters().begin(), o->parameters().end(), [p](const auto & ip) { return ip->name() == p->name; });
