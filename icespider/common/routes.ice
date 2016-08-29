@@ -5,6 +5,7 @@
 
 module IceSpider {
 	sequence<string> StringSeq;
+	dictionary<string, string> StringMap;
 
 	class Parameter {
 		string name;
@@ -28,12 +29,21 @@ module IceSpider {
 
 	sequence<OutputSerializer> OutputSerializers;
 
+	class Operation {
+		string operation;
+		StringMap paramOverrides;
+	};
+
+	dictionary<string, Operation> Operations;
+
 	class Route {
 		string name;
 		string path;
 		HttpMethod method = GET;
-		string operation;
+		optional(0) string operation;
 		Parameters params;
+		Operations operations;
+		string type;
 		OutputSerializers outputSerializers;
 	};
 

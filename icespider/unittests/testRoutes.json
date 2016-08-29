@@ -68,6 +68,50 @@
 			"default": "1234"
 		}
 		]
+	},
+	{
+		"name": "mashStruct",
+		"path": "/mashS/{s}/{t}/{i}",
+		"method": "GET",
+		"type": "TestIceSpider.Mash1",
+		"operations": [{
+			"key": "a",
+			"value": {
+				"operation": "TestIceSpider.TestApi.withParams"
+			}
+		},
+		{
+			"key": "b",
+			"value": {
+				"operation": "TestIceSpider.TestApi.withParams",
+				"paramOverrides": [{
+					"key": "s",
+					"value": "t"
+				}]
+			}
+		}]
+	},
+	{
+		"name": "mashClass",
+		"path": "/mashC/{s}/{t}/{i}",
+		"method": "GET",
+		"type": "TestIceSpider.Mash2",
+		"operations": [{
+			"key": "a",
+			"value": {
+				"operation": "TestIceSpider.TestApi.withParams"
+			}
+		},
+		{
+			"key": "b",
+			"value": {
+				"operation": "TestIceSpider.TestApi.withParams",
+				"paramOverrides": [{
+					"key": "s",
+					"value": "t"
+				}]
+			}
+		}]
 	}
 	],
 	"slices": [

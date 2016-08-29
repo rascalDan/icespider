@@ -28,8 +28,15 @@ namespace IceSpider {
 				void processConfiguration(FILE * output, RouteConfigurationPtr, const Units &) const;
 				void registerOutputSerializers(FILE * output, RoutePtr) const;
 				void releaseOutputSerializers(FILE * output, RoutePtr) const;
+				void addSingleOperation(FILE * output, RoutePtr, Slice::OperationPtr) const;
+				void addMashupOperations(FILE * output, RoutePtr, const Units &) const;
+				typedef std::map<std::string, Slice::ParamDeclPtr> ParameterMap;
+				static ParameterMap findParameters(RoutePtr, const Units &);
 				static Slice::OperationPtr findOperation(const std::string &, const Units &);
 				static Slice::OperationPtr findOperation(const std::string &, const Slice::ContainerPtr &, const Ice::StringSeq & = Ice::StringSeq());
+				typedef std::pair<Slice::StructPtr, Slice::ClassDeclPtr> Type;
+				static Type findType(const std::string &, const Units &);
+				static Type findType(const std::string &, const Slice::ContainerPtr &, const Ice::StringSeq & = Ice::StringSeq());
 		};
 	}
 }

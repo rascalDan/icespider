@@ -73,21 +73,77 @@ namespace IceSpider {
 			throw std::runtime_error("Find operation " + on + " failed.");
 		}
 
+		RouteCompiler::Type
+		RouteCompiler::findType(const std::string & tn, const Slice::ContainerPtr & c, const Ice::StringSeq & ns)
+		{
+			for (const auto & strct : c->structs()) {
+				auto fqon = boost::algorithm::join(ns + strct->name(), ".");
+				if (fqon == tn) return { strct, NULL };
+				auto t = findType(tn, strct, ns + strct->name());
+			}
+			for (const auto & cls : c->classes()) {
+				auto fqon = boost::algorithm::join(ns + cls->name(), ".");
+				if (fqon == tn) return { NULL, cls->declaration() };
+				auto t = findType(tn, cls, ns + cls->name());
+				if (t.first || t.second) return t;
+			}
+			for (const auto & m : c->modules()) {
+				auto t = findType(tn, m, ns + m->name());
+				if (t.first || t.second) return t;
+			}
+			return { NULL, NULL };
+		}
+
+		RouteCompiler::Type
+		RouteCompiler::findType(const std::string & tn, const Units & us)
+		{
+			for (const auto & u : us) {
+				auto t = findType(tn, u.second);
+				if (t.first || t.second) return t;
+			}
+			throw std::runtime_error("Find type " + tn + " failed.");
+		}
+
+		RouteCompiler::ParameterMap
+		RouteCompiler::findParameters(RoutePtr r, const Units & us)
+		{
+			RouteCompiler::ParameterMap pm;
+			for (const auto & o : r->operations) {
+				auto op = findOperation(o.second->operation, us);
+				if (!op) {
+					throw std::runtime_error("Find operator failed for " + r->name);
+				}
+				for (const auto & p : op->parameters()) {
+					auto po = o.second->paramOverrides.find(p->name());
+					if (po != o.second->paramOverrides.end()) {
+						pm[po->second] = p;
+					}
+					else {
+						pm[p->name()] = p;
+					}
+				}
+			}
+			return pm;
+		}
+
 		void
 		RouteCompiler::applyDefaults(RouteConfigurationPtr c, const Units & u) const
 		{
 			for (const auto & r : c->routes) {
-				auto o = findOperation(r->operation, u);
-				for (const auto & p : o->parameters()) {
+				if (r->operation) {
+					r->operations[std::string()] = new Operation(*r->operation, {});
+				}
+				auto ps = findParameters(r, u);
+				for (const auto & p : ps) {
 					auto defined = std::find_if(r->params.begin(), r->params.end(), [p](const auto & rp) {
-						return p->name() == rp->name;
+						return p.first == rp->name;
 					});
 					if (defined != r->params.end()) {
 						auto d = *defined;
 						if (!d->key) d->key = d->name;
 					}
 					else {
-						r->params.push_back(new Parameter(p->name(), ParameterSource::URL, p->name(), false, IceUtil::Optional<std::string>(), false));
+						r->params.push_back(new Parameter(p.first, ParameterSource::URL, p.first, false, IceUtil::Optional<std::string>(), false));
 						defined = --r->params.end();
 					}
 					auto d = *defined;
@@ -248,9 +304,6 @@ namespace IceSpider {
 			fprintbf(output, "namespace %s {\n", c->name);
 			fprintbf(1, output, "// Implementation classes.\n\n");
 			for (const auto & r : c->routes) {
-				auto proxyName = r->operation.substr(0, r->operation.find_last_of('.'));
-				auto operation = r->operation.substr(r->operation.find_last_of('.') + 1);
-				boost::algorithm::replace_all(proxyName, ".", "::");
 				std::string methodName = getEnumString(r->method);
 
 				fprintbf(1, output, "// Route name: %s\n", r->name);
@@ -294,10 +347,10 @@ namespace IceSpider {
 				fprintbf(3, output, "}\n\n");
 				fprintbf(3, output, "void execute(IceSpider::IHttpRequest * request) const\n");
 				fprintbf(3, output, "{\n");
-				auto o = findOperation(r->operation, units);
+				auto ps = findParameters(r, units);
 				for (const auto & p : r->params) {
 					if (p->hasUserSource) {
-						auto ip = *std::find_if(o->parameters().begin(), o->parameters().end(), [p](const auto & ip) { return ip->name() == p->name; });
+						auto ip = ps.find(p->name)->second;
 						fprintbf(4, output, "auto _p_%s(request->get%sParam<%s>(_p%c_%s)",
 										 p->name, getEnumString(p->source), Slice::typeToString(ip->type()),
 										 p->source == ParameterSource::URL ? 'i' : 'n',
@@ -316,31 +369,11 @@ namespace IceSpider {
 						fprintbf(0, output, ");\n");
 					}
 				}
-				fprintbf(4, output, "auto prx = getProxy<%s>(request);\n", proxyName);
-				if (o->returnsData()) {
-					fprintbf(4, output, "request->response(this, prx->%s(", operation);
+				if (r->operation) {
+					addSingleOperation(output, r, findOperation(*r->operation, units));
 				}
 				else {
-					fprintbf(4, output, "prx->%s(", operation);
-				}
-				for (const auto & p : o->parameters()) {
-					auto rp = *std::find_if(r->params.begin(), r->params.end(), [p](const auto & rp) {
-						return rp->name == p->name();
-					});
-					if (rp->hasUserSource) {
-						fprintbf(output, "_p_%s, ", p->name());
-					}
-					else {
-						fprintbf(output, "_pd_%s, ", p->name());
-					}
-				}
-				fprintbf(output, "request->getContext())");
-				if (o->returnsData()) {
-					fprintbf(output, ")");
-				}
-				fprintbf(output, ";\n");
-				if (!o->returnsData()) {
-					fprintbf(4, output, "request->response(200, \"OK\");\n");
+					addMashupOperations(output, r, units);
 				}
 				fprintbf(3, output, "}\n\n");
 				fprintbf(2, output, "private:\n");
@@ -354,7 +387,7 @@ namespace IceSpider {
 						}
 					}
 					if (p->defaultExpr) {
-						auto ip = *std::find_if(o->parameters().begin(), o->parameters().end(), [p](const auto & ip) { return ip->name() == p->name; });
+						auto ip = ps.find(p->name)->second;
 						fprintbf(3, output, "const %s _pd_%s;\n",
 								Slice::typeToString(ip->type()), p->name);
 
@@ -368,6 +401,100 @@ namespace IceSpider {
 				fprintbf(output, "PLUGIN(%s::%s, IceSpider::IRouteHandler);\n", c->name, r->name);
 			}
 			fprintf(output, "\n// End generated code.\n");
+		}
+
+		void
+		RouteCompiler::addSingleOperation(FILE * output, RoutePtr r, Slice::OperationPtr o) const
+		{
+			auto proxyName = r->operation->substr(0, r->operation->find_last_of('.'));
+			auto operation = r->operation->substr(r->operation->find_last_of('.') + 1);
+			boost::algorithm::replace_all(proxyName, ".", "::");
+			fprintbf(4, output, "auto prx = getProxy<%s>(request);\n", proxyName);
+			if (o->returnsData()) {
+				fprintbf(4, output, "request->response(this, prx->%s(", operation);
+			}
+			else {
+				fprintbf(4, output, "prx->%s(", operation);
+			}
+			for (const auto & p : o->parameters()) {
+				auto rp = *std::find_if(r->params.begin(), r->params.end(), [p](const auto & rp) {
+					return rp->name == p->name();
+				});
+				if (rp->hasUserSource) {
+					fprintbf(output, "_p_%s, ", p->name());
+				}
+				else {
+					fprintbf(output, "_pd_%s, ", p->name());
+				}
+			}
+			fprintbf(output, "request->getContext())");
+			if (o->returnsData()) {
+				fprintbf(output, ")");
+			}
+			fprintbf(output, ";\n");
+			if (!o->returnsData()) {
+				fprintbf(4, output, "request->response(200, \"OK\");\n");
+			}
+		}
+
+		void
+		RouteCompiler::addMashupOperations(FILE * output, RoutePtr r, const Units & us) const
+		{
+			int n = 0;
+			typedef std::map<std::string, int> Proxies;
+			Proxies proxies;
+			for (const auto & o : r->operations) {
+				auto proxyName = o.second->operation.substr(0, o.second->operation.find_last_of('.'));
+				if (proxies.find(proxyName) == proxies.end()) {
+					proxies[proxyName] = n;
+					fprintbf(4, output, "auto prx%d = getProxy<%s>(request);\n", n, boost::algorithm::replace_all_copy(proxyName, ".", "::"));
+					n += 1;
+				}
+			}	
+			for (const auto & o : r->operations) {
+				auto proxyName = o.second->operation.substr(0, o.second->operation.find_last_of('.'));
+				auto operation = o.second->operation.substr(o.second->operation.find_last_of('.') + 1);
+				fprintbf(4, output, "auto _ar_%s = prx%s->begin_%s(", o.first, proxies.find(proxyName)->second, operation);
+				auto so = findOperation(o.second->operation, us);
+				for (const auto & p : so->parameters()) {
+					auto po = o.second->paramOverrides.find(p->name());
+					fprintbf(output, "_p_%s, ", (po != o.second->paramOverrides.end() ? po->second : p->name()));
+				}
+				fprintbf(output, "request->getContext());\n");
+			}
+			auto t = findType(r->type, us);
+			Slice::DataMemberList members;
+			if (t.second) {
+				fprintbf(4, output, "request->response<%s>(this, new %s(",
+						Slice::typeToString(t.second),
+						t.second->scoped());
+				members = t.second->definition()->dataMembers();
+			}
+			else {
+				fprintbf(4, output, "request->response<%s>(this, {",
+						Slice::typeToString(t.first));
+				members = t.first->dataMembers();
+			}
+			for (auto mi = members.begin(); mi != members.end(); mi++) {
+				for (const auto & o : r->operations) {
+					auto proxyName = o.second->operation.substr(0, o.second->operation.find_last_of('.'));
+					auto operation = o.second->operation.substr(o.second->operation.find_last_of('.') + 1);
+					if ((*mi)->name() == o.first) {
+						if (mi != members.begin()) {
+							fprintbf(output, ",");
+						}
+						fprintbf(output, "\n");
+						fprintbf(6, output, "prx%s->end_%s(_ar_%s)", proxies.find(proxyName)->second, operation, o.first);
+					}
+				}
+			}
+			if (t.second) {
+				fprintf(output, ")");
+			}
+			else {
+				fprintf(output, " }");
+			}
+			fprintf(output, ");\n");
 		}
 	}
 }

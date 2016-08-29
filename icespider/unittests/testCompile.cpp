@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 	rc.applyDefaults(cfg, u);
 
 	BOOST_REQUIRE_EQUAL("common", cfg->name);
-	BOOST_REQUIRE_EQUAL(6, cfg->routes.size());
+	BOOST_REQUIRE_EQUAL(8, cfg->routes.size());
 
 	BOOST_REQUIRE_EQUAL("index", cfg->routes[0]->name);
 	BOOST_REQUIRE_EQUAL("/", cfg->routes[0]->path);
@@ -55,6 +55,14 @@ BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 	BOOST_REQUIRE_EQUAL("update", cfg->routes[3]->name);
 	BOOST_REQUIRE_EQUAL(HttpMethod::POST, cfg->routes[3]->method);
 	BOOST_REQUIRE_EQUAL(2, cfg->routes[3]->params.size());
+
+	BOOST_REQUIRE_EQUAL("mashStruct", cfg->routes[6]->name);
+	BOOST_REQUIRE_EQUAL(HttpMethod::GET, cfg->routes[6]->method);
+	BOOST_REQUIRE_EQUAL(3, cfg->routes[6]->params.size());
+
+	BOOST_REQUIRE_EQUAL("mashClass", cfg->routes[7]->name);
+	BOOST_REQUIRE_EQUAL(HttpMethod::GET, cfg->routes[7]->method);
+	BOOST_REQUIRE_EQUAL(3, cfg->routes[7]->params.size());
 
 	BOOST_REQUIRE_EQUAL(1, cfg->slices.size());
 	BOOST_REQUIRE_EQUAL("test-api.ice", cfg->slices[0]);
@@ -124,7 +132,7 @@ BOOST_AUTO_TEST_CASE( testLoad )
 	BOOST_TEST_INFO(dlerror());
 	BOOST_REQUIRE(lib);
 
-	BOOST_REQUIRE_EQUAL(6, AdHoc::PluginManager::getDefault()->getAll<IRouteHandler>().size());
+	BOOST_REQUIRE_EQUAL(8, AdHoc::PluginManager::getDefault()->getAll<IRouteHandler>().size());
 	// smoke test (block ensure dlclose dones't cause segfault)
 	{
 		auto route = AdHoc::PluginManager::getDefault()->get<IRouteHandler>("common::index");

@@ -27,7 +27,7 @@ void forceEarlyChangeDir()
 
 BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 {
-	BOOST_REQUIRE_EQUAL(6, AdHoc::PluginManager::getDefault()->getAll<IRouteHandler>().size());
+	BOOST_REQUIRE_EQUAL(8, AdHoc::PluginManager::getDefault()->getAll<IRouteHandler>().size());
 }
 
 class TestRequest : public IHttpRequest {
@@ -89,11 +89,12 @@ BOOST_FIXTURE_TEST_SUITE(c, Core);
 BOOST_AUTO_TEST_CASE( testCoreSettings )
 {
 	BOOST_REQUIRE_EQUAL(6, routes.size());
-	BOOST_REQUIRE_EQUAL(4, routes[HttpMethod::GET].size());
+	BOOST_REQUIRE_EQUAL(5, routes[HttpMethod::GET].size());
 	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::GET][0].size());
 	BOOST_REQUIRE_EQUAL(0, routes[HttpMethod::GET][1].size());
 	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::GET][2].size());
 	BOOST_REQUIRE_EQUAL(2, routes[HttpMethod::GET][3].size());
+	BOOST_REQUIRE_EQUAL(2, routes[HttpMethod::GET][4].size());
 	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::HEAD].size());
 	BOOST_REQUIRE_EQUAL(2, routes[HttpMethod::POST].size());
 	BOOST_REQUIRE_EQUAL(0, routes[HttpMethod::POST][0].size());
@@ -139,6 +140,12 @@ BOOST_AUTO_TEST_CASE( testFindRoutes )
 
 	TestRequest requestDeleteThing(this, HttpMethod::DELETE, "/something");
 	BOOST_REQUIRE(findRoute(&requestDeleteThing));
+
+	TestRequest requestMashS(this, HttpMethod::GET, "/mashS/mash/1/3");
+	BOOST_REQUIRE(findRoute(&requestMashS));
+
+	TestRequest requestMashC(this, HttpMethod::GET, "/mashS/mash/1/3");
+	BOOST_REQUIRE(findRoute(&requestMashC));
 }
 
 BOOST_AUTO_TEST_SUITE_END();
@@ -215,6 +222,30 @@ BOOST_AUTO_TEST_CASE( testCallIndex )
 	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/json");
 	auto v = Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::SomeModelPtr>(requestGetIndex.output);
 	BOOST_REQUIRE_EQUAL(v->value, "index");
+}
+
+BOOST_AUTO_TEST_CASE( testCallMashS )
+{
+	TestRequest requestGetMashS(this, HttpMethod::GET, "/mashS/something/something/1234");
+	process(&requestGetMashS);
+	auto h = parseHeaders(requestGetMashS.output);
+	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
+	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/json");
+	auto v = Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::Mash1>(requestGetMashS.output);
+	BOOST_REQUIRE_EQUAL(v.a->value, "withParams");
+	BOOST_REQUIRE_EQUAL(v.b->value, "withParams");
+}
+
+BOOST_AUTO_TEST_CASE( testCallMashC )
+{
+	TestRequest requestGetMashC(this, HttpMethod::GET, "/mashC/something/something/1234");
+	process(&requestGetMashC);
+	auto h = parseHeaders(requestGetMashC.output);
+	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
+	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/json");
+	auto v = Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::Mash2Ptr>(requestGetMashC.output);
+	BOOST_REQUIRE_EQUAL(v->a->value, "withParams");
+	BOOST_REQUIRE_EQUAL(v->b->value, "withParams");
 }
 
 BOOST_AUTO_TEST_CASE( testCallViewSomething1234 )
