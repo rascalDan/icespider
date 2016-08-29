@@ -74,44 +74,34 @@
 		"path": "/mashS/{s}/{t}/{i}",
 		"method": "GET",
 		"type": "TestIceSpider.Mash1",
-		"operations": [{
-			"key": "a",
-			"value": {
+		"operations": {
+			"a": {
 				"operation": "TestIceSpider.TestApi.withParams"
-			}
-		},
-		{
-			"key": "b",
-			"value": {
+			},
+			"b": {
 				"operation": "TestIceSpider.TestApi.withParams",
-				"paramOverrides": [{
-					"key": "s",
-					"value": "t"
-				}]
+				"paramOverrides": {
+					"s": "t"
+				}
 			}
-		}]
+		}
 	},
 	{
 		"name": "mashClass",
 		"path": "/mashC/{s}/{t}/{i}",
 		"method": "GET",
 		"type": "TestIceSpider.Mash2",
-		"operations": [{
-			"key": "a",
-			"value": {
+		"operations": {
+			"a": {
 				"operation": "TestIceSpider.TestApi.withParams"
-			}
-		},
-		{
-			"key": "b",
-			"value": {
+			},
+			"b": {
 				"operation": "TestIceSpider.TestApi.withParams",
-				"paramOverrides": [{
-					"key": "s",
-					"value": "t"
-				}]
+				"paramOverrides": {
+					"s": "t"
+				}
 			}
-		}]
+		}
 	}
 	],
 	"slices": [

@@ -5,6 +5,7 @@
 
 module IceSpider {
 	sequence<string> StringSeq;
+	["slicer:json:object"]
 	dictionary<string, string> StringMap;
 
 	class Parameter {
@@ -34,6 +35,7 @@ module IceSpider {
 		StringMap paramOverrides;
 	};
 
+	["slicer:json:object"]
 	dictionary<string, Operation> Operations;
 
 	class Route {
