@@ -10,8 +10,8 @@ namespace IceSpider {
 		// Big enough to map all the request methods (an empty of zero lenght routes as default)
 		routes.resize(HttpMethod::OPTIONS + 1, {{ }});
 		// Initialize routes
-		for (const auto & rp : AdHoc::PluginManager::getDefault()->getAll<IRouteHandler>()) {
-			auto r = rp->implementation();
+		for (const auto & rp : AdHoc::PluginManager::getDefault()->getAll<RouteHandlerFactory>()) {
+			auto r = rp->implementation()->create();
 			auto & mroutes = routes[r->method];
 			if (mroutes.size() <= r->pathElementCount()) {
 				mroutes.resize(r->pathElementCount() + 1);
@@ -30,6 +30,13 @@ namespace IceSpider {
 	Core::~Core()
 	{
 		if (communicator) communicator->destroy();
+		for (auto m : routes) {
+			for (auto l : m) {
+				for (auto r : l) {
+					delete r;
+				}
+			}
+		}
 	}
 
 	void

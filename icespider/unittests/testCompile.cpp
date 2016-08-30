@@ -132,10 +132,10 @@ BOOST_AUTO_TEST_CASE( testLoad )
 	BOOST_TEST_INFO(dlerror());
 	BOOST_REQUIRE(lib);
 
-	BOOST_REQUIRE_EQUAL(8, AdHoc::PluginManager::getDefault()->getAll<IRouteHandler>().size());
+	BOOST_REQUIRE_EQUAL(8, AdHoc::PluginManager::getDefault()->getAll<IceSpider::RouteHandlerFactory>().size());
 	// smoke test (block ensure dlclose dones't cause segfault)
 	{
-		auto route = AdHoc::PluginManager::getDefault()->get<IRouteHandler>("common::index");
+		auto route = AdHoc::PluginManager::getDefault()->get<IceSpider::RouteHandlerFactory>("common::index");
 		BOOST_REQUIRE(route);
 	}
 

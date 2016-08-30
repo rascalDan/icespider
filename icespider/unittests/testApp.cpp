@@ -1,7 +1,6 @@
 #define BOOST_TEST_MODULE TestApp
 #include <boost/test/unit_test.hpp>
 
-#include <plugins.h>
 #include <safeMapFind.h>
 #include <irouteHandler.h>
 #include <core.h>
@@ -27,7 +26,7 @@ void forceEarlyChangeDir()
 
 BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 {
-	BOOST_REQUIRE_EQUAL(8, AdHoc::PluginManager::getDefault()->getAll<IRouteHandler>().size());
+	BOOST_REQUIRE_EQUAL(8, AdHoc::PluginManager::getDefault()->getAll<IceSpider::RouteHandlerFactory>().size());
 }
 
 class TestRequest : public IHttpRequest {

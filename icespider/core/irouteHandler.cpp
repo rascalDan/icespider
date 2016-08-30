@@ -1,8 +1,8 @@
 #include "irouteHandler.h"
 #include "core.h"
-#include <plugins.impl.h>
+#include <factory.impl.h>
 
-INSTANTIATEPLUGINOF(IceSpider::IRouteHandler);
+INSTANTIATEVOIDFACTORY(IceSpider::IRouteHandler);
 
 namespace IceSpider {
 	IRouteHandler::IRouteHandler(HttpMethod m, const std::string & p) :

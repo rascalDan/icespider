@@ -5,12 +5,12 @@
 #include "util.h"
 #include <pathparts.h>
 #include <routes.h>
-#include <plugins.h>
+#include <factory.h>
 #include <visibility.h>
 #include <boost/lexical_cast.hpp>
 
 namespace IceSpider {
-	class DLL_PUBLIC IRouteHandler : public AdHoc::AbstractPluginImplementation, public Path {
+	class DLL_PUBLIC IRouteHandler : public Path {
 		public:
 			IRouteHandler(HttpMethod, const std::string & path);
 			virtual ~IRouteHandler();
@@ -44,7 +44,7 @@ namespace IceSpider {
 			void addRouteSerializer(const MimeType &, StreamSerializerFactoryPtr);
 			void removeRouteSerializer(const MimeType &);
 	};
-	typedef AdHoc::PluginOf<IRouteHandler> RouteHandlers;
+	typedef AdHoc::Factory<IRouteHandler> RouteHandlerFactory;
 }
 
 #endif

@@ -398,7 +398,7 @@ namespace IceSpider {
 			fprintbf(output, "} // namespace %s\n\n", c->name);
 			fprintf(output, "// Register route handlers.\n");
 			for (const auto & r : c->routes) {
-				fprintbf(output, "PLUGIN(%s::%s, IceSpider::IRouteHandler);\n", c->name, r->name);
+				fprintbf(output, "FACTORY(%s::%s, IceSpider::RouteHandlerFactory);\n", c->name, r->name);
 			}
 			fprintf(output, "\n// End generated code.\n");
 		}
