@@ -3,6 +3,7 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <util.h>
+#include <slicer/modelPartsTypes.h>
 
 namespace ba = boost::algorithm;
 
@@ -75,7 +76,9 @@ namespace IceSpider {
 	HttpMethod
 	CgiRequestBase::getRequestMethod() const
 	{
-		return HttpMethod::GET;
+		auto i = envmap.find("REQUEST_METHOD");
+		return Slicer::ModelPartForEnum<HttpMethod>::lookup(
+				std::string(std::get<0>(i->second), std::get<1>(i->second)));
 	}
 
 	OptionalString
