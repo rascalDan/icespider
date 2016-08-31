@@ -12,20 +12,6 @@
 
 namespace IceSpider {
 	namespace Compile {
-		class StringValue : public Slicer::ValueTarget {
-			public:
-				StringValue(std::string & t) : target(t) { }
-				void get(const bool &) const override { }
-				void get(const Ice::Byte &) const override { }
-				void get(const Ice::Short &) const override { }
-				void get(const Ice::Int &) const override { }
-				void get(const Ice::Long &) const override { }
-				void get(const Ice::Float &) const override { }
-				void get(const Ice::Double &) const override { }
-				void get(const std::string & v) const override { target = v; }
-				std::string & target;
-		};
-
 		RouteCompiler::RouteCompiler()
 		{
 			searchPath.push_back(boost::filesystem::current_path());
@@ -243,9 +229,7 @@ namespace IceSpider {
 		template<typename Enum>
 		std::string getEnumString(Enum & e)
 		{
-			std::string rtn;
-			Slicer::ModelPart::CreateFor<Enum>(e)->GetValue(new StringValue(rtn));
-			return rtn;
+			return Slicer::ModelPartForEnum<Enum>::lookup(e);
 		}
 
 		void
