@@ -10,6 +10,8 @@
 #include <boost/lexical_cast.hpp>
 
 namespace IceSpider {
+	class Core;
+
 	class DLL_PUBLIC IRouteHandler : public Path {
 		public:
 			IRouteHandler(HttpMethod, const std::string & path);
@@ -44,7 +46,7 @@ namespace IceSpider {
 			void addRouteSerializer(const MimeType &, StreamSerializerFactoryPtr);
 			void removeRouteSerializer(const MimeType &);
 	};
-	typedef AdHoc::Factory<IRouteHandler> RouteHandlerFactory;
+	typedef AdHoc::Factory<IRouteHandler, const Core *> RouteHandlerFactory;
 }
 
 #endif

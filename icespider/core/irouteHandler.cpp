@@ -2,7 +2,7 @@
 #include "core.h"
 #include <factory.impl.h>
 
-INSTANTIATEVOIDFACTORY(IceSpider::IRouteHandler);
+INSTANTIATEFACTORY(IceSpider::IRouteHandler, const IceSpider::Core *);
 
 namespace IceSpider {
 	IRouteHandler::IRouteHandler(HttpMethod m, const std::string & p) :

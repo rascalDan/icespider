@@ -294,7 +294,7 @@ namespace IceSpider {
 				fprintbf(1, output, "//       path: %s\n", r->path);
 				fprintbf(1, output, "class %s : public IceSpider::IRouteHandler {\n", r->name);
 				fprintbf(2, output, "public:\n");
-				fprintbf(3, output, "%s() :\n", r->name);
+				fprintbf(3, output, "%s(const IceSpider::Core *) :\n", r->name);
 				fprintbf(4, output, "IceSpider::IRouteHandler(IceSpider::HttpMethod::%s, \"%s\")", methodName, r->path);
 				for (const auto & p : r->params) {
 					if (p->hasUserSource) {
