@@ -22,6 +22,12 @@ namespace IceSpider {
 
 			Ice::ObjectPrx getProxy(const char * type) const;
 
+			template<typename Interface>
+			typename Interface::ProxyType getProxy() const
+			{
+				return Interface::ProxyType::uncheckedCast(getProxy(typeid(Interface).name()));
+			}
+
 			MethodRoutes routes;
 			Ice::CommunicatorPtr communicator;
 

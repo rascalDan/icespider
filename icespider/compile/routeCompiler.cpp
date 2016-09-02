@@ -268,6 +268,7 @@ namespace IceSpider {
 
 			fprintf(output, "// Standard headers.\n");
 			fprintf(output, "#include <irouteHandler.h>\n");
+			fprintf(output, "#include <core.h>\n");
 			fprintf(output, "#include <slicer/serializer.h>\n");
 
 			fprintf(output, "\n// Interface headers.\n");
@@ -399,7 +400,7 @@ namespace IceSpider {
 				if (proxies.find(proxyName) == proxies.end()) {
 					proxies[proxyName] = n;
 					fprintf(output, ",\n");
-					fprintbf(4, output, "prx%d(getProxy<%s>(core))", n, boost::algorithm::replace_all_copy(proxyName, ".", "::"));
+					fprintbf(4, output, "prx%d(core->getProxy<%s>())", n, boost::algorithm::replace_all_copy(proxyName, ".", "::"));
 					n += 1;
 				}
 			}	
