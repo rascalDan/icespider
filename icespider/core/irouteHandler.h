@@ -35,12 +35,12 @@ namespace IceSpider {
 						boost::lexical_cast<std::string>(key));
 			}
 
-			Ice::ObjectPrx getProxy(IHttpRequest *, const char *) const;
+			Ice::ObjectPrx getProxy(const Core *, const char *) const;
 
 			template<typename Interface>
-			typename Interface::ProxyType getProxy(IHttpRequest * request) const
+			typename Interface::ProxyType getProxy(const Core * core) const
 			{
-				return Interface::ProxyType::uncheckedCast(getProxy(request, typeid(Interface).name()));
+				return Interface::ProxyType::uncheckedCast(getProxy(core, typeid(Interface).name()));
 			}
 
 			void addRouteSerializer(const MimeType &, StreamSerializerFactoryPtr);

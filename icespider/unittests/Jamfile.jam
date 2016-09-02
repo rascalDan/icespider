@@ -60,6 +60,7 @@ run
 	testApp.cpp
 	testRoutes.json
 	: :
+	config/ice.properties
 	xslt/transform.xslt
 	:
 	<define>BOOST_TEST_DYN_LINK

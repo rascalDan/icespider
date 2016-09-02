@@ -7,6 +7,13 @@ namespace IceSpider {
 
 	Core::Core(int argc, char ** argv)
 	{
+		Ice::InitializationData id;
+		id.properties = Ice::createProperties(argc, argv);
+		if (boost::filesystem::exists(defaultConfig)) {
+			id.properties->load(defaultConfig.string());
+		}
+		communicator = Ice::initialize(id);
+
 		// Big enough to map all the request methods (an empty of zero lenght routes as default)
 		routes.resize(HttpMethod::OPTIONS + 1, {{ }});
 		// Initialize routes
@@ -18,13 +25,6 @@ namespace IceSpider {
 			}
 			mroutes[r->pathElementCount()].push_back(r);
 		}
-
-		Ice::InitializationData id;
-		id.properties = Ice::createProperties(argc, argv);
-		if (boost::filesystem::exists(defaultConfig)) {
-			id.properties->load(defaultConfig.string());
-		}
-		communicator = Ice::initialize(id);
 	}
 
 	Core::~Core()

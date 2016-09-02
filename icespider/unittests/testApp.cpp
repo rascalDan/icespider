@@ -183,7 +183,7 @@ class TestApp : public Core {
 			adp(communicator->createObjectAdapterWithEndpoints("test", "default"))
 		{
 			adp->activate();
-			communicator->getProperties()->setProperty("TestIceSpider::TestApi", communicator->proxyToString(adp->addWithUUID(new TestSerice())));
+			communicator->proxyToString(adp->add(new TestSerice(), communicator->stringToIdentity("Test")));
 		}
 
 		~TestApp()

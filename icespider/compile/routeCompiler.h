@@ -25,11 +25,15 @@ namespace IceSpider {
 				std::vector<boost::filesystem::path> searchPath;
 
 			private:
+				typedef std::map<std::string, int> Proxies;
+
 				void processConfiguration(FILE * output, RouteConfigurationPtr, const Units &) const;
 				void registerOutputSerializers(FILE * output, RoutePtr) const;
 				void releaseOutputSerializers(FILE * output, RoutePtr) const;
+				Proxies initializeProxies(FILE * output, RoutePtr) const;
+				void declareProxies(FILE * output, const Proxies &) const;
 				void addSingleOperation(FILE * output, RoutePtr, Slice::OperationPtr) const;
-				void addMashupOperations(FILE * output, RoutePtr, const Units &) const;
+				void addMashupOperations(FILE * output, RoutePtr, const Proxies &, const Units &) const;
 				typedef std::map<std::string, Slice::ParamDeclPtr> ParameterMap;
 				static ParameterMap findParameters(RoutePtr, const Units &);
 				static Slice::OperationPtr findOperation(const std::string &, const Units &);

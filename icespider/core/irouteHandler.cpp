@@ -21,9 +21,9 @@ namespace IceSpider {
 	}
 
 	Ice::ObjectPrx
-	IRouteHandler::getProxy(IHttpRequest * request, const char * type) const
+	IRouteHandler::getProxy(const Core * core, const char * type) const
 	{
-		return request->core->getProxy(type);
+		return core->getProxy(type);
 	}
 
 	ContentTypeSerializer
