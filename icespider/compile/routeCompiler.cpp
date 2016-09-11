@@ -456,7 +456,15 @@ namespace IceSpider {
 				auto so = findOperation(o.second->operation, us);
 				for (const auto & p : so->parameters()) {
 					auto po = o.second->paramOverrides.find(p->name());
-					fprintbf(output, "_p_%s, ", (po != o.second->paramOverrides.end() ? po->second : p->name()));
+					auto rp = *std::find_if(r->params.begin(), r->params.end(), [p,po,o](const auto & rp) {
+						return rp->name == (po != o.second->paramOverrides.end() ? po->second : p->name());
+					});
+					if (rp->hasUserSource) {
+						fprintbf(output, "_p_%s, ", p->name());
+					}
+					else {
+						fprintbf(output, "_pd_%s, ", p->name());
+					}
 				}
 				fprintbf(output, "request->getContext());\n");
 			}
