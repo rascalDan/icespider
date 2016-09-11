@@ -11,6 +11,7 @@ module TestIceSpider {
 	class Mash2 {
 		SomeModel a;
 		SomeModel b;
+		string s;
 	};
 
 	interface TestApi {

@@ -482,16 +482,22 @@ namespace IceSpider {
 				members = t.first->dataMembers();
 			}
 			for (auto mi = members.begin(); mi != members.end(); mi++) {
+				bool isOp = false;
+				if (mi != members.begin()) {
+					fprintbf(output, ",");
+				}
+				fprintbf(output, "\n");
 				for (const auto & o : r->operations) {
 					auto proxyName = o.second->operation.substr(0, o.second->operation.find_last_of('.'));
 					auto operation = o.second->operation.substr(o.second->operation.find_last_of('.') + 1);
 					if ((*mi)->name() == o.first) {
-						if (mi != members.begin()) {
-							fprintbf(output, ",");
-						}
-						fprintbf(output, "\n");
 						fprintbf(6, output, "prx%s->end_%s(_ar_%s)", proxies.find(proxyName)->second, operation, o.first);
+						isOp = true;
+						break;
 					}
+				}
+				if (!isOp) {
+					fprintbf(6, output, "_p_%s", (*mi)->name());
 				}
 			}
 			if (t.second) {
