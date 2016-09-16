@@ -43,6 +43,7 @@ namespace IceSpider {
 	void
 	IRouteHandler::addRouteSerializer(const MimeType & ct, StreamSerializerFactoryPtr ssfp)
 	{
+		routeSerializers.erase(ct);
 		routeSerializers.insert({ ct, ssfp });
 	}
 

@@ -102,6 +102,19 @@
 				}
 			}
 		}
+	},
+	{
+		"name": "override",
+		"path": "/override",
+		"method": "GET",
+		"outputSerializers": [
+		{
+			"contentType": "application/xml",
+			"serializer": "IceSpider.XsltStreamSerializer",
+			"params": [ "\"xslt/transform.xslt\"" ]
+		}
+		],
+		"operation": "TestIceSpider.TestApi.index"
 	}
 	],
 	"slices": [
