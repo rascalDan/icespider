@@ -87,22 +87,12 @@ BOOST_FIXTURE_TEST_SUITE(c, Core);
 
 BOOST_AUTO_TEST_CASE( testCoreSettings )
 {
-	BOOST_REQUIRE_EQUAL(6, routes.size());
-	BOOST_REQUIRE_EQUAL(5, routes[HttpMethod::GET].size());
-	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::GET][0].size());
-	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::GET][1].size());
-	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::GET][2].size());
-	BOOST_REQUIRE_EQUAL(2, routes[HttpMethod::GET][3].size());
-	BOOST_REQUIRE_EQUAL(2, routes[HttpMethod::GET][4].size());
-	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::HEAD].size());
-	BOOST_REQUIRE_EQUAL(2, routes[HttpMethod::POST].size());
-	BOOST_REQUIRE_EQUAL(0, routes[HttpMethod::POST][0].size());
-	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::POST][1].size());
-	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::PUT].size());
-	BOOST_REQUIRE_EQUAL(2, routes[HttpMethod::DELETE].size());
-	BOOST_REQUIRE_EQUAL(0, routes[HttpMethod::DELETE][0].size());
-	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::DELETE][1].size());
-	BOOST_REQUIRE_EQUAL(1, routes[HttpMethod::OPTIONS].size());
+	BOOST_REQUIRE_EQUAL(5, routes.size());
+	BOOST_REQUIRE_EQUAL(1, routes[0].size());
+	BOOST_REQUIRE_EQUAL(3, routes[1].size());
+	BOOST_REQUIRE_EQUAL(1, routes[2].size());
+	BOOST_REQUIRE_EQUAL(2, routes[3].size());
+	BOOST_REQUIRE_EQUAL(2, routes[4].size());
 }
 
 BOOST_AUTO_TEST_CASE( testFindRoutes )

@@ -10,9 +10,8 @@
 namespace IceSpider {
 	class DLL_PUBLIC Core {
 		public:
-			typedef std::vector<const IRouteHandler *> Routes;
-			typedef std::vector<Routes> LengthRoutes;
-			typedef std::vector<LengthRoutes> MethodRoutes;
+			typedef std::vector<const IRouteHandler *> LengthRoutes;
+			typedef std::vector<LengthRoutes> Routes;
 
 			Core(int = 0, char ** = NULL);
 			~Core();
@@ -28,7 +27,7 @@ namespace IceSpider {
 				return Interface::ProxyType::uncheckedCast(getProxy(typeid(Interface).name()));
 			}
 
-			MethodRoutes routes;
+			Routes routes;
 			Ice::CommunicatorPtr communicator;
 
 			static const boost::filesystem::path defaultConfig;
