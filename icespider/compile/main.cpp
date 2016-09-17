@@ -23,8 +23,10 @@ main(int c, char ** v)
 	po::notify(vm);
 
 	if (showHelp || input.empty() || output.empty()) {
+		// LCOV_EXCL_START
 		std::cout << opts << std::endl;
 		return 1;
+		// LCOV_EXCL_STOP
 	}
 
 	rc.searchPath.push_back(input.parent_path());

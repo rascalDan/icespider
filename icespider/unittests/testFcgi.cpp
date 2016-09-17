@@ -11,6 +11,7 @@ class TestRequest : public IceSpider::CgiRequestBase {
 			initialize();
 		}
 
+		// LCOV_EXCL_START we never actually read or write anything here
 		std::ostream & getOutputStream() const override
 		{
 			return std::cout;
@@ -20,6 +21,7 @@ class TestRequest : public IceSpider::CgiRequestBase {
 		{
 			return std::cin;
 		}
+		// LCOV_EXCL_STOP
 };
 
 class CharPtrPtrArray : public std::vector<char *> {
@@ -51,6 +53,7 @@ class CharPtrPtrArray : public std::vector<char *> {
 };
 
 namespace std {
+	// LCOV_EXCL_START assert failure helper only
 	static
 	std::ostream &
 	operator<<(std::ostream & s, const IceSpider::PathElements & pe)
@@ -60,6 +63,7 @@ namespace std {
 		}
 		return s;
 	}
+	// LCOV_EXCL_STOP
 }
 
 BOOST_FIXTURE_TEST_SUITE( CgiRequestBase, IceSpider::Core );
@@ -145,6 +149,27 @@ BOOST_AUTO_TEST_CASE( query_string_three_noVal )
 	BOOST_REQUIRE_EQUAL("1", *r.getQueryStringParam("one"));
 	BOOST_REQUIRE_EQUAL("", *r.getQueryStringParam("two"));
 	BOOST_REQUIRE_EQUAL("3", *r.getQueryStringParam("three"));
+}
+
+BOOST_AUTO_TEST_CASE( requestmethod_get )
+{
+	CharPtrPtrArray env ({ "SCRIPT_NAME=/", "REQUEST_METHOD=GET" });
+	TestRequest r(this, env);
+	BOOST_REQUIRE_EQUAL(IceSpider::HttpMethod::GET, r.getRequestMethod());
+}
+
+BOOST_AUTO_TEST_CASE( requestmethod_post )
+{
+	CharPtrPtrArray env ({ "SCRIPT_NAME=/", "REQUEST_METHOD=POST" });
+	TestRequest r(this, env);
+	BOOST_REQUIRE_EQUAL(IceSpider::HttpMethod::POST, r.getRequestMethod());
+}
+
+BOOST_AUTO_TEST_CASE( requestmethod_bad )
+{
+	CharPtrPtrArray env ({ "SCRIPT_NAME=/", "REQUEST_METHOD=No" });
+	TestRequest r(this, env);
+	BOOST_REQUIRE_THROW(r.getRequestMethod(), IceSpider::Http405_MethodNotAllowed);
 }
 
 BOOST_AUTO_TEST_SUITE_END();

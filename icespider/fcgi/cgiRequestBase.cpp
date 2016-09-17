@@ -76,9 +76,14 @@ namespace IceSpider {
 	HttpMethod
 	CgiRequestBase::getRequestMethod() const
 	{
-		auto i = envmap.find("REQUEST_METHOD");
-		return Slicer::ModelPartForEnum<HttpMethod>::lookup(
+		try {
+			auto i = envmap.find("REQUEST_METHOD");
+			return Slicer::ModelPartForEnum<HttpMethod>::lookup(
 				std::string(std::get<0>(i->second), std::get<1>(i->second)));
+		}
+		catch (const Slicer::InvalidEnumerationValue &) {
+			throw IceSpider::Http405_MethodNotAllowed();
+		}
 	}
 
 	OptionalString

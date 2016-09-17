@@ -2,9 +2,10 @@
 #define ICESPIDER_EXCEPTIONS_H
 
 #include "http.h"
+#include <visibility.h>
 
 #define DeclareHttpEx(Name) \
-	class Name : public ::IceSpider::HttpException { \
+	class DLL_PUBLIC Name : public ::IceSpider::HttpException { \
 		public: \
 			Name(); \
 			static const int code; \

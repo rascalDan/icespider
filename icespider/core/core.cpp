@@ -68,6 +68,7 @@ namespace IceSpider {
 	Core::findRoute(const IHttpRequest * request) const
 	{
 		const auto & pathparts = request->getRequestPath();
+		const auto method = request->getRequestMethod();
 		if (pathparts.size() >= routes.size()) {
 			throw Http404_NotFound();
 		}
@@ -75,7 +76,7 @@ namespace IceSpider {
 		bool match = false;
 		for (const auto & r : routeSet) {
 			if (pathparts /= r) {
-				if (r->method == request->getRequestMethod()) {
+				if (r->method == method) {
 					return r;
 				}
 				match = true;

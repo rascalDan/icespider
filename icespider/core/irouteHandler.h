@@ -35,7 +35,9 @@ namespace IceSpider {
 			inline T requiredParameterNotFound(const char * s, const K & key) const
 			{
 				requiredParameterNotFound(s, key);
+				// LCOV_EXCL_START unreachable, requiredParameterNotFound always throws
 				return T();
+				// LCOV_EXCL_STOP
 			}
 
 			void addRouteSerializer(const MimeType &, StreamSerializerFactoryPtr);

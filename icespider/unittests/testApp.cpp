@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( testFindRoutes )
 	TestRequest requestGetItemDefault(this, HttpMethod::GET, "/item/something");
 	BOOST_REQUIRE(findRoute(&requestGetItemDefault));
 
-	TestRequest requestGetItemLong(this, HttpMethod::GET, "/view/something/something/extra");
+	TestRequest requestGetItemLong(this, HttpMethod::GET, "/view/something/something/extra/many/things/longer/than/longest/route");
 	BOOST_REQUIRE_THROW(findRoute(&requestGetItemLong), IceSpider::Http404_NotFound);
 
 	TestRequest requestGetItemShort(this, HttpMethod::GET, "/view/missingSomething");
