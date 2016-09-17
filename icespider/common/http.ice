@@ -2,6 +2,11 @@
 #define ICESPIDER_HTTP_ICE
 
 module IceSpider {
+	exception HttpException {
+		int code;
+		string message;
+	};
+
 	enum HttpMethod {
 		GET, HEAD, POST, PUT, DELETE, OPTIONS
 	};

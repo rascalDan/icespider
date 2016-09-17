@@ -5,6 +5,9 @@
 namespace IceSpider {
 	const boost::filesystem::path Core::defaultConfig("config/ice.properties");
 
+	DefineHttpEx(Http404_NotFound, 404, "Not found");
+	DefineHttpEx(Http405_MethodNotAllowed, 405, "Method Not Allowed");
+
 	static
 	bool
 	operator/=(const PathElements & pathparts, const IRouteHandler * r)
@@ -49,12 +52,17 @@ namespace IceSpider {
 	void
 	Core::process(IHttpRequest * request) const
 	{
-		auto routeHandler = findRoute(request);
-		if (routeHandler) {
-			routeHandler->execute(request);
+		try {
+			findRoute(request)->execute(request);
 		}
-		else {
-			request->response(404, "Not found");
+		catch (const HttpException & he) {
+			request->response(he.code, he.message);
+		}
+		catch (const std::exception & e) {
+			request->response(500, e.what());
+		}
+		catch (...) {
+			request->response(500, "Unknown internal server error");
 		}
 	}
 
@@ -63,8 +71,7 @@ namespace IceSpider {
 	{
 		const auto & pathparts = request->getRequestPath();
 		if (pathparts.size() >= routes.size()) {
-			// Not found error
-			return NULL;
+			throw Http404_NotFound();
 		}
 		const auto & routeSet = routes[pathparts.size()];
 		bool match = false;
@@ -77,11 +84,9 @@ namespace IceSpider {
 			}
 		}
 		if (!match) {
-			// Not found error
-			return NULL;
+			throw Http404_NotFound();
 		}
-		// Method not allowed
-		return NULL;
+		throw Http405_MethodNotAllowed();
 	}
 
 	Ice::ObjectPrx

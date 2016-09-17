@@ -7,7 +7,22 @@
 #include <Ice/Communicator.h>
 #include <boost/filesystem/path.hpp>
 
+#define DeclareHttpEx(Name) \
+	class Name : public ::IceSpider::HttpException { \
+		public: \
+			Name(); \
+			static const int code; \
+			static const std::string message; \
+	}
+#define DefineHttpEx(Name, Code, Message) \
+	Name::Name() : ::IceSpider::HttpException(code, message) { } \
+	const int Name::code(Code); \
+	const std::string Name::message(Message);
+
 namespace IceSpider {
+	DeclareHttpEx(Http404_NotFound);
+	DeclareHttpEx(Http405_MethodNotAllowed);
+
 	class DLL_PUBLIC Core {
 		public:
 			typedef std::vector<const IRouteHandler *> LengthRoutes;

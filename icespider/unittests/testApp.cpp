@@ -101,13 +101,13 @@ BOOST_AUTO_TEST_CASE( testFindRoutes )
 	BOOST_REQUIRE(findRoute(&requestGetIndex));
 
 	TestRequest requestPostIndex(this, HttpMethod::POST, "/");
-	BOOST_REQUIRE(!findRoute(&requestPostIndex));
+	BOOST_REQUIRE_THROW(findRoute(&requestPostIndex), IceSpider::Http405_MethodNotAllowed);
 
 	TestRequest requestPostUpdate(this, HttpMethod::POST, "/something");
 	BOOST_REQUIRE(findRoute(&requestPostUpdate));
 
 	TestRequest requestGetUpdate(this, HttpMethod::GET, "/something");
-	BOOST_REQUIRE(!findRoute(&requestGetUpdate));
+	BOOST_REQUIRE_THROW(findRoute(&requestGetUpdate), IceSpider::Http405_MethodNotAllowed);
 
 	TestRequest requestGetItem(this, HttpMethod::GET, "/view/something/something");
 	BOOST_REQUIRE(findRoute(&requestGetItem));
@@ -119,13 +119,13 @@ BOOST_AUTO_TEST_CASE( testFindRoutes )
 	BOOST_REQUIRE(findRoute(&requestGetItemDefault));
 
 	TestRequest requestGetItemLong(this, HttpMethod::GET, "/view/something/something/extra");
-	BOOST_REQUIRE(!findRoute(&requestGetItemLong));
+	BOOST_REQUIRE_THROW(findRoute(&requestGetItemLong), IceSpider::Http404_NotFound);
 
 	TestRequest requestGetItemShort(this, HttpMethod::GET, "/view/missingSomething");
-	BOOST_REQUIRE(!findRoute(&requestGetItemShort));
+	BOOST_REQUIRE_THROW(findRoute(&requestGetItemShort), IceSpider::Http404_NotFound);
 
 	TestRequest requestGetNothing(this, HttpMethod::GET, "/badview/something/something");
-	BOOST_REQUIRE(!findRoute(&requestGetNothing));
+	BOOST_REQUIRE_THROW(findRoute(&requestGetNothing), IceSpider::Http404_NotFound);
 
 	TestRequest requestDeleteThing(this, HttpMethod::DELETE, "/something");
 	BOOST_REQUIRE(findRoute(&requestDeleteThing));
@@ -388,10 +388,20 @@ BOOST_AUTO_TEST_CASE( testCallIndexComplexAccept )
 
 BOOST_AUTO_TEST_CASE( testCall404 )
 {
-	TestRequest requestGetIndex(this, HttpMethod::GET, "/404");
+	TestRequest requestGetIndex(this, HttpMethod::GET, "/this/404");
 	process(&requestGetIndex);
 	auto h = parseHeaders(requestGetIndex.output);
 	BOOST_REQUIRE_EQUAL(h["Status"], "404 Not found");
+	requestGetIndex.output.get();
+	BOOST_REQUIRE(requestGetIndex.output.eof());
+}
+
+BOOST_AUTO_TEST_CASE( testCall405 )
+{
+	TestRequest requestGetIndex(this, HttpMethod::GET, "/405");
+	process(&requestGetIndex);
+	auto h = parseHeaders(requestGetIndex.output);
+	BOOST_REQUIRE_EQUAL(h["Status"], "405 Method Not Allowed");
 	requestGetIndex.output.get();
 	BOOST_REQUIRE(requestGetIndex.output.eof());
 }
