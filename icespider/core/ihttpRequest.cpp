@@ -1,7 +1,7 @@
 #include "ihttpRequest.h"
 #include "irouteHandler.h"
 #include "util.h"
-#include "core.h"
+#include "exceptions.h"
 #include <boost/lexical_cast.hpp>
 
 namespace IceSpider {

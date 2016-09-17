@@ -4,6 +4,7 @@
 #include <safeMapFind.h>
 #include <irouteHandler.h>
 #include <core.h>
+#include <exceptions.h>
 #include <test-api.h>
 #include <Ice/ObjectAdapter.h>
 #include <boost/algorithm/string/split.hpp>
