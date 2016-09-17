@@ -82,10 +82,21 @@ namespace IceSpider {
 		return url[idx];
 	}
 
+	template <typename T, typename Y>
+	inline T wrapLexicalCast(const Y & y)
+	{
+		try {
+			return boost::lexical_cast<T>(y);
+		}
+		catch (const boost::bad_lexical_cast &) {
+			throw Http400_BadRequest();
+		}
+	}
+
 	template <typename T>
 	inline IceUtil::Optional<T> optionalLexicalCast(const IceUtil::Optional<std::string> & p)
 	{
-		if (p) return boost::lexical_cast<T>(*p);
+		if (p) return wrapLexicalCast<T>(*p);
 		return IceUtil::Optional<T>();
 	}
 
@@ -99,7 +110,7 @@ namespace IceSpider {
 
 #define getParams(T) \
 	template<> T IHttpRequest::getURLParam<T>(unsigned int idx) const { \
-		return boost::lexical_cast<T>(getURLParam(idx)); } \
+		return wrapLexicalCast<T>(getURLParam(idx)); } \
 	template<> IceUtil::Optional<T> IHttpRequest::getQueryStringParam<T>(const std::string & key) const { \
 		return optionalLexicalCast<T>(getQueryStringParam(key)); } \
 	template<> IceUtil::Optional<T> IHttpRequest::getHeaderParam<T>(const std::string & key) const { \

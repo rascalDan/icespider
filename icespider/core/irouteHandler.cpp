@@ -41,6 +41,12 @@ namespace IceSpider {
 	}
 
 	void
+	IRouteHandler::requiredParameterNotFound(const char *, const std::string &) const
+	{
+		throw Http400_BadRequest();
+	}
+
+	void
 	IRouteHandler::addRouteSerializer(const MimeType & ct, StreamSerializerFactoryPtr ssfp)
 	{
 		routeSerializers.erase(ct);

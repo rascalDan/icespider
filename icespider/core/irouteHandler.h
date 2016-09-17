@@ -3,6 +3,7 @@
 
 #include "ihttpRequest.h"
 #include "util.h"
+#include "exceptions.h"
 #include <pathparts.h>
 #include <routes.h>
 #include <factory.h>
@@ -28,11 +29,13 @@ namespace IceSpider {
 			typedef std::map<MimeType, StreamSerializerFactoryPtr> RouteSerializers;
 			RouteSerializers routeSerializers;
 
+			void requiredParameterNotFound(const char *, const std::string & key) const;
+
 			template <typename T, typename K>
-			inline T requiredParameterNotFound(const char *, const K & key) const
+			inline T requiredParameterNotFound(const char * s, const K & key) const
 			{
-				throw std::runtime_error("Required parameter not found: " +
-						boost::lexical_cast<std::string>(key));
+				requiredParameterNotFound(s, key);
+				return T();
 			}
 
 			void addRouteSerializer(const MimeType &, StreamSerializerFactoryPtr);

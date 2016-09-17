@@ -115,6 +115,22 @@
 		}
 		],
 		"operation": "TestIceSpider.TestApi.index"
+	},
+	{
+		"name": "search",
+		"path": "/search",
+		"method": "GET",
+		"operation": "TestIceSpider.TestApi.withParams",
+		"params": [
+		{
+			"name": "s",
+			"source": "QueryString"
+		},
+		{
+			"name": "i",
+			"source": "QueryString"
+		}
+		]
 	}
 	],
 	"slices": [

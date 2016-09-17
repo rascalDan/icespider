@@ -27,7 +27,7 @@ void forceEarlyChangeDir()
 
 BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 {
-	BOOST_REQUIRE_EQUAL(9, AdHoc::PluginManager::getDefault()->getAll<IceSpider::RouteHandlerFactory>().size());
+	BOOST_REQUIRE_EQUAL(10, AdHoc::PluginManager::getDefault()->getAll<IceSpider::RouteHandlerFactory>().size());
 }
 
 class TestRequest : public IHttpRequest {
@@ -55,7 +55,7 @@ class TestRequest : public IHttpRequest {
 
 		IceUtil::Optional<std::string> getQueryStringParam(const std::string & key) const override
 		{
-			return AdHoc::safeMapLookup<std::runtime_error>(qs, key);
+			return qs.find(key) == qs.end() ? IceUtil::Optional<std::string>() : qs.find(key)->second;
 		}
 
 		IceUtil::Optional<std::string> getHeaderParam(const std::string & key) const override
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE( testCoreSettings )
 {
 	BOOST_REQUIRE_EQUAL(5, routes.size());
 	BOOST_REQUIRE_EQUAL(1, routes[0].size());
-	BOOST_REQUIRE_EQUAL(3, routes[1].size());
+	BOOST_REQUIRE_EQUAL(4, routes[1].size());
 	BOOST_REQUIRE_EQUAL(1, routes[2].size());
 	BOOST_REQUIRE_EQUAL(2, routes[3].size());
 	BOOST_REQUIRE_EQUAL(2, routes[4].size());
@@ -428,6 +428,51 @@ BOOST_AUTO_TEST_CASE( testCall405 )
 	BOOST_REQUIRE_EQUAL(h["Status"], "405 Method Not Allowed");
 	requestGetIndex.output.get();
 	BOOST_REQUIRE(requestGetIndex.output.eof());
+}
+
+BOOST_AUTO_TEST_CASE( testCallSearch )
+{
+	TestRequest request(this, HttpMethod::GET, "/search");
+	request.qs["s"] = "something";
+	request.qs["i"] = "1234";
+	process(&request);
+	auto h = parseHeaders(request.output);
+	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
+	Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::SomeModelPtr>(request.output);
+}
+
+BOOST_AUTO_TEST_CASE( testCallSearchBadLexicalCast )
+{
+	TestRequest request(this, HttpMethod::GET, "/search");
+	request.qs["s"] = "something";
+	request.qs["i"] = "bar";
+	process(&request);
+	auto h = parseHeaders(request.output);
+	BOOST_REQUIRE_EQUAL(h["Status"], "400 Bad Request");
+	request.output.get();
+	BOOST_REQUIRE(request.output.eof());
+}
+
+BOOST_AUTO_TEST_CASE( testCallSearchMissingS )
+{
+	TestRequest request(this, HttpMethod::GET, "/search");
+	request.qs["i"] = "1234";
+	process(&request);
+	auto h = parseHeaders(request.output);
+	BOOST_REQUIRE_EQUAL(h["Status"], "400 Bad Request");
+	request.output.get();
+	BOOST_REQUIRE(request.output.eof());
+}
+
+BOOST_AUTO_TEST_CASE( testCallSearchMissingI )
+{
+	TestRequest request(this, HttpMethod::GET, "/search");
+	request.qs["s"] = "something";
+	process(&request);
+	auto h = parseHeaders(request.output);
+	BOOST_REQUIRE_EQUAL(h["Status"], "400 Bad Request");
+	request.output.get();
+	BOOST_REQUIRE(request.output.eof());
 }
 
 BOOST_AUTO_TEST_SUITE_END();
