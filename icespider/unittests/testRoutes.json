@@ -32,42 +32,38 @@
 		"path": "/{id}",
 		"method": "POST",
 		"operation": "TestIceSpider.TestApi.complexParam",
-		"params": [
-		{
-			"name": "s",
-			"source": "URL",
-			"key": "id",
-			"isOptional": true
-		},
-		{
-			"name": "m",
-			"source": "Body"
+		"params": {
+			"s": {
+				"source": "URL",
+				"key": "id",
+				"isOptional": true
+			},
+			"m": {
+				"source": "Body"
+			}
 		}
-		]
 	},
 	{
 		"name": "defaultItem",
 		"path": "/item/{s}",
 		"method": "GET",
 		"operation": "TestIceSpider.TestApi.withParams",
-		"params": [
-		{
-			"name": "i",
-			"default": "1234"
+		"params": {
+			"i": {
+				"default": "1234"
+			}
 		}
-		]
 	},
 	{
 		"name": "itemWithDefault",
 		"path": "/item/{s}/{i}",
 		"method": "GET",
 		"operation": "TestIceSpider.TestApi.withParams",
-		"params": [
-		{
-			"name": "i",
-			"default": "1234"
+		"params": {
+			"i": {
+				"default": "1234"
+			}
 		}
-		]
 	},
 	{
 		"name": "mashStruct",
@@ -121,16 +117,14 @@
 		"path": "/search",
 		"method": "GET",
 		"operation": "TestIceSpider.TestApi.withParams",
-		"params": [
-		{
-			"name": "s",
-			"source": "QueryString"
-		},
-		{
-			"name": "i",
-			"source": "QueryString"
+		"params": {
+			"s": {
+				"source": "QueryString"
+			},
+			"i": {
+				"source": "QueryString"
+			}
 		}
-		]
 	}
 	],
 	"slices": [

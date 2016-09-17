@@ -121,18 +121,14 @@ namespace IceSpider {
 				}
 				auto ps = findParameters(r, u);
 				for (const auto & p : ps) {
-					auto defined = std::find_if(r->params.begin(), r->params.end(), [p](const auto & rp) {
-						return p.first == rp->name;
-					});
+					auto defined = r->params.find(p.first);
 					if (defined != r->params.end()) {
-						auto d = *defined;
-						if (!d->key) d->key = d->name;
+						if (!defined->second->key) defined->second->key = defined->first;
 					}
 					else {
-						r->params.push_back(new Parameter(p.first, ParameterSource::URL, p.first, false, IceUtil::Optional<std::string>(), false));
-						defined = --r->params.end();
+						defined = r->params.insert({ p.first, new Parameter(ParameterSource::URL, p.first, false, IceUtil::Optional<std::string>(), false) }).first;
 					}
-					auto d = *defined;
+					auto d = defined->second;
 					if (d->source == ParameterSource::URL) {
 						Path path(r->path);
 						d->hasUserSource = std::find_if(path.parts.begin(), path.parts.end(), [d](const auto & pp) {
@@ -299,28 +295,28 @@ namespace IceSpider {
 				fprintbf(4, output, "IceSpider::IRouteHandler(IceSpider::HttpMethod::%s, \"%s\")", methodName, r->path);
 				auto proxies = initializeProxies(output, r);
 				for (const auto & p : r->params) {
-					if (p->hasUserSource) {
+					if (p.second->hasUserSource) {
 						fprintf(output, ",\n");
-						if (p->source == ParameterSource::URL) {
+						if (p.second->source == ParameterSource::URL) {
 							Path path(r->path);
 							unsigned int idx = -1;
 							for (const auto & pp : path.parts) {
 								if (auto par = dynamic_cast<PathParameter *>(pp.get())) {
-									if (par->name == p->key) {
+									if (par->name == p.second->key) {
 										idx = &pp - &path.parts.front();
 									}
 								}
 							};
-							fprintbf(4, output, "_pi_%s(%d)", p->name, idx);
+							fprintbf(4, output, "_pi_%s(%d)", p.first, idx);
 						}
 						else {
-							fprintbf(4, output, "_pn_%s(\"%s\")", p->name, *p->key);
+							fprintbf(4, output, "_pn_%s(\"%s\")", p.first, *p.second->key);
 						}
 					}
-					if (p->defaultExpr) {
+					if (p.second->defaultExpr) {
 						fprintf(output, ",\n");
 						fprintbf(4, output, "_pd_%s(%s)",
-								p->name, p->defaultExpr.get());
+								p.first, p.second->defaultExpr.get());
 					}
 				}
 				fprintf(output, "\n");
@@ -335,21 +331,21 @@ namespace IceSpider {
 				fprintbf(3, output, "{\n");
 				auto ps = findParameters(r, units);
 				for (const auto & p : r->params) {
-					if (p->hasUserSource) {
-						auto ip = ps.find(p->name)->second;
+					if (p.second->hasUserSource) {
+						auto ip = ps.find(p.first)->second;
 						fprintbf(4, output, "auto _p_%s(request->get%sParam<%s>(_p%c_%s)",
-										 p->name, getEnumString(p->source), Slice::typeToString(ip->type()),
-										 p->source == ParameterSource::URL ? 'i' : 'n',
-										 p->name);
-						if (!p->isOptional && p->source != ParameterSource::URL) {
+										 p.first, getEnumString(p.second->source), Slice::typeToString(ip->type()),
+										 p.second->source == ParameterSource::URL ? 'i' : 'n',
+										 p.first);
+						if (!p.second->isOptional && p.second->source != ParameterSource::URL) {
 							fprintbf(0, output, " /\n");
-							if (p->defaultExpr) {
+							if (p.second->defaultExpr) {
 								fprintbf(5, output, " [this]() { return _pd_%s; }",
-												 p->name);
+												 p.first);
 							}
 							else {
 								fprintbf(5, output, " [this]() { return requiredParameterNotFound<%s>(\"%s\", _pn_%s); }",
-												 Slice::typeToString(ip->type()), getEnumString(p->source), p->name);
+												 Slice::typeToString(ip->type()), getEnumString(p.second->source), p.first);
 							}
 						}
 						fprintbf(0, output, ");\n");
@@ -365,18 +361,18 @@ namespace IceSpider {
 				fprintbf(2, output, "private:\n");
 				declareProxies(output, proxies);
 				for (const auto & p : r->params) {
-					if (p->hasUserSource) {
-						if (p->source == ParameterSource::URL) {
-							fprintbf(3, output, "const unsigned int _pi_%s;\n", p->name);
+					if (p.second->hasUserSource) {
+						if (p.second->source == ParameterSource::URL) {
+							fprintbf(3, output, "const unsigned int _pi_%s;\n", p.first);
 						}
 						else {
-							fprintbf(3, output, "const std::string _pn_%s;\n", p->name);
+							fprintbf(3, output, "const std::string _pn_%s;\n", p.first);
 						}
 					}
-					if (p->defaultExpr) {
-						auto ip = ps.find(p->name)->second;
+					if (p.second->defaultExpr) {
+						auto ip = ps.find(p.first)->second;
 						fprintbf(3, output, "const %s _pd_%s;\n",
-								Slice::typeToString(ip->type()), p->name);
+								Slice::typeToString(ip->type()), p.first);
 
 					}
 				}
@@ -403,7 +399,7 @@ namespace IceSpider {
 					fprintbf(4, output, "prx%d(core->getProxy<%s>())", n, boost::algorithm::replace_all_copy(proxyName, ".", "::"));
 					n += 1;
 				}
-			}	
+			}
 			return proxies;
 		}
 
@@ -426,10 +422,8 @@ namespace IceSpider {
 				fprintbf(4, output, "prx0->%s(", operation);
 			}
 			for (const auto & p : o->parameters()) {
-				auto rp = *std::find_if(r->params.begin(), r->params.end(), [p](const auto & rp) {
-					return rp->name == p->name();
-				});
-				if (rp->hasUserSource) {
+				auto rp = *r->params.find(p->name());
+				if (rp.second->hasUserSource) {
 					fprintbf(output, "_p_%s, ", p->name());
 				}
 				else {
@@ -456,10 +450,8 @@ namespace IceSpider {
 				auto so = findOperation(o.second->operation, us);
 				for (const auto & p : so->parameters()) {
 					auto po = o.second->paramOverrides.find(p->name());
-					auto rp = *std::find_if(r->params.begin(), r->params.end(), [p,po,o](const auto & rp) {
-						return rp->name == (po != o.second->paramOverrides.end() ? po->second : p->name());
-					});
-					if (rp->hasUserSource) {
+					auto rp = *r->params.find(po != o.second->paramOverrides.end() ? po->second : p->name());
+					if (rp.second->hasUserSource) {
 						fprintbf(output, "_p_%s, ", p->name());
 					}
 					else {

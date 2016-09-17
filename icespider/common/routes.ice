@@ -9,7 +9,6 @@ module IceSpider {
 	dictionary<string, string> StringMap;
 
 	class Parameter {
-		string name;
 		ParameterSource source = URL;
 		optional(0) string key;
 		bool isOptional = false;
@@ -20,7 +19,8 @@ module IceSpider {
 		bool hasUserSource = true;
 	};
 
-	sequence<Parameter> Parameters;
+	["slicer:json:object"]
+	dictionary<string, Parameter> Parameters;
 
 	class OutputSerializer {
 		string contentType;
