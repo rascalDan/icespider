@@ -19,10 +19,15 @@ namespace IceSpider {
 	Slicer::DeserializerPtr
 	IHttpRequest::getDeserializer() const
 	{
-		return Slicer::StreamDeserializerFactory::createNew(
-			getHeaderParam("Content-Type") / []() -> std::string {
-				throw std::runtime_error("Content-Type must be specified to deserialize payload");
-			}, getInputStream());
+		try {
+			return Slicer::StreamDeserializerFactory::createNew(
+				getHeaderParam("Content-Type") / []() -> std::string {
+					throw Http400_BadRequest();
+				}, getInputStream());
+		}
+		catch (const AdHoc::NoSuchPluginException &) {
+			throw Http415_UnsupportedMediaType();
+		}
 	}
 
 	ContentTypeSerializer

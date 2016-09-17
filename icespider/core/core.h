@@ -20,9 +20,11 @@
 	const std::string Name::message(Message);
 
 namespace IceSpider {
+	DeclareHttpEx(Http400_BadRequest);
 	DeclareHttpEx(Http404_NotFound);
 	DeclareHttpEx(Http405_MethodNotAllowed);
 	DeclareHttpEx(Http406_NotAcceptable);
+	DeclareHttpEx(Http415_UnsupportedMediaType);
 
 	class DLL_PUBLIC Core {
 		public:

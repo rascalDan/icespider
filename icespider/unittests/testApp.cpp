@@ -292,6 +292,29 @@ BOOST_AUTO_TEST_CASE( testCallPost1234 )
 	BOOST_REQUIRE(requestUpdateItem.output.eof());
 }
 
+BOOST_AUTO_TEST_CASE( testCallPost1234NoContentType )
+{
+	TestRequest requestUpdateItem(this, HttpMethod::POST, "/1234");
+	requestUpdateItem.input << "{\"value\": \"some value\"}";
+	process(&requestUpdateItem);
+	auto h = parseHeaders(requestUpdateItem.output);
+	BOOST_REQUIRE_EQUAL(h["Status"], "400 Bad Request");
+	requestUpdateItem.output.get();
+	BOOST_REQUIRE(requestUpdateItem.output.eof());
+}
+
+BOOST_AUTO_TEST_CASE( testCallPost1234UnsupportedMediaType )
+{
+	TestRequest requestUpdateItem(this, HttpMethod::POST, "/1234");
+	requestUpdateItem.hdr["Content-Type"] = "application/notathing";
+	requestUpdateItem.input << "value=\"some value\"";
+	process(&requestUpdateItem);
+	auto h = parseHeaders(requestUpdateItem.output);
+	BOOST_REQUIRE_EQUAL(h["Status"], "415 Unsupported Media Type");
+	requestUpdateItem.output.get();
+	BOOST_REQUIRE(requestUpdateItem.output.eof());
+}
+
 BOOST_AUTO_TEST_CASE( testCallIndexAcceptJson )
 {
 	TestRequest requestJson(this, HttpMethod::GET, "/");
