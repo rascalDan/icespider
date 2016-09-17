@@ -22,6 +22,7 @@
 namespace IceSpider {
 	DeclareHttpEx(Http404_NotFound);
 	DeclareHttpEx(Http405_MethodNotAllowed);
+	DeclareHttpEx(Http406_NotAcceptable);
 
 	class DLL_PUBLIC Core {
 		public:

@@ -358,7 +358,7 @@ BOOST_AUTO_TEST_CASE( testCallViewSomethingAcceptHtml )
 	requestHtml.hdr["Accept"] = "text/html";
 	process(&requestHtml);
 	auto h = parseHeaders(requestHtml.output);
-	BOOST_REQUIRE_EQUAL(h["Status"], "406 Unacceptable");
+	BOOST_REQUIRE_EQUAL(h["Status"], "406 Not Acceptable");
 	requestHtml.output.get();
 	BOOST_REQUIRE(requestHtml.output.eof());
 }
@@ -369,7 +369,7 @@ BOOST_AUTO_TEST_CASE( testCallIndexAcceptNotSupported )
 	requestBadAccept.hdr["Accept"] = "not/supported";
 	process(&requestBadAccept);
 	auto h = parseHeaders(requestBadAccept.output);
-	BOOST_REQUIRE_EQUAL(h["Status"], "406 Unacceptable");
+	BOOST_REQUIRE_EQUAL(h["Status"], "406 Not Acceptable");
 	requestBadAccept.output.get();
 	BOOST_REQUIRE(requestBadAccept.output.eof());
 }

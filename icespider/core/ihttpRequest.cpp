@@ -1,6 +1,7 @@
 #include "ihttpRequest.h"
 #include "irouteHandler.h"
 #include "util.h"
+#include "core.h"
 #include <boost/lexical_cast.hpp>
 
 namespace IceSpider {
@@ -59,7 +60,7 @@ namespace IceSpider {
 					return serializer;
 				}
 			}
-			return ContentTypeSerializer();
+			throw Http406_NotAcceptable();
 		}
 		else {
 			return handler->defaultSerializer(getOutputStream());

@@ -7,6 +7,7 @@ namespace IceSpider {
 
 	DefineHttpEx(Http404_NotFound, 404, "Not found");
 	DefineHttpEx(Http405_MethodNotAllowed, 405, "Method Not Allowed");
+	DefineHttpEx(Http406_NotAcceptable, 406, "Not Acceptable");
 
 	static
 	bool

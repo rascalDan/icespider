@@ -49,14 +49,9 @@ namespace IceSpider {
 			void response(const IRouteHandler * route, const T & t) const
 			{
 				auto s = getSerializer(route);
-				if (s.second) {
-					getOutputStream() << "Content-Type: " << s.first.group << "/" << s.first.type << "\r\n";
-					response(200, "OK");
-					Slicer::SerializeAnyWith<T>(t, s.second);
-				}
-				else {
-					response(406, "Unacceptable");
-				}
+				getOutputStream() << "Content-Type: " << s.first.group << "/" << s.first.type << "\r\n";
+				response(200, "OK");
+				Slicer::SerializeAnyWith<T>(t, s.second);
 			}
 
 			const Core * core;
