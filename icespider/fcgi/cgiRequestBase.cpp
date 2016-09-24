@@ -4,6 +4,7 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <util.h>
 #include <slicer/modelPartsTypes.h>
+#include <slicer/common.h>
 
 namespace ba = boost::algorithm;
 
@@ -81,7 +82,7 @@ namespace IceSpider {
 			return Slicer::ModelPartForEnum<HttpMethod>::lookup(
 				std::string(std::get<0>(i->second), std::get<1>(i->second)));
 		}
-		catch (const Slicer::InvalidEnumerationValue &) {
+		catch (const Slicer::InvalidEnumerationSymbol &) {
 			throw IceSpider::Http405_MethodNotAllowed();
 		}
 	}
