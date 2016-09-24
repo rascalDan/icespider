@@ -1,132 +1,120 @@
 {
 	"name": "common",
 	"headers": [ "xsltStreamSerializer.h" ],
-	"routes": [
-	{
-		"name": "index",
-		"path": "/",
-		"method": "GET",
-		"outputSerializers": [
-		{
-			"contentType": "text/html",
-			"serializer": "IceSpider.XsltStreamSerializer",
-			"params": [ "\"xslt/transform.xslt\"" ]
-		}
-		],
-		"operation": "TestIceSpider.TestApi.index"
-	},
-	{
-		"name": "item",
-		"path": "/view/{s}/{i}",
-		"method": "GET",
-		"operation": "TestIceSpider.TestApi.withParams"
-	},
-	{
-		"name": "del",
-		"path": "/{s}",
-		"method": "DELETE",
-		"operation": "TestIceSpider.TestApi.returnNothing"
-	},
-	{
-		"name": "update",
-		"path": "/{id}",
-		"method": "POST",
-		"operation": "TestIceSpider.TestApi.complexParam",
-		"params": {
-			"s": {
-				"source": "URL",
-				"key": "id",
-				"isOptional": true
+	"routes": {
+		"index": {
+			"path": "/",
+			"method": "GET",
+			"outputSerializers": {
+				"text/html": {
+					"serializer": "IceSpider.XsltStreamSerializer",
+					"params": [ "\"xslt/transform.xslt\"" ]
+				}
 			},
-			"m": {
-				"source": "Body"
+			"operation": "TestIceSpider.TestApi.index"
+		},
+		"item": {
+			"path": "/view/{s}/{i}",
+			"method": "GET",
+			"operation": "TestIceSpider.TestApi.withParams"
+		},
+		"del": {
+			"path": "/{s}",
+			"method": "DELETE",
+			"operation": "TestIceSpider.TestApi.returnNothing"
+		},
+		"update": {
+			"path": "/{id}",
+			"method": "POST",
+			"operation": "TestIceSpider.TestApi.complexParam",
+			"params": {
+				"s": {
+					"source": "URL",
+					"key": "id",
+					"isOptional": true
+				},
+				"m": {
+					"source": "Body"
+				}
 			}
-		}
-	},
-	{
-		"name": "defaultItem",
-		"path": "/item/{s}",
-		"method": "GET",
-		"operation": "TestIceSpider.TestApi.withParams",
-		"params": {
-			"i": {
-				"default": "1234"
+		},
+		"defaultItem": {
+			"path": "/item/{s}",
+			"method": "GET",
+			"operation": "TestIceSpider.TestApi.withParams",
+			"params": {
+				"i": {
+					"default": "1234"
+				}
 			}
-		}
-	},
-	{
-		"name": "itemWithDefault",
-		"path": "/item/{s}/{i}",
-		"method": "GET",
-		"operation": "TestIceSpider.TestApi.withParams",
-		"params": {
-			"i": {
-				"default": "1234"
+		},
+		"itemWithDefault":{
+			"path": "/item/{s}/{i}",
+			"method": "GET",
+			"operation": "TestIceSpider.TestApi.withParams",
+			"params": {
+				"i": {
+					"default": "1234"
+				}
 			}
-		}
-	},
-	{
-		"name": "mashStruct",
-		"path": "/mashS/{s}/{t}/{i}",
-		"method": "GET",
-		"type": "TestIceSpider.Mash1",
-		"operations": {
-			"a": {
-				"operation": "TestIceSpider.TestApi.withParams"
+		},
+		"mashStruct": {
+			"path": "/mashS/{s}/{t}/{i}",
+			"method": "GET",
+			"type": "TestIceSpider.Mash1",
+			"operations": {
+				"a": {
+					"operation": "TestIceSpider.TestApi.withParams"
+				},
+				"b": {
+					"operation": "TestIceSpider.TestApi.withParams",
+					"paramOverrides": {
+						"s": "t"
+					}
+				}
+			}
+		},
+		"mashClass": {
+			"path": "/mashC/{s}/{t}/{i}",
+			"method": "GET",
+			"type": "TestIceSpider.Mash2",
+			"operations": {
+				"a": {
+					"operation": "TestIceSpider.TestApi.withParams"
+				},
+				"b": {
+					"operation": "TestIceSpider.TestApi.withParams",
+					"paramOverrides": {
+						"s": "t"
+					}
+				}
+			}
+		},
+		"override": {
+			"path": "/override",
+			"method": "GET",
+			"outputSerializers": {
+				"application/xml": {
+					"serializer": "IceSpider.XsltStreamSerializer",
+					"params": [ "\"xslt/transform.xslt\"" ]
+				}
 			},
-			"b": {
-				"operation": "TestIceSpider.TestApi.withParams",
-				"paramOverrides": {
-					"s": "t"
+			"operation": "TestIceSpider.TestApi.index"
+		},
+		"search": {
+			"path": "/search",
+			"method": "GET",
+			"operation": "TestIceSpider.TestApi.withParams",
+			"params": {
+				"s": {
+					"source": "QueryString"
+				},
+				"i": {
+					"source": "QueryString"
 				}
 			}
 		}
 	},
-	{
-		"name": "mashClass",
-		"path": "/mashC/{s}/{t}/{i}",
-		"method": "GET",
-		"type": "TestIceSpider.Mash2",
-		"operations": {
-			"a": {
-				"operation": "TestIceSpider.TestApi.withParams"
-			},
-			"b": {
-				"operation": "TestIceSpider.TestApi.withParams",
-				"paramOverrides": {
-					"s": "t"
-				}
-			}
-		}
-	},
-	{
-		"name": "override",
-		"path": "/override",
-		"method": "GET",
-		"outputSerializers": [
-		{
-			"contentType": "application/xml",
-			"serializer": "IceSpider.XsltStreamSerializer",
-			"params": [ "\"xslt/transform.xslt\"" ]
-		}
-		],
-		"operation": "TestIceSpider.TestApi.index"
-	},
-	{
-		"name": "search",
-		"path": "/search",
-		"method": "GET",
-		"operation": "TestIceSpider.TestApi.withParams",
-		"params": {
-			"s": {
-				"source": "QueryString"
-			},
-			"i": {
-				"source": "QueryString"
-			}
-		}
-	}
-	],
 	"slices": [
 		"test-api.ice"
 	]

@@ -23,12 +23,12 @@ module IceSpider {
 	dictionary<string, Parameter> Parameters;
 
 	class OutputSerializer {
-		string contentType;
 		string serializer;
 		StringSeq params;
 	};
 
-	sequence<OutputSerializer> OutputSerializers;
+	["slicer:json:object"]
+	dictionary<string, OutputSerializer> OutputSerializers;
 
 	class Operation {
 		string operation;
@@ -39,7 +39,6 @@ module IceSpider {
 	dictionary<string, Operation> Operations;
 
 	class Route {
-		string name;
 		string path;
 		HttpMethod method = GET;
 		optional(0) string operation;
@@ -49,7 +48,8 @@ module IceSpider {
 		OutputSerializers outputSerializers;
 	};
 
-	sequence<Route> Routes;
+	["slicer:json:object"]
+	dictionary<string, Route> Routes;
 
 	class RouteConfiguration {
 		string name;

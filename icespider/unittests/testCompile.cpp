@@ -38,31 +38,25 @@ BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 	BOOST_REQUIRE_EQUAL("common", cfg->name);
 	BOOST_REQUIRE_EQUAL(10, cfg->routes.size());
 
-	BOOST_REQUIRE_EQUAL("index", cfg->routes[0]->name);
-	BOOST_REQUIRE_EQUAL("/", cfg->routes[0]->path);
-	BOOST_REQUIRE_EQUAL(HttpMethod::GET, cfg->routes[0]->method);
-	BOOST_REQUIRE_EQUAL("TestIceSpider.TestApi.index", cfg->routes[0]->operation);
-	BOOST_REQUIRE_EQUAL(0, cfg->routes[0]->params.size());
+	BOOST_REQUIRE_EQUAL("/", cfg->routes["index"]->path);
+	BOOST_REQUIRE_EQUAL(HttpMethod::GET, cfg->routes["index"]->method);
+	BOOST_REQUIRE_EQUAL("TestIceSpider.TestApi.index", cfg->routes["index"]->operation);
+	BOOST_REQUIRE_EQUAL(0, cfg->routes["index"]->params.size());
 
-	BOOST_REQUIRE_EQUAL("item", cfg->routes[1]->name);
-	BOOST_REQUIRE_EQUAL("/view/{s}/{i}", cfg->routes[1]->path);
-	BOOST_REQUIRE_EQUAL(2, cfg->routes[1]->params.size());
+	BOOST_REQUIRE_EQUAL("/view/{s}/{i}", cfg->routes["item"]->path);
+	BOOST_REQUIRE_EQUAL(2, cfg->routes["item"]->params.size());
 
-	BOOST_REQUIRE_EQUAL("del", cfg->routes[2]->name);
-	BOOST_REQUIRE_EQUAL(HttpMethod::DELETE, cfg->routes[2]->method);
-	BOOST_REQUIRE_EQUAL(1, cfg->routes[2]->params.size());
+	BOOST_REQUIRE_EQUAL(HttpMethod::DELETE, cfg->routes["del"]->method);
+	BOOST_REQUIRE_EQUAL(1, cfg->routes["del"]->params.size());
 
-	BOOST_REQUIRE_EQUAL("update", cfg->routes[3]->name);
-	BOOST_REQUIRE_EQUAL(HttpMethod::POST, cfg->routes[3]->method);
-	BOOST_REQUIRE_EQUAL(2, cfg->routes[3]->params.size());
+	BOOST_REQUIRE_EQUAL(HttpMethod::POST, cfg->routes["update"]->method);
+	BOOST_REQUIRE_EQUAL(2, cfg->routes["update"]->params.size());
 
-	BOOST_REQUIRE_EQUAL("mashStruct", cfg->routes[6]->name);
-	BOOST_REQUIRE_EQUAL(HttpMethod::GET, cfg->routes[6]->method);
-	BOOST_REQUIRE_EQUAL(3, cfg->routes[6]->params.size());
+	BOOST_REQUIRE_EQUAL(HttpMethod::GET, cfg->routes["mashStruct"]->method);
+	BOOST_REQUIRE_EQUAL(3, cfg->routes["mashStruct"]->params.size());
 
-	BOOST_REQUIRE_EQUAL("mashClass", cfg->routes[7]->name);
-	BOOST_REQUIRE_EQUAL(HttpMethod::GET, cfg->routes[7]->method);
-	BOOST_REQUIRE_EQUAL(3, cfg->routes[7]->params.size());
+	BOOST_REQUIRE_EQUAL(HttpMethod::GET, cfg->routes["mashClass"]->method);
+	BOOST_REQUIRE_EQUAL(3, cfg->routes["mashClass"]->params.size());
 
 	BOOST_REQUIRE_EQUAL(1, cfg->slices.size());
 	BOOST_REQUIRE_EQUAL("test-api.ice", cfg->slices[0]);

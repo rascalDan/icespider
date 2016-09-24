@@ -97,7 +97,7 @@ namespace IceSpider {
 			for (const auto & o : r->operations) {
 				auto op = findOperation(o.second->operation, us);
 				if (!op) {
-					throw std::runtime_error("Find operator failed for " + r->name);
+					throw std::runtime_error("Find operator failed for " + r->path);
 				}
 				for (const auto & p : op->parameters()) {
 					auto po = o.second->paramOverrides.find(p->name());
@@ -116,21 +116,21 @@ namespace IceSpider {
 		RouteCompiler::applyDefaults(RouteConfigurationPtr c, const Units & u) const
 		{
 			for (const auto & r : c->routes) {
-				if (r->operation) {
-					r->operations[std::string()] = new Operation(*r->operation, {});
+				if (r.second->operation) {
+					r.second->operations[std::string()] = new Operation(*r.second->operation, {});
 				}
-				auto ps = findParameters(r, u);
+				auto ps = findParameters(r.second, u);
 				for (const auto & p : ps) {
-					auto defined = r->params.find(p.first);
-					if (defined != r->params.end()) {
+					auto defined = r.second->params.find(p.first);
+					if (defined != r.second->params.end()) {
 						if (!defined->second->key) defined->second->key = defined->first;
 					}
 					else {
-						defined = r->params.insert({ p.first, new Parameter(ParameterSource::URL, p.first, false, IceUtil::Optional<std::string>(), false) }).first;
+						defined = r.second->params.insert({ p.first, new Parameter(ParameterSource::URL, p.first, false, IceUtil::Optional<std::string>(), false) }).first;
 					}
 					auto d = defined->second;
 					if (d->source == ParameterSource::URL) {
-						Path path(r->path);
+						Path path(r.second->path);
 						d->hasUserSource = std::find_if(path.parts.begin(), path.parts.end(), [d](const auto & pp) {
 							if (auto par = dynamic_cast<PathParameter *>(pp.get())) {
 								return par->name == d->key;
@@ -232,12 +232,12 @@ namespace IceSpider {
 		RouteCompiler::registerOutputSerializers(FILE * output, RoutePtr r) const
 		{
 			for (const auto & os : r->outputSerializers) {
-				auto bs = boost::algorithm::replace_all_copy(os->serializer, ".", "::");
-				auto slash = os->contentType.find('/');
+				auto bs = boost::algorithm::replace_all_copy(os.second->serializer, ".", "::");
+				auto slash = os.first.find('/');
 				fprintbf(4, output, "addRouteSerializer({ \"%s\", \"%s\" }, new %s::IceSpiderFactory(",
-						os->contentType.substr(0, slash), os->contentType.substr(slash + 1), bs);
-				for (auto p = os->params.begin(); p != os->params.end(); ++p) {
-					if (p != os->params.begin()) {
+						os.first.substr(0, slash), os.first.substr(slash + 1), bs);
+				for (auto p = os.second->params.begin(); p != os.second->params.end(); ++p) {
+					if (p != os.second->params.begin()) {
 						fprintf(output, ", ");
 					}
 					fputs(p->c_str(), output);
@@ -250,9 +250,9 @@ namespace IceSpider {
 		RouteCompiler::releaseOutputSerializers(FILE * output, RoutePtr r) const
 		{
 			for (const auto & os : r->outputSerializers) {
-				auto slash = os->contentType.find('/');
+				auto slash = os.first.find('/');
 				fprintbf(4, output, "removeRouteSerializer({ \"%s\", \"%s\" });\n",
-						os->contentType.substr(0, slash), os->contentType.substr(slash + 1));
+						os.first.substr(0, slash), os.first.substr(slash + 1));
 			}
 		}
 
@@ -285,20 +285,20 @@ namespace IceSpider {
 			fprintbf(output, "namespace %s {\n", c->name);
 			fprintbf(1, output, "// Implementation classes.\n\n");
 			for (const auto & r : c->routes) {
-				std::string methodName = getEnumString(r->method);
+				std::string methodName = getEnumString(r.second->method);
 
-				fprintbf(1, output, "// Route name: %s\n", r->name);
-				fprintbf(1, output, "//       path: %s\n", r->path);
-				fprintbf(1, output, "class %s : public IceSpider::IRouteHandler {\n", r->name);
+				fprintbf(1, output, "// Route name: %s\n", r.first);
+				fprintbf(1, output, "//       path: %s\n", r.second->path);
+				fprintbf(1, output, "class %s : public IceSpider::IRouteHandler {\n", r.first);
 				fprintbf(2, output, "public:\n");
-				fprintbf(3, output, "%s(const IceSpider::Core * core) :\n", r->name);
-				fprintbf(4, output, "IceSpider::IRouteHandler(IceSpider::HttpMethod::%s, \"%s\")", methodName, r->path);
-				auto proxies = initializeProxies(output, r);
-				for (const auto & p : r->params) {
+				fprintbf(3, output, "%s(const IceSpider::Core * core) :\n", r.first);
+				fprintbf(4, output, "IceSpider::IRouteHandler(IceSpider::HttpMethod::%s, \"%s\")", methodName, r.second->path);
+				auto proxies = initializeProxies(output, r.second);
+				for (const auto & p : r.second->params) {
 					if (p.second->hasUserSource) {
 						fprintf(output, ",\n");
 						if (p.second->source == ParameterSource::URL) {
-							Path path(r->path);
+							Path path(r.second->path);
 							unsigned int idx = -1;
 							for (const auto & pp : path.parts) {
 								if (auto par = dynamic_cast<PathParameter *>(pp.get())) {
@@ -321,16 +321,16 @@ namespace IceSpider {
 				}
 				fprintf(output, "\n");
 				fprintbf(3, output, "{\n");
-				registerOutputSerializers(output, r);
+				registerOutputSerializers(output, r.second);
 				fprintbf(3, output, "}\n\n");
-				fprintbf(3, output, "~%s()\n", r->name);
+				fprintbf(3, output, "~%s()\n", r.first);
 				fprintbf(3, output, "{\n");
-				releaseOutputSerializers(output, r);
+				releaseOutputSerializers(output, r.second);
 				fprintbf(3, output, "}\n\n");
 				fprintbf(3, output, "void execute(IceSpider::IHttpRequest * request) const\n");
 				fprintbf(3, output, "{\n");
-				auto ps = findParameters(r, units);
-				for (const auto & p : r->params) {
+				auto ps = findParameters(r.second, units);
+				for (const auto & p : r.second->params) {
 					if (p.second->hasUserSource) {
 						auto ip = ps.find(p.first)->second;
 						fprintbf(4, output, "auto _p_%s(request->get%sParam<%s>(_p%c_%s)",
@@ -351,16 +351,16 @@ namespace IceSpider {
 						fprintbf(0, output, ");\n");
 					}
 				}
-				if (r->operation) {
-					addSingleOperation(output, r, findOperation(*r->operation, units));
+				if (r.second->operation) {
+					addSingleOperation(output, r.second, findOperation(*r.second->operation, units));
 				}
 				else {
-					addMashupOperations(output, r, proxies, units);
+					addMashupOperations(output, r.second, proxies, units);
 				}
 				fprintbf(3, output, "}\n\n");
 				fprintbf(2, output, "private:\n");
 				declareProxies(output, proxies);
-				for (const auto & p : r->params) {
+				for (const auto & p : r.second->params) {
 					if (p.second->hasUserSource) {
 						if (p.second->source == ParameterSource::URL) {
 							fprintbf(3, output, "const unsigned int _pi_%s;\n", p.first);
@@ -381,7 +381,7 @@ namespace IceSpider {
 			fprintbf(output, "} // namespace %s\n\n", c->name);
 			fprintf(output, "// Register route handlers.\n");
 			for (const auto & r : c->routes) {
-				fprintbf(output, "FACTORY(%s::%s, IceSpider::RouteHandlerFactory);\n", c->name, r->name);
+				fprintbf(output, "FACTORY(%s::%s, IceSpider::RouteHandlerFactory);\n", c->name, r.first);
 			}
 			fprintf(output, "\n// End generated code.\n");
 		}
