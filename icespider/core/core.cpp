@@ -92,6 +92,18 @@ namespace IceSpider {
 	Core::getProxy(const char * type) const
 	{
 		char * buf = __cxxabiv1::__cxa_demangle(type, NULL, NULL, NULL);
+		char * c = buf;
+		int off = 0;
+		while (*c) {
+			if (*(c + 1) == ':' && *c == ':') {
+				*c = '.';
+				off += 1;
+			}
+			else if (off) {
+				*c = *(c + off);
+			}
+			c += 1;
+		}
 		auto i = communicator->propertyToProxy(buf);
 		free(buf);
 		return i;
