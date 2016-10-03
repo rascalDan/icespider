@@ -49,7 +49,7 @@ namespace IceSpider {
 	}
 
 	void
-	XsltStreamSerializer::Serialize(Slicer::ModelPartPtr mp)
+	XsltStreamSerializer::Serialize(Slicer::ModelPartForRootPtr mp)
 	{
 		Slicer::XmlDocumentSerializer::Serialize(mp);
 		auto result = xsltApplyStylesheet(stylesheet, doc->cobj(), nullptr);
