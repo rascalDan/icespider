@@ -35,6 +35,11 @@ namespace IceSpider {
 			auto & lroutes = routes[r->pathElementCount()];
 			lroutes.push_back(r);
 		}
+		for (auto & l : routes) {
+			std::sort(l.begin(), l.end(), [](const auto & a, const auto & b) {
+				return a->path < b->path;
+			});
+		}
 	}
 
 	Core::~Core()
