@@ -28,6 +28,7 @@ namespace IceSpider {
 			const std::string & getURLParam(unsigned int) const;
 			virtual OptionalString getQueryStringParam(const std::string &) const = 0;
 			virtual OptionalString getHeaderParam(const std::string &) const = 0;
+			virtual OptionalString getEnv(const std::string &) const = 0;
 			virtual Slicer::DeserializerPtr getDeserializer() const;
 			virtual ContentTypeSerializer getSerializer(const IRouteHandler *) const;
 			virtual std::istream & getInputStream() const = 0;

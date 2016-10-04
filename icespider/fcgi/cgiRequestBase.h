@@ -25,6 +25,7 @@ namespace IceSpider {
 			HttpMethod getRequestMethod() const override;
 			OptionalString getQueryStringParam(const std::string & key) const override;
 			OptionalString getHeaderParam(const std::string & key) const override;
+			OptionalString getEnv(const std::string & key) const override;
 
 		private:
 			static OptionalString optionalLookup(const std::string & key, const VarMap &);

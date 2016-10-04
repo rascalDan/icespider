@@ -53,6 +53,11 @@ class TestRequest : public IHttpRequest {
 			return method;
 		}
 
+		IceUtil::Optional<std::string> getEnv(const std::string & key) const override
+		{
+			return env.find(key) == env.end() ? IceUtil::Optional<std::string>() : env.find(key)->second;
+		}
+
 		IceUtil::Optional<std::string> getQueryStringParam(const std::string & key) const override
 		{
 			return qs.find(key) == qs.end() ? IceUtil::Optional<std::string>() : qs.find(key)->second;
@@ -78,6 +83,7 @@ class TestRequest : public IHttpRequest {
 		UrlVars url;
 		MapVars qs;
 		MapVars hdr;
+		MapVars env;
 		mutable std::stringstream input;
 		mutable std::stringstream output;
 
@@ -284,7 +290,7 @@ BOOST_AUTO_TEST_CASE( testCallDeleteSomeValue )
 BOOST_AUTO_TEST_CASE( testCallPost1234 )
 {
 	TestRequest requestUpdateItem(this, HttpMethod::POST, "/1234");
-	requestUpdateItem.hdr["Content-Type"] = "application/json";
+	requestUpdateItem.env["CONTENT_TYPE"] = "application/json";
 	requestUpdateItem.input << "{\"value\": \"some value\"}";
 	process(&requestUpdateItem);
 	auto h = parseHeaders(requestUpdateItem.output);
@@ -307,7 +313,7 @@ BOOST_AUTO_TEST_CASE( testCallPost1234NoContentType )
 BOOST_AUTO_TEST_CASE( testCallPost1234UnsupportedMediaType )
 {
 	TestRequest requestUpdateItem(this, HttpMethod::POST, "/1234");
-	requestUpdateItem.hdr["Content-Type"] = "application/notathing";
+	requestUpdateItem.env["CONTENT_TYPE"] = "application/notathing";
 	requestUpdateItem.input << "value=\"some value\"";
 	process(&requestUpdateItem);
 	auto h = parseHeaders(requestUpdateItem.output);

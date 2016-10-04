@@ -94,6 +94,12 @@ namespace IceSpider {
 	}
 
 	OptionalString
+	CgiRequestBase::getEnv(const std::string & key) const
+	{
+		return optionalLookup(key, envmap);
+	}
+
+	OptionalString
 	CgiRequestBase::getHeaderParam(const std::string & key) const
 	{
 		return optionalLookup(("HTTP_" + boost::algorithm::to_upper_copy(key)).c_str(), envmap);

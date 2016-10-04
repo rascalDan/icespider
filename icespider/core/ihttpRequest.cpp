@@ -21,7 +21,7 @@ namespace IceSpider {
 	{
 		try {
 			return Slicer::StreamDeserializerFactory::createNew(
-				getHeaderParam("Content-Type") / []() -> std::string {
+				getEnv("CONTENT_TYPE") / []() -> std::string {
 					throw Http400_BadRequest();
 				}, getInputStream());
 		}
