@@ -1,13 +1,23 @@
 lib adhocutil : : : : <include>/usr/include/adhocutil ;
+lib slicer : : : : <include>/usr/include/slicer ;
+
+cpp http-slicer :
+	http.ice
+	:
+	<slicer>pure
+	<allow-ice>yes
+	;
 
 lib icespider-common :
 	[ glob-tree *.ice *.cpp : bin ]
+	http-slicer
 	:
 	<library>adhocutil
 	<allow-ice>yes
 	<library>..//pthread
 	<library>..//Ice
 	<library>..//IceUtil
+	<library>slicer
 	: :
 	<library>..//pthread
 	<library>..//Ice

@@ -3,10 +3,7 @@ lib fcgi++ : : <name>fcgi++ ;
 
 lib icespider-fcgi :
 	[ glob-tree *.cpp : bin ]
-	../common/http.ice
 	:
-	<slicer>pure
-	<allow-ice>yes
 	<library>fcgi
 	<library>fcgi++
 	<library>..//core

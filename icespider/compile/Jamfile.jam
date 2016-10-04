@@ -8,7 +8,7 @@ lib Slice ;
 
 lib icespider-compile :
 	[ glob-tree *.cpp : bin main.cpp ]
-	[ glob ../common/*.ice ]
+	../common/routes.ice
 	:
 	<slicer>pure
 	<allow-ice>yes
@@ -18,7 +18,7 @@ lib icespider-compile :
 	<library>boost_system
 	<library>boost_filesystem
 	<library>Slice
-	<library>../common
+	<library>../common//icespider-common
 	<implicit-dependency>../common
 	<library>..//Ice
 	<library>..//IceUtil
@@ -26,7 +26,7 @@ lib icespider-compile :
 	: :
 	<library>boost_system
 	<library>boost_filesystem
-	<library>../common
+	<library>../common//icespider-common
 	<implicit-dependency>../common
 	;
 

@@ -6,7 +6,7 @@ lib boost_filesystem ;
 lib icespider-core :
 	[ glob-tree *.cpp : bin ]
 	:
-	<library>../common
+	<library>../common//icespider-common
 	<library>adhocutil
 	<library>slicer
 	<library>boost_system
@@ -14,6 +14,6 @@ lib icespider-core :
 	<implicit-dependency>../common
 	: :
 	<include>.
-	<library>../common
+	<library>../common//icespider-common
 	<implicit-dependency>../common
 	;

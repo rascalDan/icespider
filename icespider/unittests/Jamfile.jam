@@ -82,11 +82,8 @@ run
 run
 	testFcgi.cpp
 	../fcgi/cgiRequestBase.cpp
-	../common/http.ice
 	: : :
 	<define>BOOST_TEST_DYN_LINK
-	<slicer>pure
-	<allow-ice>yes
 	<library>testCommon
 	<library>../common//icespider-common
 	<library>../core//icespider-core
