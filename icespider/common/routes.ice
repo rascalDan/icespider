@@ -5,8 +5,6 @@
 
 module IceSpider {
 	sequence<string> StringSeq;
-	["slicer:json:object"]
-	dictionary<string, string> StringMap;
 
 	class Parameter {
 		ParameterSource source = URL;
