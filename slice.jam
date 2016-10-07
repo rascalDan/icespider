@@ -24,8 +24,8 @@ scanner.register slice-scanner : include ;
 type.set-scanner SLICE : slice-scanner ;
 
 generators.register-standard slice.slice2cpp : SLICE : CPP H : <slicer>no ;
-generators.register-standard slice.slicer : SLICE : CPP H : <slicer>yes ;
-generators.register-standard slice.slicer.pure : SLICE : CPP : <slicer>pure ;
+generators.register-standard slice.slicer : SLICE : CPP CPP(slicer-%) H : <slicer>yes ;
+generators.register-standard slice.slicer.pure : SLICE : CPP(slicer-%) : <slicer>pure ;
 
 toolset.flags slice.slice2cpp INCLUDES <include> ;
 toolset.flags slice.slice2cpp DLLEXPORT <ice-visibility>public : --dll-export JAM_DLL_PUBLIC ;
@@ -44,12 +44,11 @@ actions slice.slice2cpp
 actions slice.slicer
 {
   slice2cpp -I"$(INCLUDES)" --checksum --output-dir $(1[1]:D) $(2) $(DLLEXPORT) $(ALLOWICE[1])
-	slicer -I"$(INCLUDES)" $(2) $(1[1]) $(ALLOWICE[1])
+	slicer -I"$(INCLUDES)" $(2) $(1[2]) $(ALLOWICE[1])
 }
 
 actions slice.slicer.pure
 {
-	truncate -c -s 0 $(1[1])
 	slicer -I"$(INCLUDES)" $(2) $(1[1]) $(ALLOWICE[1])
 }
 
