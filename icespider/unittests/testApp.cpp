@@ -27,7 +27,7 @@ void forceEarlyChangeDir()
 
 BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 {
-	BOOST_REQUIRE_EQUAL(10, AdHoc::PluginManager::getDefault()->getAll<IceSpider::RouteHandlerFactory>().size());
+	BOOST_REQUIRE_EQUAL(11, AdHoc::PluginManager::getDefault()->getAll<IceSpider::RouteHandlerFactory>().size());
 }
 
 class TestRequest : public IHttpRequest {
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( testCoreSettings )
 {
 	BOOST_REQUIRE_EQUAL(5, routes.size());
 	BOOST_REQUIRE_EQUAL(1, routes[0].size());
-	BOOST_REQUIRE_EQUAL(4, routes[1].size());
+	BOOST_REQUIRE_EQUAL(5, routes[1].size());
 	BOOST_REQUIRE_EQUAL(1, routes[2].size());
 	BOOST_REQUIRE_EQUAL(2, routes[3].size());
 	BOOST_REQUIRE_EQUAL(2, routes[4].size());

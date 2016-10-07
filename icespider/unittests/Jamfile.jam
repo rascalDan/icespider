@@ -23,6 +23,7 @@ lib slicer-json : : : : <include>/usr/include/slicer ;
 lib slicer-xml : : : : <include>/usr/include/slicer ;
 lib boost_utf : : <name>boost_unit_test_framework ;
 lib boost_system ;
+lib boost_filesystem ;
 lib dl ;
 path-constant me : . ;
 
@@ -81,14 +82,21 @@ run
 
 run
 	testFcgi.cpp
+	test-fcgi.ice
 	../fcgi/cgiRequestBase.cpp
+	../fcgi/xwwwFormUrlEncoded.cpp
+	../fcgi/hextable.c
 	: : :
+	<slicer>yes
 	<define>BOOST_TEST_DYN_LINK
 	<library>testCommon
 	<library>../common//icespider-common
 	<library>../core//icespider-core
 	<library>boost_system
+	<library>boost_filesystem
 	<library>slicer
+	<library>slicer-json
+	<library>adhocutil
 	<include>../fcgi
 	: testFcgi ;
 

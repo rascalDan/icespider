@@ -8,6 +8,7 @@
 #include <routes.h>
 #include <slicer/slicer.h>
 #include <IceUtil/Optional.h>
+#include <boost/lexical_cast.hpp>
 
 namespace IceSpider {
 	class Core;
@@ -37,9 +38,23 @@ namespace IceSpider {
 			template<typename T>
 			T getURLParam(unsigned int) const;
 			template<typename T>
-			IceUtil::Optional<T> getBodyParam(const std::string &) const
+			IceUtil::Optional<T> getBody() const
 			{
 				return Slicer::DeserializeAnyWith<T>(getDeserializer());
+			}
+			template<typename T>
+			IceUtil::Optional<T> getBodyParam(const IceUtil::Optional<IceSpider::StringMap> & map, const std::string & key) const
+			{
+				if (!map) {
+					return IceUtil::Optional<T>();
+				}
+				auto i = map->find(key);
+				if (i == map->end()) {
+					return IceUtil::Optional<T>();
+				}
+				else {
+					return boost::lexical_cast<T>(i->second);
+				}
 			}
 			template<typename T>
 			IceUtil::Optional<T> getQueryStringParam(const std::string & key) const;

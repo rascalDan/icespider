@@ -12,6 +12,7 @@ module IceSpider {
 		bool isOptional = false;
 		["slicer:name:default"]
 		optional(1) string defaultExpr;
+		optional(2) string type;
 
 		["slicer:ignore"]
 		bool hasUserSource = true;

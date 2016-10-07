@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 	rc.applyDefaults(cfg, u);
 
 	BOOST_REQUIRE_EQUAL("common", cfg->name);
-	BOOST_REQUIRE_EQUAL(10, cfg->routes.size());
+	BOOST_REQUIRE_EQUAL(11, cfg->routes.size());
 
 	BOOST_REQUIRE_EQUAL("/", cfg->routes["index"]->path);
 	BOOST_REQUIRE_EQUAL(HttpMethod::GET, cfg->routes["index"]->method);
@@ -106,6 +106,7 @@ BOOST_AUTO_TEST_CASE( testCompile )
 BOOST_AUTO_TEST_CASE( testLink )
 {
 	auto outputo = binDir / "testRoutes.o";
+	BOOST_REQUIRE(boost::filesystem::exists(outputo));
 	auto outputso = binDir / "testRoutes.so";
 
 	auto linkCommand = boost::algorithm::join<std::vector<std::string>>({
@@ -121,12 +122,13 @@ BOOST_AUTO_TEST_CASE( testLink )
 BOOST_AUTO_TEST_CASE( testLoad )
 {
 	auto outputso = binDir / "testRoutes.so";
+	BOOST_REQUIRE(boost::filesystem::exists(outputso));
 
 	auto lib = dlopen(outputso.c_str(), RTLD_NOW);
 	BOOST_TEST_INFO(dlerror());
 	BOOST_REQUIRE(lib);
 
-	BOOST_REQUIRE_EQUAL(10, AdHoc::PluginManager::getDefault()->getAll<IceSpider::RouteHandlerFactory>().size());
+	BOOST_REQUIRE_EQUAL(11, AdHoc::PluginManager::getDefault()->getAll<IceSpider::RouteHandlerFactory>().size());
 	// smoke test (block ensure dlclose dones't cause segfault)
 	{
 		auto route = AdHoc::PluginManager::getDefault()->get<IceSpider::RouteHandlerFactory>("common::index");

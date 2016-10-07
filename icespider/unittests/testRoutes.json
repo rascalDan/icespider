@@ -23,6 +23,17 @@
 			"method": "DELETE",
 			"operation": "TestIceSpider.TestApi.returnNothing"
 		},
+		"del2": {
+			"path": "/{s}",
+			"method": "DELETE",
+			"operation": "TestIceSpider.TestApi.returnNothing",
+			"params": {
+				"s": {
+					"source": "Body",
+					"key": "value"
+				}
+			}
+		},
 		"update": {
 			"path": "/{id}",
 			"method": "POST",

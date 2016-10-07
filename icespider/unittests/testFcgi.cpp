@@ -2,7 +2,9 @@
 #include <boost/test/unit_test.hpp>
 
 #include <core.h>
+#include <definedDirs.h>
 #include <cgiRequestBase.h>
+#include <test-fcgi.h>
 
 class TestRequest : public IceSpider::CgiRequestBase {
 	public:
@@ -22,6 +24,24 @@ class TestRequest : public IceSpider::CgiRequestBase {
 			return std::cin;
 		}
 		// LCOV_EXCL_STOP
+};
+
+class TestPayloadRequest : public TestRequest {
+	public:
+		TestPayloadRequest(IceSpider::Core * c, char ** env, std::istream & s) :
+			TestRequest(c, env),
+			in(s)
+		{
+			initialize();
+		}
+
+		std::istream & getInputStream() const override
+		{
+			return in;
+		}
+
+	private:
+		std::istream & in;
 };
 
 class CharPtrPtrArray : public std::vector<char *> {
@@ -170,6 +190,69 @@ BOOST_AUTO_TEST_CASE( requestmethod_bad )
 	CharPtrPtrArray env ({ "SCRIPT_NAME=/", "REQUEST_METHOD=No" });
 	TestRequest r(this, env);
 	BOOST_REQUIRE_THROW(r.getRequestMethod(), IceSpider::Http405_MethodNotAllowed);
+}
+
+BOOST_AUTO_TEST_CASE( postxwwwformurlencoded_simple )
+{
+	CharPtrPtrArray env ({ "SCRIPT_NAME=/", "REQUEST_METHOD=No", "CONTENT_TYPE=application/x-www-form-urlencoded" });
+	std::stringstream f("value=314");
+	TestPayloadRequest r(this, env, f);
+	auto n = r.getBody<int>();
+	BOOST_REQUIRE_EQUAL(314, n);
+}
+
+BOOST_AUTO_TEST_CASE( postxwwwformurlencoded_dictionary )
+{
+	CharPtrPtrArray env ({ "SCRIPT_NAME=/", "REQUEST_METHOD=No", "CONTENT_TYPE=application/x-www-form-urlencoded" });
+	std::stringstream f("alpha=abcde&number=3.14&boolean=true&spaces=This+is+a%20string.&empty=");
+	TestPayloadRequest r(this, env, f);
+	auto n = *r.getBody<IceSpider::StringMap>();
+	BOOST_REQUIRE_EQUAL(5, n.size());
+	BOOST_REQUIRE_EQUAL("abcde", n["alpha"]);
+	BOOST_REQUIRE_EQUAL("3.14", n["number"]);
+	BOOST_REQUIRE_EQUAL("true", n["boolean"]);
+	BOOST_REQUIRE_EQUAL("This is a string.", n["spaces"]);
+	BOOST_REQUIRE_EQUAL("", n["empty"]);
+}
+
+BOOST_AUTO_TEST_CASE( postxwwwformurlencoded_complex )
+{
+	CharPtrPtrArray env ({ "SCRIPT_NAME=/", "REQUEST_METHOD=No", "CONTENT_TYPE=application/x-www-form-urlencoded" });
+	std::stringstream f("alpha=abcde&number=3.14&boolean=true&empty=&spaces=This+is+a%20string.");
+	TestPayloadRequest r(this, env, f);
+	auto n = *r.getBody<TestFcgi::ComplexPtr>();
+	BOOST_REQUIRE_EQUAL("abcde", n->alpha);
+	BOOST_REQUIRE_EQUAL(3.14, n->number);
+	BOOST_REQUIRE_EQUAL(true, n->boolean);
+	BOOST_REQUIRE_EQUAL("This is a string.", n->spaces);
+	BOOST_REQUIRE_EQUAL("", n->empty);
+}
+
+BOOST_AUTO_TEST_CASE( postjson_complex )
+{
+	CharPtrPtrArray env ({ "SCRIPT_NAME=/", "REQUEST_METHOD=No", "CONTENT_TYPE=application/json" });
+	std::stringstream f("{\"alpha\":\"abcde\",\"number\":3.14,\"boolean\":true,\"empty\":\"\",\"spaces\":\"This is a string.\"}");
+	TestPayloadRequest r(this, env, f);
+	auto n = *r.getBody<TestFcgi::ComplexPtr>();
+	BOOST_REQUIRE_EQUAL("abcde", n->alpha);
+	BOOST_REQUIRE_EQUAL(3.14, n->number);
+	BOOST_REQUIRE_EQUAL(true, n->boolean);
+	BOOST_REQUIRE_EQUAL("This is a string.", n->spaces);
+	BOOST_REQUIRE_EQUAL("", n->empty);
+}
+
+BOOST_AUTO_TEST_CASE( postjson_dictionary )
+{
+	CharPtrPtrArray env ({ "SCRIPT_NAME=/", "REQUEST_METHOD=No", "CONTENT_TYPE=application/json" });
+	std::stringstream f("{\"alpha\":\"abcde\",\"number\":\"3.14\",\"boolean\":\"true\",\"empty\":\"\",\"spaces\":\"This is a string.\"}");
+	TestPayloadRequest r(this, env, f);
+	auto n = *r.getBody<IceSpider::StringMap>();
+	BOOST_REQUIRE_EQUAL(5, n.size());
+	BOOST_REQUIRE_EQUAL("abcde", n["alpha"]);
+	BOOST_REQUIRE_EQUAL("3.14", n["number"]);
+	BOOST_REQUIRE_EQUAL("true", n["boolean"]);
+	BOOST_REQUIRE_EQUAL("This is a string.", n["spaces"]);
+	BOOST_REQUIRE_EQUAL("", n["empty"]);
 }
 
 BOOST_AUTO_TEST_SUITE_END();
