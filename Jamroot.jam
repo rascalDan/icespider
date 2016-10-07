@@ -8,13 +8,13 @@ variant coverage : debug ;
 
 project
   : requirements
-      <variant>release:<cflags>"-std=c++1y -fvisibility=hidden"
+      <variant>release:<cxxflags>"-std=c++1y -fvisibility=hidden"
       <variant>release:<linkflags>"-Wl,-z,defs,--warn-once,--gc-sections"
-      <variant>debug:<cflags>"-W -Wall -Werror -Wwrite-strings -std=c++1y -fvisibility=hidden"
+      <variant>debug:<cxxflags>"-W -Wall -Werror -Wwrite-strings -std=c++1y -fvisibility=hidden"
       <variant>debug:<linkflags>"-Wl,-z,defs,--warn-once"
-      <variant>coverage:<cflags>"-W -Wall -Werror -Wwrite-strings -std=c++1y --coverage -fvisibility=hidden"
+      <variant>coverage:<cxxflags>"-W -Wall -Werror -Wwrite-strings -std=c++1y --coverage -fvisibility=hidden"
       <variant>coverage:<linkflags>"-Wl,-z,defs,--warn-once --coverage"
-      <variant>component:<cflags>"-W -Wall -Werror -Wwrite-strings -std=c++1y -fPIC -fvisibility=hidden"
+      <variant>component:<cxxflags>"-W -Wall -Werror -Wwrite-strings -std=c++1y -fPIC -fvisibility=hidden"
 			<variant>component:<linkflags>"-Wl,-z,lazy,--warn-once,-fPIC"
 	;
 
