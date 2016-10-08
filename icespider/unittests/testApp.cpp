@@ -180,12 +180,13 @@ class TestApp : public Core {
 			adp(communicator->createObjectAdapterWithEndpoints("test", "default"))
 		{
 			adp->activate();
-			communicator->proxyToString(adp->add(new TestSerice(), communicator->stringToIdentity("Test")));
+			adp->add(new TestSerice(), communicator->stringToIdentity("Test"));
 		}
 
 		~TestApp()
 		{
 			adp->deactivate();
+			adp->destroy();
 		}
 
 		Ice::ObjectAdapterPtr adp;
