@@ -13,7 +13,7 @@ namespace IceSpider {
 			typedef std::vector<const IRouteHandler *> LengthRoutes;
 			typedef std::vector<LengthRoutes> Routes;
 
-			Core(int = 0, char ** = NULL);
+			Core(const Ice::StringSeq & = {});
 			~Core();
 
 			void process(IHttpRequest *) const;

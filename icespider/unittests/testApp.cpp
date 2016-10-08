@@ -90,7 +90,54 @@ class TestRequest : public IHttpRequest {
 		const HttpMethod method;
 };
 
-BOOST_FIXTURE_TEST_SUITE(c, Core);
+class CoreWithProps : public Core {
+	public:
+		CoreWithProps() :
+			Core({
+				"--Custom.Prop=value"
+			})
+		{
+		}
+};
+
+BOOST_FIXTURE_TEST_SUITE(props, CoreWithProps);
+
+BOOST_AUTO_TEST_CASE( properties )
+{
+	BOOST_REQUIRE_EQUAL("Test",
+			this->communicator->getProperties()->getProperty("TestIceSpider.TestApi"));
+	BOOST_REQUIRE_EQUAL("value",
+			this->communicator->getProperties()->getProperty("Custom.Prop"));
+}
+
+BOOST_AUTO_TEST_SUITE_END();
+
+class CoreWithFileProps : public Core {
+	public:
+		CoreWithFileProps() :
+			Core({
+				"--IceSpider.Config=config/custom.properties",
+				"--Custom.Prop=value"
+			})
+		{
+		}
+};
+
+BOOST_FIXTURE_TEST_SUITE(fileProps, CoreWithFileProps);
+
+BOOST_AUTO_TEST_CASE( properties )
+{
+	BOOST_REQUIRE_EQUAL("",
+			this->communicator->getProperties()->getProperty("TestIceSpider.TestApi"));
+	BOOST_REQUIRE_EQUAL("something",
+			this->communicator->getProperties()->getProperty("InFile"));
+	BOOST_REQUIRE_EQUAL("value",
+			this->communicator->getProperties()->getProperty("Custom.Prop"));
+}
+
+BOOST_AUTO_TEST_SUITE_END();
+
+BOOST_FIXTURE_TEST_SUITE(defaultProps, Core);
 
 BOOST_AUTO_TEST_CASE( testCoreSettings )
 {

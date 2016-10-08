@@ -17,12 +17,14 @@ namespace IceSpider {
 		return true;
 	}
 
-	Core::Core(int argc, char ** argv)
+	Core::Core(const Ice::StringSeq & args)
 	{
 		Ice::InitializationData id;
-		id.properties = Ice::createProperties(argc, argv);
-		if (boost::filesystem::exists(defaultConfig)) {
-			id.properties->load(defaultConfig.string());
+		id.properties = Ice::createProperties();
+		id.properties->parseCommandLineOptions("", args);
+		auto config = id.properties->getPropertyWithDefault("IceSpider.Config", defaultConfig.string());
+		if (boost::filesystem::exists(config)) {
+			id.properties->load(config);
 		}
 		communicator = Ice::initialize(id);
 

@@ -8,7 +8,7 @@ DLL_PUBLIC
 int
 main(int argc, char ** argv, char ** env)
 {
-	Core core(argc, argv);
+	Core core;
 	if (!FCGX_IsCGI()) {
 		FCGX_Request request;
 
