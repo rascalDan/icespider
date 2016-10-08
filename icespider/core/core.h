@@ -6,6 +6,7 @@
 #include "irouteHandler.h"
 #include <Ice/Communicator.h>
 #include <boost/filesystem/path.hpp>
+#include <plugins.h>
 
 namespace IceSpider {
 	class DLL_PUBLIC Core {
@@ -29,9 +30,13 @@ namespace IceSpider {
 
 			Routes routes;
 			Ice::CommunicatorPtr communicator;
+			Ice::ObjectAdapterPtr pluginAdapter;
 
 			static const boost::filesystem::path defaultConfig;
 	};
+	class DLL_PUBLIC Plugin : public virtual Ice::Object {
+	};
+	typedef AdHoc::Factory<Plugin, Ice::CommunicatorPtr, Ice::PropertiesPtr> PluginFactory;
 }
 
 #endif

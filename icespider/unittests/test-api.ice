@@ -20,5 +20,7 @@ module TestIceSpider {
 		void returnNothing(string s);
 		void complexParam(optional(0) string s, SomeModel m);
 	};
+	interface DummyPlugin {
+	};
 };
 

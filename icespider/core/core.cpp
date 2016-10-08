@@ -1,7 +1,11 @@
 #include "core.h"
 #include "exceptions.h"
 #include <Ice/Initialize.h>
+#include <Ice/ObjectAdapter.h>
 #include <boost/filesystem/convenience.hpp>
+#include <factory.impl.h>
+
+INSTANTIATEFACTORY(IceSpider::Plugin, Ice::CommunicatorPtr, Ice::PropertiesPtr);
 
 namespace IceSpider {
 	const boost::filesystem::path Core::defaultConfig("config/ice.properties");
@@ -42,16 +46,37 @@ namespace IceSpider {
 				return a->path < b->path;
 			});
 		}
+		// Load plugins
+		auto plugins = AdHoc::PluginManager::getDefault()->getAll<PluginFactory>();
+		if (!plugins.empty()) {
+			pluginAdapter = communicator->createObjectAdapterWithEndpoints("plugins", "default");
+			for (const auto & pf : plugins) {
+				auto p = pf->implementation()->create(communicator, communicator->getProperties());
+				pluginAdapter->add(p, communicator->stringToIdentity(pf->name));
+			}
+			pluginAdapter->activate();
+		}
 	}
 
 	Core::~Core()
 	{
-		if (communicator) communicator->destroy();
+		// Unload plugins
+		auto plugins = AdHoc::PluginManager::getDefault()->getAll<PluginFactory>();
+		if (!plugins.empty()) {
+			for (const auto & pf : plugins) {
+				pluginAdapter->remove(communicator->stringToIdentity(pf->name));
+			}
+			pluginAdapter->deactivate();
+			pluginAdapter->destroy();
+		}
+		// Initialize routes
 		for (auto l : routes) {
 			for (auto r : l) {
 				delete r;
 			}
 		}
+
+		if (communicator) communicator->destroy();
 	}
 
 	void

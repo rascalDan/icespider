@@ -16,6 +16,7 @@
 #include <xml/serializer.h>
 #include <json/serializer.h>
 #include <libxml++/parsers/domparser.h>
+#include <factory.impl.h>
 
 using namespace IceSpider;
 
@@ -239,6 +240,12 @@ class TestApp : public Core {
 		Ice::ObjectAdapterPtr adp;
 };
 
+class Dummy : public IceSpider::Plugin, TestIceSpider::DummyPlugin {
+	public:
+		Dummy(Ice::CommunicatorPtr, Ice::PropertiesPtr) { }
+};
+NAMEDFACTORY("DummyPlugin", Dummy, IceSpider::PluginFactory);
+
 typedef std::map<std::string, std::string> Headers;
 Headers
 parseHeaders(std::istream & strm)
@@ -256,6 +263,13 @@ parseHeaders(std::istream & strm)
 }
 
 BOOST_FIXTURE_TEST_SUITE(ta, TestApp);
+
+BOOST_AUTO_TEST_CASE( plugins )
+{
+	auto prx = this->getProxy<TestIceSpider::DummyPlugin>();
+	BOOST_REQUIRE(prx);
+	prx->ice_ping();
+}
 
 BOOST_AUTO_TEST_CASE( testCallIndex )
 {
