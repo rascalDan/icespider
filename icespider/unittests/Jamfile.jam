@@ -100,6 +100,20 @@ run
 	<include>../fcgi
 	: testFcgi ;
 
+run
+	testFileSessions.cpp
+	: :
+	config/ice.properties
+	:
+	<define>BOOST_TEST_DYN_LINK
+	<library>../fileSessions//icespider-filesessions
+	<library>../common//icespider-common
+	<library>testCommon
+	<library>boost_system
+	<library>boost_filesystem
+	<library>../core//icespider-core
+	;
+
 lib test-api :
 	test-api.ice
 	:
