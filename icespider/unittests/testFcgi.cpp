@@ -264,5 +264,14 @@ BOOST_AUTO_TEST_CASE( postjson_dictionary )
 	BOOST_REQUIRE_EQUAL("", n["empty"]);
 }
 
+BOOST_AUTO_TEST_CASE( cookies )
+{
+	CharPtrPtrArray env ({ "SCRIPT_NAME=/", "REQUEST_METHOD=No", "CONTENT_TYPE=application/json", "HTTP_COOKIE=valueA=1234; value+B=Something+with+spaces." });
+	TestRequest r(this, env);
+	BOOST_REQUIRE_EQUAL(1234, *r.IceSpider::IHttpRequest::getCookieParam<Ice::Int>("valueA"));
+	BOOST_REQUIRE_EQUAL("Something with spaces.", *r.IceSpider::IHttpRequest::getCookieParam<std::string>("value B"));
+	BOOST_REQUIRE(!r.IceSpider::IHttpRequest::getCookieParam<Ice::Int>("notAThing"));
+}
+
 BOOST_AUTO_TEST_SUITE_END();
 

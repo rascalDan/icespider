@@ -25,6 +25,7 @@ namespace IceSpider {
 			HttpMethod getRequestMethod() const override;
 			OptionalString getQueryStringParam(const std::string & key) const override;
 			OptionalString getHeaderParam(const std::string & key) const override;
+			OptionalString getCookieParam(const std::string & key) const override;
 			OptionalString getEnv(const std::string & key) const override;
 
 		private:
@@ -33,6 +34,7 @@ namespace IceSpider {
 
 			VarMap envmap;
 			StringMap qsmap;
+			StringMap cookiemap;
 			PathElements pathElements;
 	};
 }

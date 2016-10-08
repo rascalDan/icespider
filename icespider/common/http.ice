@@ -13,7 +13,7 @@ module IceSpider {
 	};
 
 	enum ParameterSource {
-		URL, Body, QueryString, Header
+		URL, Body, QueryString, Header, Cookie
 	};
 
 	["slicer:ignore"]

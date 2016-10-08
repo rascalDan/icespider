@@ -113,12 +113,16 @@ namespace IceSpider {
 		return wrapLexicalCast<T>(getURLParam(idx)); } \
 	template<> IceUtil::Optional<T> IHttpRequest::getQueryStringParam<T>(const std::string & key) const { \
 		return optionalLexicalCast<T>(getQueryStringParam(key)); } \
+	template<> IceUtil::Optional<T> IHttpRequest::getCookieParam<T>(const std::string & key) const { \
+		return optionalLexicalCast<T>(getCookieParam(key)); } \
 	template<> IceUtil::Optional<T> IHttpRequest::getHeaderParam<T>(const std::string & key) const { \
 		return optionalLexicalCast<T>(getHeaderParam(key)); }
 	template<> std::string IHttpRequest::getURLParam<std::string>(unsigned int idx) const {
 		return getURLParam(idx); }
 	template<> IceUtil::Optional<std::string> IHttpRequest::getQueryStringParam<std::string>(const std::string & key) const { \
 		return getQueryStringParam(key); }
+	template<> IceUtil::Optional<std::string> IHttpRequest::getCookieParam<std::string>(const std::string & key) const { \
+		return getCookieParam(key); }
 	template<> IceUtil::Optional<std::string> IHttpRequest::getHeaderParam<std::string>(const std::string & key) const { \
 		return getHeaderParam(key); }
 

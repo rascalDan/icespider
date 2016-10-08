@@ -29,6 +29,7 @@ namespace IceSpider {
 			const std::string & getURLParam(unsigned int) const;
 			virtual OptionalString getQueryStringParam(const std::string &) const = 0;
 			virtual OptionalString getHeaderParam(const std::string &) const = 0;
+			virtual OptionalString getCookieParam(const std::string &) const = 0;
 			virtual OptionalString getEnv(const std::string &) const = 0;
 			virtual Slicer::DeserializerPtr getDeserializer() const;
 			virtual ContentTypeSerializer getSerializer(const IRouteHandler *) const;
@@ -60,6 +61,8 @@ namespace IceSpider {
 			IceUtil::Optional<T> getQueryStringParam(const std::string & key) const;
 			template<typename T>
 			IceUtil::Optional<T> getHeaderParam(const std::string & key) const;
+			template<typename T>
+			IceUtil::Optional<T> getCookieParam(const std::string & key) const;
 			void response(short, const std::string &) const;
 			template<typename T>
 			void response(const IRouteHandler * route, const T & t) const

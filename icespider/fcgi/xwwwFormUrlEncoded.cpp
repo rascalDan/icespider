@@ -101,17 +101,17 @@ namespace IceSpider {
 	}
 
 	void
-	XWwwFormUrlEncoded::iterateVars(const std::string & input, const KVh & h)
+	XWwwFormUrlEncoded::iterateVars(const std::string & input, const KVh & h, const std::string & split)
 	{
 		if (!input.empty()) {
-			iterateVars(h, ba::make_split_iterator(input, ba::first_finder("&", ba::is_equal())));
+			iterateVars(h, ba::make_split_iterator(input, ba::first_finder(split, ba::is_equal())));
 		}
 	}
 
 	void
 	XWwwFormUrlEncoded::iterateVars(const KVh & h)
 	{
-		iterateVars(input, h);
+		iterateVars(input, h, "&");
 	}
 
 	void

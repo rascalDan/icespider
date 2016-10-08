@@ -12,7 +12,7 @@ namespace IceSpider {
 			XWwwFormUrlEncoded(std::istream & in);
 
 			void Deserialize(Slicer::ModelPartForRootPtr mp) override;
-			static inline void iterateVars(const std::string & input, const KVh & h);
+			static void iterateVars(const std::string & input, const KVh & h, const std::string & split);
 
 		private:
 

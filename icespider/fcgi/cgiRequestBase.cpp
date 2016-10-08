@@ -43,7 +43,13 @@ namespace IceSpider {
 		if (qs != envmap.end()) {
 			XWwwFormUrlEncoded::iterateVars(std::string(std::get<0>(qs->second), std::get<1>(qs->second)), [this](auto k, auto v) {
 				qsmap.insert({ k, v });
-			});
+			}, "&");
+		}
+		auto cs = envmap.find("HTTP_COOKIE");
+		if (cs != envmap.end()) {
+			XWwwFormUrlEncoded::iterateVars(std::string(std::get<0>(cs->second), std::get<1>(cs->second)), [this](auto k, auto v) {
+				cookiemap.insert({ k, v });
+			}, "; ");
 		}
 	}
 
@@ -90,6 +96,12 @@ namespace IceSpider {
 	CgiRequestBase::getQueryStringParam(const std::string & key) const
 	{
 		return optionalLookup(key, qsmap);
+	}
+
+	OptionalString
+	CgiRequestBase::getCookieParam(const std::string & key) const
+	{
+		return optionalLookup(key, cookiemap);
 	}
 
 	OptionalString

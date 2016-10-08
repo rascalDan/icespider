@@ -28,7 +28,7 @@ void forceEarlyChangeDir()
 
 BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 {
-	BOOST_REQUIRE_EQUAL(11, AdHoc::PluginManager::getDefault()->getAll<IceSpider::RouteHandlerFactory>().size());
+	BOOST_REQUIRE_EQUAL(12, AdHoc::PluginManager::getDefault()->getAll<IceSpider::RouteHandlerFactory>().size());
 }
 
 class TestRequest : public IHttpRequest {
@@ -64,6 +64,11 @@ class TestRequest : public IHttpRequest {
 			return qs.find(key) == qs.end() ? IceUtil::Optional<std::string>() : qs.find(key)->second;
 		}
 
+		IceUtil::Optional<std::string> getCookieParam(const std::string & key) const override
+		{
+			return cookies.find(key) == cookies.end() ? IceUtil::Optional<std::string>() : cookies.find(key)->second;
+		}
+
 		IceUtil::Optional<std::string> getHeaderParam(const std::string & key) const override
 		{
 			return hdr.find(key) == hdr.end() ? IceUtil::Optional<std::string>() : hdr.find(key)->second;
@@ -83,6 +88,7 @@ class TestRequest : public IHttpRequest {
 		typedef std::vector<std::string> UrlVars;
 		UrlVars url;
 		MapVars qs;
+		MapVars cookies;
 		MapVars hdr;
 		MapVars env;
 		mutable std::stringstream input;
@@ -144,7 +150,7 @@ BOOST_AUTO_TEST_CASE( testCoreSettings )
 {
 	BOOST_REQUIRE_EQUAL(5, routes.size());
 	BOOST_REQUIRE_EQUAL(1, routes[0].size());
-	BOOST_REQUIRE_EQUAL(5, routes[1].size());
+	BOOST_REQUIRE_EQUAL(6, routes[1].size());
 	BOOST_REQUIRE_EQUAL(1, routes[2].size());
 	BOOST_REQUIRE_EQUAL(2, routes[3].size());
 	BOOST_REQUIRE_EQUAL(2, routes[4].size());
@@ -541,6 +547,16 @@ BOOST_AUTO_TEST_CASE( testCallSearchMissingI )
 	BOOST_REQUIRE_EQUAL(h["Status"], "400 Bad Request");
 	request.output.get();
 	BOOST_REQUIRE(request.output.eof());
+}
+
+BOOST_AUTO_TEST_CASE( testCookies )
+{
+	TestRequest request(this, HttpMethod::GET, "/cookies");
+	request.cookies["mycookievar"] = "something";
+	request.qs["i"] = "1234";
+	process(&request);
+	auto h = parseHeaders(request.output);
+	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
 }
 
 BOOST_AUTO_TEST_SUITE_END();

@@ -124,6 +124,20 @@
 					"source": "QueryString"
 				}
 			}
+		},
+		"cookies": {
+			"path": "/cookies",
+			"method": "GET",
+			"operation": "TestIceSpider.TestApi.withParams",
+			"params": {
+				"s": {
+					"source": "Cookie",
+					"key": "mycookievar"
+				},
+				"i": {
+					"source": "QueryString"
+				}
+			}
 		}
 	},
 	"slices": [
