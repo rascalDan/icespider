@@ -151,6 +151,15 @@ BOOST_AUTO_TEST_CASE( query_string_three )
 	BOOST_REQUIRE_EQUAL("3", *r.getQueryStringParam("three"));
 }
 
+BOOST_AUTO_TEST_CASE( query_string_urlencoding )
+{
+	CharPtrPtrArray env ({ "SCRIPT_NAME=/foo/bar", "QUERY_STRING=url+%65ncoded=%53tring%2e" });
+	TestRequest r(this, env);
+	BOOST_REQUIRE(!r.getQueryStringParam(""));
+	BOOST_REQUIRE(r.getQueryStringParam("url encoded"));
+	BOOST_REQUIRE_EQUAL("String.", *r.getQueryStringParam("url encoded"));
+}
+
 BOOST_AUTO_TEST_CASE( query_string_three_emptyVal )
 {
 	CharPtrPtrArray env ({ "SCRIPT_NAME=/foo/bar", "QUERY_STRING=one=1&two=&three=3" });

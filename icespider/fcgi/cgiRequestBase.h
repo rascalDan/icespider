@@ -29,9 +29,10 @@ namespace IceSpider {
 
 		private:
 			static OptionalString optionalLookup(const std::string & key, const VarMap &);
+			static OptionalString optionalLookup(const std::string & key, const StringMap &);
 
 			VarMap envmap;
-			VarMap qsmap;
+			StringMap qsmap;
 			PathElements pathElements;
 	};
 }

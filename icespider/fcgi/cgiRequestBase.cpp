@@ -1,4 +1,5 @@
 #include "cgiRequestBase.h"
+#include "xwwwFormUrlEncoded.h"
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -40,21 +41,9 @@ namespace IceSpider {
 
 		auto qs = envmap.find("QUERY_STRING");
 		if (qs != envmap.end()) {
-			auto start = std::get<0>(qs->second);
-			auto end = std::get<1>(qs->second);
-			while (start < end) {
-				auto amp = orelse(strchr(start, '&'), end);
-				auto eq = orelse(strchr(start, '='), end);
-				*amp = '\0';
-				if (eq < amp) {
-					*eq = '\0';
-					qsmap.insert({ start, Env( eq + 1, amp ) });
-				}
-				else {
-					qsmap.insert({ start, Env( eq + 1, eq + 1 ) });
-				}
-				start = amp + 1;
-			}
+			XWwwFormUrlEncoded::iterateVars(std::string(std::get<0>(qs->second), std::get<1>(qs->second)), [this](auto k, auto v) {
+				qsmap.insert({ k, v });
+			});
 		}
 	}
 
@@ -63,9 +52,19 @@ namespace IceSpider {
 	{
 		auto i = vm.find(key.c_str());
 		if (i == vm.end()) {
-			return IceUtil::Optional<std::string>();
+			return IceUtil::None;
 		}
 		return std::string(std::get<0>(i->second), std::get<1>(i->second));
+	}
+
+	OptionalString
+	CgiRequestBase::optionalLookup(const std::string & key, const StringMap & vm)
+	{
+		auto i = vm.find(key.c_str());
+		if (i == vm.end()) {
+			return IceUtil::None;
+		}
+		return i->second;
 	}
 
 	const PathElements &
