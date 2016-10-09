@@ -13,14 +13,14 @@ namespace IceSpider {
 				bool operator()(char const *a, char const *b) const;
 			};
 
-			typedef std::tuple<char *, char *> Env;
-			typedef std::map<const char *, Env, cmp_str> VarMap;
-
 			CgiRequestBase(Core * c, char ** env);
 			void addenv(char *);
 			void initialize();
 
 		public:
+			typedef std::tuple<char *, char *> Env;
+			typedef std::map<const char *, Env, cmp_str> VarMap;
+
 			const PathElements & getRequestPath() const override;
 			HttpMethod getRequestMethod() const override;
 			OptionalString getQueryStringParam(const std::string & key) const override;

@@ -27,6 +27,12 @@ namespace IceSpider {
 		}
 	}
 
+	std::string
+	operator*(const CgiRequestBase::Env & t)
+	{
+		return std::string(std::get<0>(t), std::get<1>(t));
+	}
+
 	void
 	CgiRequestBase::initialize()
 	{
@@ -41,13 +47,13 @@ namespace IceSpider {
 
 		auto qs = envmap.find("QUERY_STRING");
 		if (qs != envmap.end()) {
-			XWwwFormUrlEncoded::iterateVars(std::string(std::get<0>(qs->second), std::get<1>(qs->second)), [this](auto k, auto v) {
+			XWwwFormUrlEncoded::iterateVars(*qs->second, [this](auto k, auto v) {
 				qsmap.insert({ k, v });
 			}, "&");
 		}
 		auto cs = envmap.find("HTTP_COOKIE");
 		if (cs != envmap.end()) {
-			XWwwFormUrlEncoded::iterateVars(std::string(std::get<0>(cs->second), std::get<1>(cs->second)), [this](auto k, auto v) {
+			XWwwFormUrlEncoded::iterateVars(*cs->second, [this](auto k, auto v) {
 				cookiemap.insert({ k, v });
 			}, "; ");
 		}
@@ -60,7 +66,7 @@ namespace IceSpider {
 		if (i == vm.end()) {
 			return IceUtil::None;
 		}
-		return std::string(std::get<0>(i->second), std::get<1>(i->second));
+		return *i->second;
 	}
 
 	OptionalString
@@ -84,8 +90,7 @@ namespace IceSpider {
 	{
 		try {
 			auto i = envmap.find("REQUEST_METHOD");
-			return Slicer::ModelPartForEnum<HttpMethod>::lookup(
-				std::string(std::get<0>(i->second), std::get<1>(i->second)));
+			return Slicer::ModelPartForEnum<HttpMethod>::lookup(*i->second);
 		}
 		catch (const Slicer::InvalidEnumerationSymbol &) {
 			throw IceSpider::Http405_MethodNotAllowed();
