@@ -1,5 +1,5 @@
 #include "xwwwFormUrlEncoded.h"
-#include <exceptions.h>
+#include "exceptions.h"
 #include <boost/lexical_cast.hpp>
 #include <Ice/BuiltinSequences.h>
 
@@ -71,10 +71,40 @@ namespace IceSpider {
 	};
 
 	std::string
+	XWwwFormUrlEncoded::urlencode(const std::string & s)
+	{
+		return urlencode(s.begin(), s.end());
+	}
+
+	inline char hexchar(char c) { return c < 10 ? '0' + c : 'a' - 10 + c; }
+
+	std::string
+	XWwwFormUrlEncoded::urlencode(std::string::const_iterator i, std::string::const_iterator e)
+	{
+		std::string t;
+		t.reserve(std::distance(i, e));
+		while (i != e) {
+			if (*i == ' ') {
+				t += '+';
+			}
+			else if (!isalnum(*i)) {
+				t += '%';
+				t += hexchar(*i >> 4);
+				t += hexchar(*i & 0xf);
+			}
+			else {
+				t += *i;
+			}
+			++i;
+		}
+		return t;
+	}
+
+	std::string
 	XWwwFormUrlEncoded::urldecode(std::string::const_iterator i, std::string::const_iterator e)
 	{
 		std::string t;
-		t.reserve(&*e - &*i);
+		t.reserve(std::distance(i, e));
 		while (i != e) {
 			if (*i == '+') t += ' ';
 			else if (*i == '%') {

@@ -2,7 +2,9 @@
 #include "irouteHandler.h"
 #include "util.h"
 #include "exceptions.h"
+#include "xwwwFormUrlEncoded.h"
 #include <boost/lexical_cast.hpp>
+#include <time.h>
 
 namespace IceSpider {
 	IHttpRequest::IHttpRequest(const Core * c) :
@@ -93,6 +95,29 @@ namespace IceSpider {
 		}
 	}
 
+	// Set-Cookie: value[; expires=date][; domain=domain][; path=path][; secure]
+	// Sat, 02 May 2009 23:38:25 GMT
+	void IHttpRequest::setCookie(const std::string & name, const std::string & value,
+			const IceUtil::Optional<std::string> & d, const IceUtil::Optional<std::string> & p, bool s,
+			IceUtil::Optional<time_t> e)
+	{
+		auto & o = getOutputStream();
+		o << "Set-Cookie: " << XWwwFormUrlEncoded::urlencode(name) <<
+			'=' << XWwwFormUrlEncoded::urlencode(value);
+		if (e) {
+			char buf[45];
+			struct tm tm;
+			memset(&tm, 0, sizeof(tm));
+			gmtime_r(&*e, &tm);
+			auto l = strftime(buf, sizeof(buf), "; expires=%a, %d %b %Y %T %Z", &tm);
+			o.write(buf, l);
+		}
+		if (d) o << "; domain=" << *d;
+		if (p) o << "; path=" << *p;
+		if (s) o << "; secure";
+		o << "\r\n";
+	}
+
 	template <typename T>
 	inline IceUtil::Optional<T> optionalLexicalCast(const IceUtil::Optional<std::string> & p)
 	{
@@ -109,6 +134,10 @@ namespace IceSpider {
 
 
 #define getParams(T) \
+	template<> void IHttpRequest::setCookie<T>(const std::string & n, const T & v, \
+					const IceUtil::Optional<std::string> & d, const IceUtil::Optional<std::string> & p, \
+					bool s, IceUtil::Optional<time_t> e) { \
+		setCookie(n, boost::lexical_cast<std::string>(v), d, p, s, e); } \
 	template<> T IHttpRequest::getURLParam<T>(unsigned int idx) const { \
 		return wrapLexicalCast<T>(getURLParam(idx)); } \
 	template<> IceUtil::Optional<T> IHttpRequest::getQueryStringParam<T>(const std::string & key) const { \

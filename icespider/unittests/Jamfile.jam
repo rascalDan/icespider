@@ -84,8 +84,6 @@ run
 	testFcgi.cpp
 	test-fcgi.ice
 	../fcgi/cgiRequestBase.cpp
-	../fcgi/xwwwFormUrlEncoded.cpp
-	../fcgi/hextable.c
 	: : :
 	<slicer>yes
 	<define>BOOST_TEST_DYN_LINK

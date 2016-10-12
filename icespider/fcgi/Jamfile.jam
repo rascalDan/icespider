@@ -2,7 +2,7 @@ lib fcgi : : <name>fcgi ;
 lib fcgi++ : : <name>fcgi++ ;
 
 lib icespider-fcgi :
-	[ glob-tree *.c *.cpp : bin ]
+	[ glob-tree *.cpp : bin ]
 	:
 	<library>fcgi
 	<library>fcgi++

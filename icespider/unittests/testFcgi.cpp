@@ -13,17 +13,18 @@ class TestRequest : public IceSpider::CgiRequestBase {
 			initialize();
 		}
 
-		// LCOV_EXCL_START we never actually read or write anything here
 		std::ostream & getOutputStream() const override
 		{
-			return std::cout;
+			return out;
 		}
 
+		// LCOV_EXCL_START we never actually read or write anything here
 		std::istream & getInputStream() const override
 		{
 			return std::cin;
 		}
 		// LCOV_EXCL_STOP
+		mutable std::stringstream out;
 };
 
 class TestPayloadRequest : public TestRequest {
@@ -271,6 +272,8 @@ BOOST_AUTO_TEST_CASE( cookies )
 	BOOST_REQUIRE_EQUAL(1234, *r.IceSpider::IHttpRequest::getCookieParam<Ice::Int>("valueA"));
 	BOOST_REQUIRE_EQUAL("Something with spaces.", *r.IceSpider::IHttpRequest::getCookieParam<std::string>("value B"));
 	BOOST_REQUIRE(!r.IceSpider::IHttpRequest::getCookieParam<Ice::Int>("notAThing"));
+	r.setCookie("some int.", 1234, "www.com", "/dir", true, 1476142378);
+	BOOST_REQUIRE_EQUAL("Set-Cookie: some+int%2e=1234; expires=Mon, 10 Oct 2016 23:32:58 GMT; domain=www.com; path=/dir; secure\r\n", r.out.str());
 }
 
 BOOST_AUTO_TEST_SUITE_END();

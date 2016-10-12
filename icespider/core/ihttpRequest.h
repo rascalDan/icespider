@@ -57,6 +57,11 @@ namespace IceSpider {
 					return boost::lexical_cast<T>(i->second);
 				}
 			}
+			void setCookie(const std::string &, const std::string &,
+					const IceUtil::Optional<std::string> &, const IceUtil::Optional<std::string> &, bool,
+					IceUtil::Optional<time_t>);
+			template<typename T>
+			void setCookie(const std::string &, const T &, const IceUtil::Optional<std::string> &, const IceUtil::Optional<std::string> &, bool, IceUtil::Optional<time_t>);
 			template<typename T>
 			IceUtil::Optional<T> getQueryStringParam(const std::string & key) const;
 			template<typename T>
