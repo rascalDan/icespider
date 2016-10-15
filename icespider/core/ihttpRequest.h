@@ -58,10 +58,11 @@ namespace IceSpider {
 				}
 			}
 			void setCookie(const std::string &, const std::string &,
-					const IceUtil::Optional<std::string> &, const IceUtil::Optional<std::string> &, bool,
-					IceUtil::Optional<time_t>);
+					const IceUtil::Optional<std::string> & = IceUtil::None, const IceUtil::Optional<std::string> & = IceUtil::None,
+					bool = false, IceUtil::Optional<time_t> = IceUtil::None);
 			template<typename T>
-			void setCookie(const std::string &, const T &, const IceUtil::Optional<std::string> &, const IceUtil::Optional<std::string> &, bool, IceUtil::Optional<time_t>);
+			void setCookie(const std::string &, const T &, const IceUtil::Optional<std::string> & = IceUtil::None,
+					const IceUtil::Optional<std::string> & = IceUtil::None, bool = false, IceUtil::Optional<time_t> = IceUtil::None);
 			template<typename T>
 			IceUtil::Optional<T> getQueryStringParam(const std::string & key) const;
 			template<typename T>
