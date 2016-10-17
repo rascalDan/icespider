@@ -1,6 +1,8 @@
 #include <core.h>
 #include <session.h>
 #include <fcntl.h>
+#include <fileUtils.h>
+#include <sys.h>
 #include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
@@ -70,29 +72,33 @@ namespace IceSpider {
 				auto buf = Ice::createOutputStream(ic);
 				buf->write(s);
 				auto range = buf->finished();
-				auto fd = sysassert(open((root / s->id).c_str(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR), -1);
-				sysassert(flock(fd, LOCK_EX), -1);
-				sysassert(pwrite(fd, range.first, range.second - range.first, 0), -1);
-				sysassert(ftruncate(fd, range.second - range.first), -1);
-				sysassert(flock(fd, LOCK_UN), -1);
-				sysassert(close(fd), -1);
+				AdHoc::FileUtils::FileHandle f(root / s->id, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
+				sysassert(flock(f.fh, LOCK_EX), -1);
+				sysassert(pwrite(f.fh, range.first, range.second - range.first, 0), -1);
+				sysassert(ftruncate(f.fh, range.second - range.first), -1);
+				sysassert(flock(f.fh, LOCK_UN), -1);
 			}
 
 			SessionPtr load(const std::string & id)
 			{
-				int fd = open((root / id).c_str(), O_RDONLY);
-				if (fd == -1 && errno == ENOENT) return NULL;
-				sysassert(fd, -1);
-				sysassert(flock(fd, LOCK_SH), -1);
-				struct stat st;
-				sysassert(fstat(fd, &st), -1);
-				auto fbuf = sysassert((Ice::Byte *)mmap(0, st.st_size, PROT_READ, MAP_SHARED, fd, 0), (Ice::Byte *)NULL);
-				auto buf = Ice::createInputStream(ic, std::make_pair(fbuf, fbuf + st.st_size));
-				SessionPtr s;
-				buf->read(s);
-				sysassert(flock(fd, LOCK_UN), -1);
-				sysassert(close(fd), -1);
-				return s;
+				auto path = root / id;
+				if (!boost::filesystem::exists(path)) return NULL;
+				try {
+					AdHoc::FileUtils::MemMap f(path);
+					sysassert(flock(f.fh, LOCK_SH), -1);
+					auto fbuf = (Ice::Byte *)f.data;
+					auto buf = Ice::createInputStream(ic, std::make_pair(fbuf, fbuf + f.getStat().st_size));
+					SessionPtr s;
+					buf->read(s);
+					sysassert(flock(f.fh, LOCK_UN), -1);
+					return s;
+				}
+				catch (const AdHoc::SystemException & e) {
+					if (e.errNo == ENOENT) {
+						return NULL;
+					}
+					throw;
+				}
 			}
 
 			void removeExpired()
