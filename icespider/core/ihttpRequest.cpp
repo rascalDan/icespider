@@ -125,6 +125,14 @@ namespace IceSpider {
 		return IceUtil::Optional<T>();
 	}
 
+	void IHttpRequest::responseRedirect(const std::string & url, const IceUtil::Optional<std::string> & statusMsg) const
+	{
+		getOutputStream()
+			<< "Status: 303 " << (statusMsg ? *statusMsg : "Moved") << "\r\n"
+			<< "Location: " << url << "\r\n"
+			<< "\r\n";
+	}
+
 	void IHttpRequest::response(short statusCode, const std::string & statusMsg) const
 	{
 		getOutputStream()

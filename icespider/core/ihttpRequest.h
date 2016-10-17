@@ -57,6 +57,7 @@ namespace IceSpider {
 					return boost::lexical_cast<T>(i->second);
 				}
 			}
+			void responseRedirect(const std::string & url, const IceUtil::Optional<std::string> & = IceUtil::None) const;
 			void setCookie(const std::string &, const std::string &,
 					const IceUtil::Optional<std::string> & = IceUtil::None, const IceUtil::Optional<std::string> & = IceUtil::None,
 					bool = false, IceUtil::Optional<time_t> = IceUtil::None);
