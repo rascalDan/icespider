@@ -27,7 +27,7 @@ namespace IceSpider {
 			private:
 				typedef std::map<std::string, int> Proxies;
 
-				void processConfiguration(FILE * output, RouteConfigurationPtr, const Units &) const;
+				void processConfiguration(FILE * output, FILE * outputh, const std::string & name, RouteConfigurationPtr, const Units &) const;
 				void registerOutputSerializers(FILE * output, RoutePtr) const;
 				void releaseOutputSerializers(FILE * output, RoutePtr) const;
 				Proxies initializeProxies(FILE * output, RoutePtr) const;

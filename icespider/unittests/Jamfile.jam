@@ -7,14 +7,14 @@ import toolset : flags ;
 
 type.register JSON : json ;
 
-generators.register-standard $(__name__).routes2cpp : JSON : CPP ;
+generators.register-standard $(__name__).routes2cpp : JSON : CPP H ;
 feature icespider : : free dependency ;
 flags routes2cpp ICESPIDER <icespider> ;
 flags routes2cpp INCLUDES <include> ;
 
 actions routes2cpp bind ICESPIDER
 {
-	"$(ICESPIDER)" -I"$(INCLUDES)" $(2) $(1)
+	"$(ICESPIDER)" -I"$(INCLUDES)" $(2) $(1[1])
 }
 
 lib adhocutil : : : : <include>/usr/include/adhocutil ;
