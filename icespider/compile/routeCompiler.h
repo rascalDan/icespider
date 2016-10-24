@@ -28,6 +28,8 @@ namespace IceSpider {
 				typedef std::map<std::string, int> Proxies;
 
 				void processConfiguration(FILE * output, FILE * outputh, const std::string & name, RouteConfigurationPtr, const Units &) const;
+				void processBases(FILE * output, FILE * outputh, RouteConfigurationPtr, const Units &) const;
+				void processBase(FILE * output, FILE * outputh, const RouteBases::value_type &, const Units &) const;
 				void processRoutes(FILE * output, RouteConfigurationPtr, const Units &) const;
 				void processRoute(FILE * output, const Routes::value_type &, const Units &) const;
 				void registerOutputSerializers(FILE * output, RoutePtr) const;

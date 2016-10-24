@@ -45,14 +45,24 @@ module IceSpider {
 		Operations operations;
 		string type;
 		OutputSerializers outputSerializers;
+		StringSeq bases;
 	};
 
 	["slicer:json:object"]
 	dictionary<string, Route> Routes;
 
+	class RouteBase {
+		StringSeq proxies;
+		StringSeq functions;
+	};
+
+	["slicer:json:object"]
+	dictionary<string, RouteBase> RouteBases;
+
 	class RouteConfiguration {
 		string name;
 		Routes routes;
+		RouteBases routeBases;
 		StringSeq slices;
 		StringSeq headers;
 	};

@@ -297,9 +297,55 @@ namespace IceSpider {
 				}
 			}
 
+			processBases(output, outputh, c, units);
 			processRoutes(output, c, units);
 
 			fprintf(output, "\n// End generated code.\n");
+		}
+
+		void
+		RouteCompiler::processBases(FILE * output, FILE * outputh, RouteConfigurationPtr c, const Units & u) const
+		{
+			fprintf(outputh, "\n");
+			fprintbf(outputh, "namespace %s {\n", c->name);
+			fprintbf(1, outputh, "// Base classes.\n\n");
+			fprintf(output, "\n");
+			fprintbf(output, "namespace %s {\n", c->name);
+			fprintbf(1, output, "// Base classes.\n\n");
+			for (const auto & r : c->routeBases) {
+				processBase(output, outputh, r, u);
+			}
+			fprintbf(output, "} // namespace %s\n\n", c->name);
+			fprintbf(outputh, "} // namespace %s\n\n", c->name);
+		}
+
+		void
+		RouteCompiler::processBase(FILE * output, FILE * outputh, const RouteBases::value_type & b, const Units &) const
+		{
+			fprintbf(1, outputh, "class %s {\n", b.first);
+			fprintbf(2, outputh, "protected:\n");
+			fprintbf(3, outputh, "%s(const IceSpider::Core * core);\n\n", b.first);
+			for (const auto & f: b.second->functions) {
+				fprintbf(3, outputh, "%s;\n", f);
+			}
+			fprintbf(1, output, "%s::%s(const IceSpider::Core * core)", b.first, b.first);
+			if (!b.second->proxies.empty()) {
+				fprintf(output, " :");
+			}
+			fprintf(output, "\n");
+			unsigned int pn = 0;
+			for (const auto & p : b.second->proxies) {
+				fprintbf(3, outputh, "const %sPrx prx%u;\n",
+						boost::algorithm::replace_all_copy(p, ".", "::"), pn);
+				fprintbf(3, output, "prx%u(core->getProxy<%s>())",
+						pn, boost::algorithm::replace_all_copy(p, ".", "::"));
+				if (++pn < b.second->proxies.size()) {
+					fprintf(output, ",");
+				}
+				fprintf(output, "\n");
+			}
+			fprintbf(1, outputh, "}; // %s\n", b.first);
+			fprintbf(1, output, "{ }\n");
 		}
 
 		void
@@ -325,10 +371,19 @@ namespace IceSpider {
 
 			fprintbf(1, output, "// Route name: %s\n", r.first);
 			fprintbf(1, output, "//       path: %s\n", r.second->path);
-			fprintbf(1, output, "class %s : public IceSpider::IRouteHandler {\n", r.first);
+			fprintbf(1, output, "class %s : public IceSpider::IRouteHandler", r.first);
+			for (const auto & b : r.second->bases) {
+				fprintf(output, ",\n");
+				fprintbf(3, output, "public %s", b);
+			}
+			fprintf(output, " {\n");
 			fprintbf(2, output, "public:\n");
 			fprintbf(3, output, "%s(const IceSpider::Core * core) :\n", r.first);
 			fprintbf(4, output, "IceSpider::IRouteHandler(IceSpider::HttpMethod::%s, \"%s\")", methodName, r.second->path);
+			for (const auto & b : r.second->bases) {
+				fprintf(output, ",\n");
+				fprintbf(4, output, "%s(core)", b);
+			}
 			auto proxies = initializeProxies(output, r.second);
 			for (const auto & p : r.second->params) {
 				if (p.second->hasUserSource) {

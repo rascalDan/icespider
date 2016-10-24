@@ -1,6 +1,12 @@
 {
 	"name": "common",
 	"headers": [ "xsltStreamSerializer.h" ],
+	"routeBases": {
+		"base1": {
+			"proxies": ["TestIceSpider.TestApi"],
+			"functions": [ "void doNothing()" ]
+		}
+	},
 	"routes": {
 		"index": {
 			"path": "/",
@@ -11,6 +17,7 @@
 					"params": [ "\"xslt/transform.xslt\"" ]
 				}
 			},
+			"bases": [ "base1" ],
 			"operation": "TestIceSpider.TestApi.index"
 		},
 		"item": {
