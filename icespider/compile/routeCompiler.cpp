@@ -283,17 +283,17 @@ namespace IceSpider {
 			fprintf(outputh, "#include <core.h>\n");
 			fprintf(outputh, "#include <slicer/serializer.h>\n");
 
-			fprintf(output, "\n// Interface headers.\n");
+			fprintf(outputh, "\n// Interface headers.\n");
 			for (const auto & s : c->slices) {
 				boost::filesystem::path slicePath(s);
 				slicePath.replace_extension(".h");
-				fprintbf(output, "#include <%s>\n", slicePath.string());
+				fprintbf(outputh, "#include <%s>\n", slicePath.string());
 			}
 
 			if (!c->headers.empty()) {
-				fprintf(output, "\n// Extra headers.\n");
+				fprintf(outputh, "\n// Extra headers.\n");
 				for (const auto & h : c->headers) {
-					fprintbf(output, "#include <%s>\n", h);
+					fprintbf(outputh, "#include <%s>\n", h);
 				}
 			}
 
