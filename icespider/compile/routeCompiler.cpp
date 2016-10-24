@@ -297,142 +297,155 @@ namespace IceSpider {
 				}
 			}
 
+			processRoutes(output, c, units);
+
+			fprintf(output, "\n// End generated code.\n");
+		}
+
+		void
+		RouteCompiler::processRoutes(FILE * output, RouteConfigurationPtr c, const Units & u) const
+		{
 			fprintf(output, "\n");
 			fprintbf(output, "namespace %s {\n", c->name);
 			fprintbf(1, output, "// Implementation classes.\n\n");
 			for (const auto & r : c->routes) {
-				std::string methodName = getEnumString(r.second->method);
-
-				fprintbf(1, output, "// Route name: %s\n", r.first);
-				fprintbf(1, output, "//       path: %s\n", r.second->path);
-				fprintbf(1, output, "class %s : public IceSpider::IRouteHandler {\n", r.first);
-				fprintbf(2, output, "public:\n");
-				fprintbf(3, output, "%s(const IceSpider::Core * core) :\n", r.first);
-				fprintbf(4, output, "IceSpider::IRouteHandler(IceSpider::HttpMethod::%s, \"%s\")", methodName, r.second->path);
-				auto proxies = initializeProxies(output, r.second);
-				for (const auto & p : r.second->params) {
-					if (p.second->hasUserSource) {
-						if (p.second->source == ParameterSource::URL) {
-							fprintf(output, ",\n");
-							Path path(r.second->path);
-							unsigned int idx = -1;
-							for (const auto & pp : path.parts) {
-								if (auto par = dynamic_cast<PathParameter *>(pp.get())) {
-									if (par->name == p.second->key) {
-										idx = &pp - &path.parts.front();
-									}
-								}
-							};
-							fprintbf(4, output, "_pi_%s(%d)", p.first, idx);
-						}
-						else {
-							if (p.second->key) {
-								fprintf(output, ",\n");
-								fprintbf(4, output, "_pn_%s(\"%s\")", p.first, *p.second->key);
-							}
-						}
-					}
-					if (p.second->defaultExpr) {
-						fprintf(output, ",\n");
-						fprintbf(4, output, "_pd_%s(%s)",
-								p.first, p.second->defaultExpr.get());
-					}
-				}
-				fprintf(output, "\n");
-				fprintbf(3, output, "{\n");
-				registerOutputSerializers(output, r.second);
-				fprintbf(3, output, "}\n\n");
-				fprintbf(3, output, "~%s()\n", r.first);
-				fprintbf(3, output, "{\n");
-				releaseOutputSerializers(output, r.second);
-				fprintbf(3, output, "}\n\n");
-				fprintbf(3, output, "void execute(IceSpider::IHttpRequest * request) const\n");
-				fprintbf(3, output, "{\n");
-				auto ps = findParameters(r.second, units);
-				bool doneBody = false;
-				for (const auto & p : r.second->params) {
-					if (p.second->hasUserSource) {
-						auto ip = ps.find(p.first)->second;
-						if (p.second->source == ParameterSource::Body) {
-							if (p.second->key) {
-								if (!doneBody) {
-									if (p.second->type) {
-										fprintbf(4, output, "auto _pbody(request->getBody<%s>());\n",
-												*p.second->type);
-									}
-									else {
-										fprintbf(4, output, "auto _pbody(request->getBody<IceSpider::StringMap>());\n");
-									}
-									doneBody = true;
-								}
-								if (p.second->type) {
-									fprintbf(4, output, "auto _p_%s(_pbody->%s",
-											p.first, p.first);
-								}
-								else {
-									fprintbf(4, output, "auto _p_%s(request->getBodyParam<%s>(_pbody, _pn_%s)",
-											p.first, Slice::typeToString(ip->type()),
-											p.first);
-								}
-							}
-							else {
-								fprintbf(4, output, "auto _p_%s(request->getBody<%s>()",
-										p.first, Slice::typeToString(ip->type()));
-							}
-						}
-						else {
-							fprintbf(4, output, "auto _p_%s(request->get%sParam<%s>(_p%c_%s)",
-									p.first, getEnumString(p.second->source), Slice::typeToString(ip->type()),
-									p.second->source == ParameterSource::URL ? 'i' : 'n',
-									p.first);
-						}
-						if (!p.second->isOptional && p.second->source != ParameterSource::URL) {
-							fprintbf(0, output, " /\n");
-							if (p.second->defaultExpr) {
-								fprintbf(5, output, " [this]() { return _pd_%s; }",
-										p.first);
-							}
-							else {
-								fprintbf(5, output, " [this]() { return requiredParameterNotFound<%s>(\"%s\", _pn_%s); }",
-												 Slice::typeToString(ip->type()), getEnumString(p.second->source), p.first);
-							}
-						}
-						fprintbf(0, output, ");\n");
-					}
-				}
-				if (r.second->operation) {
-					addSingleOperation(output, r.second, findOperation(*r.second->operation, units));
-				}
-				else {
-					addMashupOperations(output, r.second, proxies, units);
-				}
-				fprintbf(3, output, "}\n\n");
-				fprintbf(2, output, "private:\n");
-				declareProxies(output, proxies);
-				for (const auto & p : r.second->params) {
-					if (p.second->hasUserSource) {
-						if (p.second->source == ParameterSource::URL) {
-							fprintbf(3, output, "const unsigned int _pi_%s;\n", p.first);
-						}
-						else {
-							fprintbf(3, output, "const std::string _pn_%s;\n", p.first);
-						}
-					}
-					if (p.second->defaultExpr) {
-						auto ip = ps.find(p.first)->second;
-						fprintbf(3, output, "const %s _pd_%s;\n",
-								Slice::typeToString(ip->type()), p.first);
-
-					}
-				}
-				fprintbf(1, output, "};\n\n");
+				processRoute(output, r, u);
 			}
 			fprintbf(output, "} // namespace %s\n\n", c->name);
 			fprintf(output, "// Register route handlers.\n");
 			for (const auto & r : c->routes) {
 				fprintbf(output, "FACTORY(%s::%s, IceSpider::RouteHandlerFactory);\n", c->name, r.first);
 			}
-			fprintf(output, "\n// End generated code.\n");
+		}
+
+		void
+		RouteCompiler::processRoute(FILE * output, const Routes::value_type & r, const Units & units) const
+		{
+			std::string methodName = getEnumString(r.second->method);
+
+			fprintbf(1, output, "// Route name: %s\n", r.first);
+			fprintbf(1, output, "//       path: %s\n", r.second->path);
+			fprintbf(1, output, "class %s : public IceSpider::IRouteHandler {\n", r.first);
+			fprintbf(2, output, "public:\n");
+			fprintbf(3, output, "%s(const IceSpider::Core * core) :\n", r.first);
+			fprintbf(4, output, "IceSpider::IRouteHandler(IceSpider::HttpMethod::%s, \"%s\")", methodName, r.second->path);
+			auto proxies = initializeProxies(output, r.second);
+			for (const auto & p : r.second->params) {
+				if (p.second->hasUserSource) {
+					if (p.second->source == ParameterSource::URL) {
+						fprintf(output, ",\n");
+						Path path(r.second->path);
+						unsigned int idx = -1;
+						for (const auto & pp : path.parts) {
+							if (auto par = dynamic_cast<PathParameter *>(pp.get())) {
+								if (par->name == p.second->key) {
+									idx = &pp - &path.parts.front();
+								}
+							}
+						};
+						fprintbf(4, output, "_pi_%s(%d)", p.first, idx);
+					}
+					else {
+						if (p.second->key) {
+							fprintf(output, ",\n");
+							fprintbf(4, output, "_pn_%s(\"%s\")", p.first, *p.second->key);
+						}
+					}
+				}
+				if (p.second->defaultExpr) {
+					fprintf(output, ",\n");
+					fprintbf(4, output, "_pd_%s(%s)",
+							p.first, p.second->defaultExpr.get());
+				}
+			}
+			fprintf(output, "\n");
+			fprintbf(3, output, "{\n");
+			registerOutputSerializers(output, r.second);
+			fprintbf(3, output, "}\n\n");
+			fprintbf(3, output, "~%s()\n", r.first);
+			fprintbf(3, output, "{\n");
+			releaseOutputSerializers(output, r.second);
+			fprintbf(3, output, "}\n\n");
+			fprintbf(3, output, "void execute(IceSpider::IHttpRequest * request) const\n");
+			fprintbf(3, output, "{\n");
+			auto ps = findParameters(r.second, units);
+			bool doneBody = false;
+			for (const auto & p : r.second->params) {
+				if (p.second->hasUserSource) {
+					auto ip = ps.find(p.first)->second;
+					if (p.second->source == ParameterSource::Body) {
+						if (p.second->key) {
+							if (!doneBody) {
+								if (p.second->type) {
+									fprintbf(4, output, "auto _pbody(request->getBody<%s>());\n",
+											*p.second->type);
+								}
+								else {
+									fprintbf(4, output, "auto _pbody(request->getBody<IceSpider::StringMap>());\n");
+								}
+								doneBody = true;
+							}
+							if (p.second->type) {
+								fprintbf(4, output, "auto _p_%s(_pbody->%s",
+										p.first, p.first);
+							}
+							else {
+								fprintbf(4, output, "auto _p_%s(request->getBodyParam<%s>(_pbody, _pn_%s)",
+										p.first, Slice::typeToString(ip->type()),
+										p.first);
+							}
+						}
+						else {
+							fprintbf(4, output, "auto _p_%s(request->getBody<%s>()",
+									p.first, Slice::typeToString(ip->type()));
+						}
+					}
+					else {
+						fprintbf(4, output, "auto _p_%s(request->get%sParam<%s>(_p%c_%s)",
+								p.first, getEnumString(p.second->source), Slice::typeToString(ip->type()),
+								p.second->source == ParameterSource::URL ? 'i' : 'n',
+								p.first);
+					}
+					if (!p.second->isOptional && p.second->source != ParameterSource::URL) {
+						fprintbf(0, output, " /\n");
+						if (p.second->defaultExpr) {
+							fprintbf(5, output, " [this]() { return _pd_%s; }",
+									p.first);
+						}
+						else {
+							fprintbf(5, output, " [this]() { return requiredParameterNotFound<%s>(\"%s\", _pn_%s); }",
+									Slice::typeToString(ip->type()), getEnumString(p.second->source), p.first);
+						}
+					}
+					fprintbf(0, output, ");\n");
+				}
+			}
+			if (r.second->operation) {
+				addSingleOperation(output, r.second, findOperation(*r.second->operation, units));
+			}
+			else {
+				addMashupOperations(output, r.second, proxies, units);
+			}
+			fprintbf(3, output, "}\n\n");
+			fprintbf(2, output, "private:\n");
+			declareProxies(output, proxies);
+			for (const auto & p : r.second->params) {
+				if (p.second->hasUserSource) {
+					if (p.second->source == ParameterSource::URL) {
+						fprintbf(3, output, "const unsigned int _pi_%s;\n", p.first);
+					}
+					else {
+						fprintbf(3, output, "const std::string _pn_%s;\n", p.first);
+					}
+				}
+				if (p.second->defaultExpr) {
+					auto ip = ps.find(p.first)->second;
+					fprintbf(3, output, "const %s _pd_%s;\n",
+							Slice::typeToString(ip->type()), p.first);
+
+				}
+			}
+			fprintbf(1, output, "};\n\n");
 		}
 
 		RouteCompiler::Proxies
