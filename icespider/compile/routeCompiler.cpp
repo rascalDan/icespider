@@ -533,7 +533,7 @@ namespace IceSpider {
 		{
 			auto operation = r->operation->substr(r->operation->find_last_of('.') + 1);
 			if (o->returnsData()) {
-				fprintbf(4, output, "request->response(this, prx0->%s(", operation);
+				fprintbf(4, output, "auto _responseModel = prx0->%s(", operation);
 			}
 			else {
 				fprintbf(4, output, "prx0->%s(", operation);
@@ -547,12 +547,11 @@ namespace IceSpider {
 					fprintbf(output, "_pd_%s, ", p->name());
 				}
 			}
-			fprintbf(output, "request->getContext())");
+			fprintbf(output, "request->getContext());\n");
 			if (o->returnsData()) {
-				fprintbf(output, ")");
+				fprintbf(4, output, "request->response(this, _responseModel);\n");
 			}
-			fprintbf(output, ";\n");
-			if (!o->returnsData()) {
+			else {
 				fprintbf(4, output, "request->response(200, \"OK\");\n");
 			}
 		}
@@ -580,42 +579,36 @@ namespace IceSpider {
 			auto t = findType(r->type, us);
 			Slice::DataMemberList members;
 			if (t.second) {
-				fprintbf(4, output, "request->response<%s>(this, new %s(",
+				fprintbf(4, output, "%s _responseModel = new %s();\n",
 						Slice::typeToString(t.second),
 						t.second->scoped());
 				members = t.second->definition()->dataMembers();
 			}
 			else {
-				fprintbf(4, output, "request->response<%s>(this, {",
+				fprintbf(4, output, "%s _responseModel;\n",
 						Slice::typeToString(t.first));
 				members = t.first->dataMembers();
 			}
-			for (auto mi = members.begin(); mi != members.end(); mi++) {
+			for (const auto & mi : members) {
 				bool isOp = false;
-				if (mi != members.begin()) {
-					fprintbf(output, ",");
-				}
-				fprintbf(output, "\n");
+				fprintbf(4, output, "_responseModel%s%s = ",
+						t.second ? "->" : ".",
+						mi->name());
 				for (const auto & o : r->operations) {
 					auto proxyName = o.second->operation.substr(0, o.second->operation.find_last_of('.'));
 					auto operation = o.second->operation.substr(o.second->operation.find_last_of('.') + 1);
-					if ((*mi)->name() == o.first) {
-						fprintbf(6, output, "prx%s->end_%s(_ar_%s)", proxies.find(proxyName)->second, operation, o.first);
+					if (mi->name() == o.first) {
+						fprintbf(output, "prx%s->end_%s(_ar_%s)", proxies.find(proxyName)->second, operation, o.first);
 						isOp = true;
 						break;
 					}
 				}
 				if (!isOp) {
-					fprintbf(6, output, "_p_%s", (*mi)->name());
+					fprintbf(output, "_p_%s", mi->name());
 				}
+				fprintf(output, ";\n");
 			}
-			if (t.second) {
-				fprintf(output, ")");
-			}
-			else {
-				fprintf(output, " }");
-			}
-			fprintf(output, ");\n");
+			fprintbf(4, output, "request->response(this, _responseModel);\n");
 		}
 	}
 }
