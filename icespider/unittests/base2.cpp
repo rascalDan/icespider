@@ -6,7 +6,7 @@ namespace common {
 	}
 
 	void
-	base2::testMutate(::TestIceSpider::SomeModelPtr &) const
+	base2::testMutate(const IceSpider::IHttpRequest *, ::TestIceSpider::SomeModelPtr &) const
 	{
 	}
 }

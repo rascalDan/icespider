@@ -550,7 +550,7 @@ namespace IceSpider {
 			}
 			fprintbf(output, "request->getContext());\n");
 			if (r->mutator) {
-				fprintbf(4, output, "%s(_responseModel);\n", *r->mutator);
+				fprintbf(4, output, "%s(request, _responseModel);\n", *r->mutator);
 			}
 			if (o->returnsData()) {
 				fprintbf(4, output, "request->response(this, _responseModel);\n");
@@ -613,7 +613,7 @@ namespace IceSpider {
 				fprintf(output, ";\n");
 			}
 			if (r->mutator) {
-				fprintbf(4, output, "%s(_responseModel);\n", *r->mutator);
+				fprintbf(4, output, "%s(request, _responseModel);\n", *r->mutator);
 			}
 			fprintbf(4, output, "request->response(this, _responseModel);\n");
 		}

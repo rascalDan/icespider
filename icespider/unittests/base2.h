@@ -15,7 +15,7 @@ namespace common {
 		protected:
 			base2(const IceSpider::Core * core);
 
-			void testMutate(TestIceSpider::SomeModelPtr &) const;
+			void testMutate(const IceSpider::IHttpRequest *, TestIceSpider::SomeModelPtr &) const;
 	}; // base2
 } // namespace common
 
