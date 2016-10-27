@@ -40,6 +40,7 @@ alias testCommon : :
 
 run
 	testCompile.cpp
+	base2.cpp
 	: :
 	testRoutes.json
 	:
@@ -53,12 +54,15 @@ run
 	<library>../core//icespider-core
 	<library>../compile//icespider-compile
 	<implicit-dependency>../compile//icespider-compile
+	<include>.
+	<implicit-dependency>test-api
 	<dependency>../core
 	: testCompile :
 	;
 
 run
 	testApp.cpp
+	base2.cpp
 	testRoutes.json
 	: :
 	config/ice.properties
@@ -78,6 +82,7 @@ run
 	<implicit-dependency>../common//icespider-common
 	<implicit-dependency>test-api
 	<dependency>../compile
+	<include>.
 	: testApp ;
 
 run

@@ -90,6 +90,7 @@ BOOST_AUTO_TEST_CASE( testCompile )
 		"-I", "/usr/lib/glib-2.0/include",
 		"-I", "/usr/lib/glibmm-2.4/include",
 		"-I", "/usr/lib/libxml++-2.6/include",
+		"-I", rootDir.string(),
 		"-I", (rootDir.parent_path() / "core").string(),
 		"-I", (rootDir.parent_path() / "common").string(),
 		"-I", (rootDir.parent_path() / "xslt").string(),
@@ -124,7 +125,7 @@ BOOST_AUTO_TEST_CASE( testLoad )
 	auto outputso = binDir / "testRoutes.so";
 	BOOST_REQUIRE(boost::filesystem::exists(outputso));
 
-	auto lib = dlopen(outputso.c_str(), RTLD_NOW);
+	auto lib = dlopen(outputso.c_str(), RTLD_LAZY);
 	BOOST_TEST_INFO(dlerror());
 	BOOST_REQUIRE(lib);
 

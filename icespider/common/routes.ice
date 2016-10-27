@@ -46,6 +46,7 @@ module IceSpider {
 		string type;
 		OutputSerializers outputSerializers;
 		StringSeq bases;
+		optional(1) string mutator;
 	};
 
 	["slicer:json:object"]

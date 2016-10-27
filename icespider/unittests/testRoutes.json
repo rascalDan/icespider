@@ -1,6 +1,6 @@
 {
 	"name": "common",
-	"headers": [ "xsltStreamSerializer.h" ],
+	"headers": [ "xsltStreamSerializer.h", "base2.h" ],
 	"routeBases": {
 		"base1": {
 			"proxies": ["TestIceSpider.TestApi"],
@@ -17,7 +17,8 @@
 					"params": [ "\"xslt/transform.xslt\"" ]
 				}
 			},
-			"bases": [ "base1" ],
+			"bases": [ "base1", "base2" ],
+			"mutator": "testMutate",
 			"operation": "TestIceSpider.TestApi.index"
 		},
 		"item": {
