@@ -14,6 +14,7 @@ main(int c, char ** v)
 		("input", po::value(&input), "Input .json file")
 		("output", po::value(&output), "Output .cpp file")
 		("include,I", po::value(&rc.searchPath)->composing(), "Search path")
+		("ice", po::value(&rc.allowIcePrefix)->default_value(rc.allowIcePrefix)->zero_tokens(), "Allow reserved Ice prefix in Slice identifiers")
 		("help,h", po::value(&showHelp)->default_value(false)->zero_tokens(), "Help")
 		;
 	po::positional_options_description pod;

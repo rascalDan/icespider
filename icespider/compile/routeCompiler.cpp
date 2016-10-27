@@ -12,7 +12,8 @@
 
 namespace IceSpider {
 	namespace Compile {
-		RouteCompiler::RouteCompiler()
+		RouteCompiler::RouteCompiler() :
+			allowIcePrefix(false)
 		{
 			searchPath.push_back(boost::filesystem::current_path());
 		}
@@ -204,7 +205,7 @@ namespace IceSpider {
 					throw std::runtime_error("Preprocess failed");
 				}
 
-				Slice::UnitPtr u = Slice::Unit::createUnit(false, false, false, false);
+				Slice::UnitPtr u = Slice::Unit::createUnit(false, false, allowIcePrefix, false);
 				uDestroy.onFailure.push_back([u]() { u->destroy(); });
 
 				int parseStatus = u->parse(realSlice.string(), cppHandle, false);

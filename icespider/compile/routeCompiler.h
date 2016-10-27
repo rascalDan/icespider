@@ -23,6 +23,7 @@ namespace IceSpider {
 				void compile(const boost::filesystem::path & input, const boost::filesystem::path & output) const;
 
 				std::vector<boost::filesystem::path> searchPath;
+				bool allowIcePrefix;
 
 			private:
 				typedef std::map<std::string, int> Proxies;
