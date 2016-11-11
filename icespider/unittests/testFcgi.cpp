@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE TestApp
 #include <boost/test/unit_test.hpp>
 
-#include <core.h>
+#include <cgiCore.h>
 #include <definedDirs.h>
 #include <cgiRequestBase.h>
 #include <test-fcgi.h>
@@ -87,7 +87,7 @@ namespace std {
 	// LCOV_EXCL_STOP
 }
 
-BOOST_FIXTURE_TEST_SUITE( CgiRequestBase, IceSpider::Core );
+BOOST_FIXTURE_TEST_SUITE( CgiRequestBase, IceSpider::CgiCore );
 
 BOOST_AUTO_TEST_CASE( NoEnvironment )
 {

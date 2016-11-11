@@ -35,6 +35,7 @@ namespace IceSpider {
 			virtual ContentTypeSerializer getSerializer(const IRouteHandler *) const;
 			virtual std::istream & getInputStream() const = 0;
 			virtual std::ostream & getOutputStream() const = 0;
+			virtual void setHeader(const std::string &, const std::string &) const = 0;
 
 			template<typename T>
 			T getURLParam(unsigned int) const;
@@ -70,12 +71,12 @@ namespace IceSpider {
 			IceUtil::Optional<T> getHeaderParam(const std::string & key) const;
 			template<typename T>
 			IceUtil::Optional<T> getCookieParam(const std::string & key) const;
-			void response(short, const std::string &) const;
+			virtual void response(short, const std::string &) const = 0;
 			template<typename T>
 			void response(const IRouteHandler * route, const T & t) const
 			{
 				auto s = getSerializer(route);
-				getOutputStream() << "Content-Type: " << s.first.group << "/" << s.first.type << "\r\n";
+				setHeader("Content-Type", s.first.group + "/" + s.first.type);
 				response(200, "OK");
 				Slicer::SerializeAnyWith<T>(t, s.second);
 			}

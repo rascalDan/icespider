@@ -3,7 +3,7 @@
 
 #include <safeMapFind.h>
 #include <irouteHandler.h>
-#include <core.h>
+#include <cgiCore.h>
 #include <exceptions.h>
 #include <test-api.h>
 #include <Ice/ObjectAdapter.h>
@@ -84,6 +84,18 @@ class TestRequest : public IHttpRequest {
 			return output;
 		}
 
+		void response(short statusCode, const std::string & statusMsg) const override
+		{
+			getOutputStream()
+				<< "Status: " << statusCode << " " << statusMsg << "\r\n"
+				<< "\r\n";
+		}
+
+		void setHeader(const std::string & header, const std::string & value) const override
+		{
+			getOutputStream() << header << ": " << value << "\r\n";
+		}
+
 		typedef std::map<std::string, std::string> MapVars;
 		typedef std::vector<std::string> UrlVars;
 		UrlVars url;
@@ -97,10 +109,10 @@ class TestRequest : public IHttpRequest {
 		const HttpMethod method;
 };
 
-class CoreWithProps : public Core {
+class CoreWithProps : public CgiCore {
 	public:
 		CoreWithProps() :
-			Core({
+			CgiCore({
 				"--Custom.Prop=value"
 			})
 		{
@@ -119,10 +131,10 @@ BOOST_AUTO_TEST_CASE( properties )
 
 BOOST_AUTO_TEST_SUITE_END();
 
-class CoreWithFileProps : public Core {
+class CoreWithFileProps : public CgiCore {
 	public:
 		CoreWithFileProps() :
-			Core({
+			CgiCore({
 				"--IceSpider.Config=config/custom.properties",
 				"--Custom.Prop=value"
 			})
@@ -144,7 +156,7 @@ BOOST_AUTO_TEST_CASE( properties )
 
 BOOST_AUTO_TEST_SUITE_END();
 
-BOOST_FIXTURE_TEST_SUITE(defaultProps, Core);
+BOOST_FIXTURE_TEST_SUITE(defaultProps, CgiCore);
 
 BOOST_AUTO_TEST_CASE( testCoreSettings )
 {
@@ -228,7 +240,7 @@ class TestSerice : public TestIceSpider::TestApi {
 		}
 };
 
-class TestApp : public Core {
+class TestApp : public CgiCore {
 	public:
 		TestApp() :
 			adp(communicator->createObjectAdapterWithEndpoints("test", "default"))

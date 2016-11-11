@@ -101,8 +101,8 @@ namespace IceSpider {
 			const IceUtil::Optional<std::string> & d, const IceUtil::Optional<std::string> & p, bool s,
 			IceUtil::Optional<time_t> e)
 	{
-		auto & o = getOutputStream();
-		o << "Set-Cookie: " << XWwwFormUrlEncoded::urlencode(name) <<
+		std::stringstream o;
+		o << XWwwFormUrlEncoded::urlencode(name) <<
 			'=' << XWwwFormUrlEncoded::urlencode(value);
 		if (e) {
 			char buf[45];
@@ -115,7 +115,7 @@ namespace IceSpider {
 		if (d) o << "; domain=" << *d;
 		if (p) o << "; path=" << *p;
 		if (s) o << "; secure";
-		o << "\r\n";
+		setHeader("Set-Cookie", o.str());
 	}
 
 	template <typename T>
@@ -127,17 +127,8 @@ namespace IceSpider {
 
 	void IHttpRequest::responseRedirect(const std::string & url, const IceUtil::Optional<std::string> & statusMsg) const
 	{
-		getOutputStream()
-			<< "Status: 303 " << (statusMsg ? *statusMsg : "Moved") << "\r\n"
-			<< "Location: " << url << "\r\n"
-			<< "\r\n";
-	}
-
-	void IHttpRequest::response(short statusCode, const std::string & statusMsg) const
-	{
-		getOutputStream()
-			<< "Status: " << statusCode << " " << statusMsg << "\r\n"
-			<< "\r\n";
+		setHeader("Location", url);
+		response(303, (statusMsg ? *statusMsg : "Moved"));
 	}
 
 

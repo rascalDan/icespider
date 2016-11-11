@@ -10,17 +10,6 @@ INSTANTIATEFACTORY(IceSpider::Plugin, Ice::CommunicatorPtr, Ice::PropertiesPtr);
 namespace IceSpider {
 	const boost::filesystem::path Core::defaultConfig("config/ice.properties");
 
-	static
-	bool
-	operator/=(const PathElements & pathparts, const IRouteHandler * r)
-	{
-		auto rpi = r->parts.begin();
-		for (auto ppi = pathparts.begin(); ppi != pathparts.end(); ++ppi, ++rpi) {
-			if (!(*rpi)->matches(*ppi)) return false;
-		}
-		return true;
-	}
-
 	Core::Core(const Ice::StringSeq & args)
 	{
 		Ice::InitializationData id;
@@ -34,18 +23,11 @@ namespace IceSpider {
 
 		// Initialize routes
 		for (const auto & rp : AdHoc::PluginManager::getDefault()->getAll<RouteHandlerFactory>()) {
-			auto r = rp->implementation()->create(this);
-			if (routes.size() <= r->pathElementCount()) {
-				routes.resize(r->pathElementCount() + 1);
-			}
-			auto & lroutes = routes[r->pathElementCount()];
-			lroutes.push_back(r);
+			allRoutes.push_back(rp->implementation()->create(this));
 		}
-		for (auto & l : routes) {
-			std::sort(l.begin(), l.end(), [](const auto & a, const auto & b) {
-				return a->path < b->path;
-			});
-		}
+		std::sort(allRoutes.begin(), allRoutes.end(), [](const auto & a, const auto & b) {
+			return a->path < b->path;
+		});
 		// Load plugins
 		auto plugins = AdHoc::PluginManager::getDefault()->getAll<PluginFactory>();
 		if (!plugins.empty()) {
@@ -69,21 +51,19 @@ namespace IceSpider {
 			pluginAdapter->deactivate();
 			pluginAdapter->destroy();
 		}
-		// Initialize routes
-		for (auto l : routes) {
-			for (auto r : l) {
-				delete r;
-			}
+		// Terminate routes
+		for (auto r : allRoutes) {
+			delete r;
 		}
 
 		if (communicator) communicator->destroy();
 	}
 
 	void
-	Core::process(IHttpRequest * request) const
+	Core::process(IHttpRequest * request, const IRouteHandler * route) const
 	{
 		try {
-			findRoute(request)->execute(request);
+			(route ? route : findRoute(request))->execute(request);
 		}
 		catch (const HttpException & he) {
 			request->response(he.code, he.message);
@@ -96,28 +76,10 @@ namespace IceSpider {
 		}
 	}
 
-	const IRouteHandler *
-	Core::findRoute(const IHttpRequest * request) const
+	const IceSpider::IRouteHandler *
+	Core::findRoute(const IceSpider::IHttpRequest *) const
 	{
-		const auto & pathparts = request->getRequestPath();
-		const auto method = request->getRequestMethod();
-		if (pathparts.size() >= routes.size()) {
-			throw Http404_NotFound();
-		}
-		const auto & routeSet = routes[pathparts.size()];
-		bool match = false;
-		for (const auto & r : routeSet) {
-			if (pathparts /= r) {
-				if (r->method == method) {
-					return r;
-				}
-				match = true;
-			}
-		}
-		if (!match) {
-			throw Http404_NotFound();
-		}
-		throw Http405_MethodNotAllowed();
+		throw Http404_NotFound();
 	}
 
 	Ice::ObjectPrx

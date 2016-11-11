@@ -11,14 +11,13 @@
 namespace IceSpider {
 	class DLL_PUBLIC Core {
 		public:
-			typedef std::vector<const IRouteHandler *> LengthRoutes;
-			typedef std::vector<LengthRoutes> Routes;
+			typedef std::vector<const IRouteHandler *> AllRoutes;
 
 			Core(const Ice::StringSeq & = {});
 			~Core();
 
-			void process(IHttpRequest *) const;
-			const IRouteHandler * findRoute(const IHttpRequest *) const;
+			virtual const IRouteHandler * findRoute(const IHttpRequest *) const;
+			void process(IHttpRequest *, const IRouteHandler * = nullptr) const;
 
 			Ice::ObjectPrx getProxy(const char * type) const;
 
@@ -28,7 +27,7 @@ namespace IceSpider {
 				return Interface::ProxyType::uncheckedCast(getProxy(typeid(Interface).name()));
 			}
 
-			Routes routes;
+			AllRoutes allRoutes;
 			Ice::CommunicatorPtr communicator;
 			Ice::ObjectAdapterPtr pluginAdapter;
 

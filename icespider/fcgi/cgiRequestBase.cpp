@@ -121,6 +121,19 @@ namespace IceSpider {
 		return optionalLookup(("HTTP_" + boost::algorithm::to_upper_copy(key)).c_str(), envmap);
 	}
 
+	void CgiRequestBase::response(short statusCode, const std::string & statusMsg) const
+	{
+		getOutputStream()
+			<< "Status: " << statusCode << " " << statusMsg << "\r\n"
+			<< "\r\n";
+	}
+
+	void
+	CgiRequestBase::setHeader(const std::string & header, const std::string & value) const
+	{
+		getOutputStream() << header << ": " << value << "\r\n";
+	}
+
 	bool
 	CgiRequestBase::cmp_str::operator()(char const * a, char const * b) const
 	{
