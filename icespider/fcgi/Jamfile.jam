@@ -7,4 +7,6 @@ lib icespider-fcgi :
 	<library>fcgi
 	<library>fcgi++
 	<library>..//core
+	: :
+	<library>..//core
 	;
