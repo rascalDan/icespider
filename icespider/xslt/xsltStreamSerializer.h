@@ -4,6 +4,7 @@
 #include <slicer/xml/serializer.h>
 #include <visibility.h>
 #include <libxslt/transform.h>
+#include <boost/filesystem/path.hpp>
 
 namespace IceSpider {
 	class DLL_PUBLIC XsltStreamSerializer : public Slicer::XmlDocumentSerializer {
@@ -15,7 +16,10 @@ namespace IceSpider {
 
 					XsltStreamSerializer * create(std::ostream &) const override;
 
-					xsltStylesheet * stylesheet;
+				private:
+					const boost::filesystem::path stylesheetPath;
+					mutable std::time_t stylesheetWriteTime;
+					mutable xsltStylesheet * stylesheet;
 			};
 
 			XsltStreamSerializer(std::ostream &, xsltStylesheet *);

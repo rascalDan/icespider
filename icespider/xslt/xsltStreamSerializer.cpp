@@ -2,6 +2,7 @@
 #include <libxslt/xsltInternals.h>
 #include <libxml/HTMLtree.h>
 #include <factory.impl.h>
+#include <boost/filesystem/convenience.hpp>
 
 namespace IceSpider {
 	static int xmlstrmclosecallback(void * context)
@@ -17,11 +18,10 @@ namespace IceSpider {
 	}
 
 	XsltStreamSerializer::IceSpiderFactory::IceSpiderFactory(const char * path) :
-		stylesheet(xsltParseStylesheetFile(BAD_CAST path))
+		stylesheetPath(path),
+		stylesheetWriteTime(0),
+		stylesheet(nullptr)
 	{
-		if (!stylesheet) {
-			throw xmlpp::exception("Failed to load stylesheet");
-		}
 	}
 
 	XsltStreamSerializer::IceSpiderFactory::~IceSpiderFactory()
@@ -32,6 +32,17 @@ namespace IceSpider {
 	XsltStreamSerializer *
 	XsltStreamSerializer::IceSpiderFactory::create(std::ostream & strm) const
 	{
+		auto newMtime = boost::filesystem::last_write_time(stylesheetPath);
+		if (newMtime != stylesheetWriteTime) {
+			if (stylesheet) {
+				xsltFreeStylesheet(stylesheet);
+			}
+			stylesheet = xsltParseStylesheetFile(BAD_CAST stylesheetPath.c_str());
+			if (!stylesheet) {
+				throw xmlpp::exception("Failed to load stylesheet");
+			}
+			stylesheetWriteTime = newMtime;
+		}
 		return new XsltStreamSerializer(strm, stylesheet);
 	}
 
