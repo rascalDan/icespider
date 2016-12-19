@@ -58,7 +58,6 @@ namespace IceSpider {
 	{
 		auto i = routeSerializers.find(ct);
 		if (i != routeSerializers.end()) {
-			delete i->second;
 			routeSerializers.erase(i);
 		}
 	}
