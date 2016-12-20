@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE( testLink )
 	auto outputso = binDir / "testRoutes.so";
 
 	auto linkCommand = boost::algorithm::join<std::vector<std::string>>({
-		"gcc", "-shared", "-Wl,--warn-once,--gc-sections",
+		"gcc", "-shared", "-Wl,--warn-once,--gc-sections,-z,lazy",
 		"-o", outputso.string(),
 		outputo.string(),
 	}, " ");
