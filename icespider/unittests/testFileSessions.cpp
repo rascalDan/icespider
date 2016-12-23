@@ -9,10 +9,10 @@
 
 BOOST_TEST_DONT_PRINT_LOG_VALUE(IceSpider::StringMap);
 
-class TestCore : public IceSpider::Core {
+class TestCore : public IceSpider::CoreWithDefaultRouter {
 	public:
 		TestCore() :
-			IceSpider::Core({
+			IceSpider::CoreWithDefaultRouter({
 				"--IceSpider.SessionManager=IceSpider-FileSessions",
 				"--IceSpider.FileSessions.Path=" + (binDir / "test-sessions").string(),
 				"--IceSpider.FileSessions.Duration=0"

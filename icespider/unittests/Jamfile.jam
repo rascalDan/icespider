@@ -64,7 +64,6 @@ run
 	testApp.cpp
 	base2.cpp
 	testRoutes.json
-	../fcgi/cgiCore.cpp
 	: :
 	config/ice.properties
 	xslt/transform.xslt
@@ -80,18 +79,17 @@ run
 	<library>../common//icespider-common
 	<library>../core//icespider-core
 	<library>../xslt//icespider-xslt
+	<library>../testing//icespider-testing
 	<implicit-dependency>../common//icespider-common
 	<implicit-dependency>test-api
 	<dependency>../compile
 	<include>.
-	<include>../fcgi
 	: testApp ;
 
 run
 	testFcgi.cpp
 	test-fcgi.ice
 	../fcgi/cgiRequestBase.cpp
-	../fcgi/cgiCore.cpp
 	: : :
 	<slicer>yes
 	<define>BOOST_TEST_DYN_LINK

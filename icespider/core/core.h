@@ -16,7 +16,7 @@ namespace IceSpider {
 			Core(const Ice::StringSeq & = {});
 			~Core();
 
-			virtual const IRouteHandler * findRoute(const IHttpRequest *) const;
+			virtual const IRouteHandler * findRoute(const IHttpRequest *) const = 0;
 			void process(IHttpRequest *, const IRouteHandler * = nullptr) const;
 
 			Ice::ObjectPrx getProxy(const char * type) const;
@@ -33,6 +33,19 @@ namespace IceSpider {
 
 			static const boost::filesystem::path defaultConfig;
 	};
+
+	class DLL_PUBLIC CoreWithDefaultRouter : public Core {
+		public:
+			typedef std::vector<const IRouteHandler *> LengthRoutes;
+			typedef std::vector<LengthRoutes> Routes;
+
+			CoreWithDefaultRouter(const Ice::StringSeq & = {});
+
+			const IRouteHandler * findRoute(const IHttpRequest *) const override;
+
+			Routes routes;
+	};
+
 	class DLL_PUBLIC Plugin : public virtual Ice::Object {
 	};
 	typedef AdHoc::Factory<Plugin, Ice::CommunicatorPtr, Ice::PropertiesPtr> PluginFactory;

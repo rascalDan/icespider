@@ -6,6 +6,7 @@ build-project unittests ;
 build-project fcgi ;
 build-project xslt ;
 build-project fileSessions ;
+build-project testing ;
 
 lib Ice ;
 lib IceUtil ;
@@ -19,6 +20,7 @@ package.install install : :
 	fcgi//icespider-fcgi
 	xslt//icespider-xslt
 	fileSessions//icespider-filesessions
+	testing//icespider-testing
 	:
 	[ glob-tree *.h : fcgi unittests compile ]
 	;

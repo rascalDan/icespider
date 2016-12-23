@@ -1,0 +1,8 @@
+lib icespider-testing :
+	[ glob-tree *.cpp : bin ]
+	:
+	<library>..//core
+	: :
+	<library>..//core
+	<include>.
+	;

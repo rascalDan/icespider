@@ -3,7 +3,7 @@
 
 #include <safeMapFind.h>
 #include <irouteHandler.h>
-#include <cgiCore.h>
+#include <core.h>
 #include <exceptions.h>
 #include <test-api.h>
 #include <Ice/ObjectAdapter.h>
@@ -17,6 +17,7 @@
 #include <json/serializer.h>
 #include <libxml++/parsers/domparser.h>
 #include <factory.impl.h>
+#include <testRequest.h>
 
 using namespace IceSpider;
 
@@ -31,88 +32,10 @@ BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 	BOOST_REQUIRE_EQUAL(12, AdHoc::PluginManager::getDefault()->getAll<IceSpider::RouteHandlerFactory>().size());
 }
 
-class TestRequest : public IHttpRequest {
-	public:
-		TestRequest(const Core * c, HttpMethod m, const std::string & p) :
-			IHttpRequest(c),
-			method(m)
-		{
-			namespace ba = boost::algorithm;
-			auto path = p.substr(1);
-			if (!path.empty()) {
-				ba::split(url, path, ba::is_any_of("/"), ba::token_compress_off);
-			}
-		}
-
-		const std::vector<std::string> & getRequestPath() const override
-		{
-			return url;
-		}
-
-		HttpMethod getRequestMethod() const override
-		{
-			return method;
-		}
-
-		IceUtil::Optional<std::string> getEnv(const std::string & key) const override
-		{
-			return env.find(key) == env.end() ? IceUtil::Optional<std::string>() : env.find(key)->second;
-		}
-
-		IceUtil::Optional<std::string> getQueryStringParam(const std::string & key) const override
-		{
-			return qs.find(key) == qs.end() ? IceUtil::Optional<std::string>() : qs.find(key)->second;
-		}
-
-		IceUtil::Optional<std::string> getCookieParam(const std::string & key) const override
-		{
-			return cookies.find(key) == cookies.end() ? IceUtil::Optional<std::string>() : cookies.find(key)->second;
-		}
-
-		IceUtil::Optional<std::string> getHeaderParam(const std::string & key) const override
-		{
-			return hdr.find(key) == hdr.end() ? IceUtil::Optional<std::string>() : hdr.find(key)->second;
-		}
-
-		std::istream & getInputStream() const override
-		{
-			return input;
-		}
-
-		std::ostream & getOutputStream() const override
-		{
-			return output;
-		}
-
-		void response(short statusCode, const std::string & statusMsg) const override
-		{
-			getOutputStream()
-				<< "Status: " << statusCode << " " << statusMsg << "\r\n"
-				<< "\r\n";
-		}
-
-		void setHeader(const std::string & header, const std::string & value) const override
-		{
-			getOutputStream() << header << ": " << value << "\r\n";
-		}
-
-		typedef std::map<std::string, std::string> MapVars;
-		typedef std::vector<std::string> UrlVars;
-		UrlVars url;
-		MapVars qs;
-		MapVars cookies;
-		MapVars hdr;
-		MapVars env;
-		mutable std::stringstream input;
-		mutable std::stringstream output;
-
-		const HttpMethod method;
-};
-
-class CoreWithProps : public CgiCore {
+class CoreWithProps : public CoreWithDefaultRouter {
 	public:
 		CoreWithProps() :
-			CgiCore({
+			CoreWithDefaultRouter({
 				"--Custom.Prop=value"
 			})
 		{
@@ -131,10 +54,10 @@ BOOST_AUTO_TEST_CASE( properties )
 
 BOOST_AUTO_TEST_SUITE_END();
 
-class CoreWithFileProps : public CgiCore {
+class CoreWithFileProps : public CoreWithDefaultRouter {
 	public:
 		CoreWithFileProps() :
-			CgiCore({
+			CoreWithDefaultRouter({
 				"--IceSpider.Config=config/custom.properties",
 				"--Custom.Prop=value"
 			})
@@ -156,7 +79,7 @@ BOOST_AUTO_TEST_CASE( properties )
 
 BOOST_AUTO_TEST_SUITE_END();
 
-BOOST_FIXTURE_TEST_SUITE(defaultProps, CgiCore);
+BOOST_FIXTURE_TEST_SUITE(defaultProps, CoreWithDefaultRouter);
 
 BOOST_AUTO_TEST_CASE( testCoreSettings )
 {
@@ -240,7 +163,7 @@ class TestSerice : public TestIceSpider::TestApi {
 		}
 };
 
-class TestApp : public CgiCore {
+class TestApp : public CoreWithDefaultRouter {
 	public:
 		TestApp() :
 			adp(communicator->createObjectAdapterWithEndpoints("test", "default"))
@@ -264,22 +187,6 @@ class Dummy : public IceSpider::Plugin, TestIceSpider::DummyPlugin {
 };
 NAMEDFACTORY("DummyPlugin", Dummy, IceSpider::PluginFactory);
 
-typedef std::map<std::string, std::string> Headers;
-Headers
-parseHeaders(std::istream & strm)
-{
-	Headers h;
-	while (true) {
-		char buf[BUFSIZ], n[BUFSIZ], v[BUFSIZ];
-		strm.getline(buf, BUFSIZ);
-		if (sscanf(buf, "%[^:]: %[^\r]", n, v) != 2) {
-			break;
-		}
-		h[n] = v;
-	}
-	return h;
-}
-
 BOOST_FIXTURE_TEST_SUITE(ta, TestApp);
 
 BOOST_AUTO_TEST_CASE( plugins )
@@ -293,7 +200,7 @@ BOOST_AUTO_TEST_CASE( testCallIndex )
 {
 	TestRequest requestGetIndex(this, HttpMethod::GET, "/");
 	process(&requestGetIndex);
-	auto h = parseHeaders(requestGetIndex.output);
+	auto h = requestGetIndex.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
 	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/json");
 	auto v = Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::SomeModelPtr>(requestGetIndex.output);
@@ -304,7 +211,7 @@ BOOST_AUTO_TEST_CASE( testCallMashS )
 {
 	TestRequest requestGetMashS(this, HttpMethod::GET, "/mashS/something/something/1234");
 	process(&requestGetMashS);
-	auto h = parseHeaders(requestGetMashS.output);
+	auto h = requestGetMashS.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
 	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/json");
 	auto v = Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::Mash1>(requestGetMashS.output);
@@ -316,7 +223,7 @@ BOOST_AUTO_TEST_CASE( testCallMashC )
 {
 	TestRequest requestGetMashC(this, HttpMethod::GET, "/mashC/something/something/1234");
 	process(&requestGetMashC);
-	auto h = parseHeaders(requestGetMashC.output);
+	auto h = requestGetMashC.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
 	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/json");
 	auto v = Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::Mash2Ptr>(requestGetMashC.output);
@@ -328,7 +235,7 @@ BOOST_AUTO_TEST_CASE( testCallViewSomething1234 )
 {
 	TestRequest requestGetItem(this, HttpMethod::GET, "/view/something/1234");
 	process(&requestGetItem);
-	auto h = parseHeaders(requestGetItem.output);
+	auto h = requestGetItem.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
 	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/json");
 	auto v = Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::SomeModelPtr>(requestGetItem.output);
@@ -339,7 +246,7 @@ BOOST_AUTO_TEST_CASE( testCallViewSomething1234_ )
 {
 	TestRequest requestGetItemGiven(this, HttpMethod::GET, "/item/something/1234");
 	process(&requestGetItemGiven);
-	auto h = parseHeaders(requestGetItemGiven.output);
+	auto h = requestGetItemGiven.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
 	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/json");
 	auto v = Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::SomeModelPtr>(requestGetItemGiven.output);
@@ -350,7 +257,7 @@ BOOST_AUTO_TEST_CASE( testCallViewSomething )
 {
 	TestRequest requestGetItemDefault(this, HttpMethod::GET, "/item/something");
 	process(&requestGetItemDefault);
-	auto h = parseHeaders(requestGetItemDefault.output);
+	auto h = requestGetItemDefault.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
 	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/json");
 	auto v = Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::SomeModelPtr>(requestGetItemDefault.output);
@@ -361,7 +268,7 @@ BOOST_AUTO_TEST_CASE( testCallDeleteSomeValue )
 {
 	TestRequest requestDeleteItem(this, HttpMethod::DELETE, "/some value");
 	process(&requestDeleteItem);
-	auto h = parseHeaders(requestDeleteItem.output);
+	auto h = requestDeleteItem.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
 	requestDeleteItem.output.get();
 	BOOST_REQUIRE(requestDeleteItem.output.eof());
@@ -373,7 +280,7 @@ BOOST_AUTO_TEST_CASE( testCallPost1234 )
 	requestUpdateItem.env["CONTENT_TYPE"] = "application/json";
 	requestUpdateItem.input << "{\"value\": \"some value\"}";
 	process(&requestUpdateItem);
-	auto h = parseHeaders(requestUpdateItem.output);
+	auto h = requestUpdateItem.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
 	requestUpdateItem.output.get();
 	BOOST_REQUIRE(requestUpdateItem.output.eof());
@@ -384,7 +291,7 @@ BOOST_AUTO_TEST_CASE( testCallPost1234NoContentType )
 	TestRequest requestUpdateItem(this, HttpMethod::POST, "/1234");
 	requestUpdateItem.input << "{\"value\": \"some value\"}";
 	process(&requestUpdateItem);
-	auto h = parseHeaders(requestUpdateItem.output);
+	auto h = requestUpdateItem.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "400 Bad Request");
 	requestUpdateItem.output.get();
 	BOOST_REQUIRE(requestUpdateItem.output.eof());
@@ -396,7 +303,7 @@ BOOST_AUTO_TEST_CASE( testCallPost1234UnsupportedMediaType )
 	requestUpdateItem.env["CONTENT_TYPE"] = "application/notathing";
 	requestUpdateItem.input << "value=\"some value\"";
 	process(&requestUpdateItem);
-	auto h = parseHeaders(requestUpdateItem.output);
+	auto h = requestUpdateItem.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "415 Unsupported Media Type");
 	requestUpdateItem.output.get();
 	BOOST_REQUIRE(requestUpdateItem.output.eof());
@@ -407,7 +314,7 @@ BOOST_AUTO_TEST_CASE( testCallIndexAcceptJson )
 	TestRequest requestJson(this, HttpMethod::GET, "/");
 	requestJson.hdr["Accept"] = "application/json";
 	process(&requestJson);
-	auto h = parseHeaders(requestJson.output);
+	auto h = requestJson.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
 	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/json");
 	auto v = Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::SomeModelPtr>(requestJson.output);
@@ -419,7 +326,7 @@ BOOST_AUTO_TEST_CASE( testCallIndexAcceptAny )
 	TestRequest requestAnyAny(this, HttpMethod::GET, "/");
 	requestAnyAny.hdr["Accept"] = "*/*";
 	process(&requestAnyAny);
-	auto h = parseHeaders(requestAnyAny.output);
+	auto h = requestAnyAny.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
 	auto v = Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::SomeModelPtr>(requestAnyAny.output);
 	BOOST_REQUIRE_EQUAL(v->value, "index");
@@ -430,7 +337,7 @@ BOOST_AUTO_TEST_CASE( testCallIndexAcceptApplicationAny )
 	TestRequest requestApplicationAny(this, HttpMethod::GET, "/");
 	requestApplicationAny.hdr["Accept"] = "application/*";
 	process(&requestApplicationAny);
-	auto h = parseHeaders(requestApplicationAny.output);
+	auto h = requestApplicationAny.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
 	BOOST_REQUIRE(boost::algorithm::starts_with(h["Content-Type"], "application/"));
 	auto v = Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::SomeModelPtr>(requestApplicationAny.output);
@@ -442,7 +349,7 @@ BOOST_AUTO_TEST_CASE( testCallIndexAcceptXml )
 	TestRequest requestXml(this, HttpMethod::GET, "/");
 	requestXml.hdr["Accept"] = "application/xml";
 	process(&requestXml);
-	auto h = parseHeaders(requestXml.output);
+	auto h = requestXml.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
 	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/xml");
 	auto v = Slicer::DeserializeAny<Slicer::XmlStreamDeserializer, TestIceSpider::SomeModelPtr>(requestXml.output);
@@ -454,7 +361,7 @@ BOOST_AUTO_TEST_CASE( testCallIndexAcceptTextHtml )
 	TestRequest requestHtml(this, HttpMethod::GET, "/");
 	requestHtml.hdr["Accept"] = "text/html";
 	process(&requestHtml);
-	auto h = parseHeaders(requestHtml.output);
+	auto h = requestHtml.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
 	BOOST_REQUIRE_EQUAL(h["Content-Type"], "text/html");
 	xmlpp::DomParser d;
@@ -467,7 +374,7 @@ BOOST_AUTO_TEST_CASE( testCallViewSomethingAcceptHtml )
 	TestRequest requestHtml(this, HttpMethod::GET, "/view/something/1234");
 	requestHtml.hdr["Accept"] = "text/html";
 	process(&requestHtml);
-	auto h = parseHeaders(requestHtml.output);
+	auto h = requestHtml.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "406 Not Acceptable");
 	requestHtml.output.get();
 	BOOST_REQUIRE(requestHtml.output.eof());
@@ -478,7 +385,7 @@ BOOST_AUTO_TEST_CASE( testCallIndexAcceptNotSupported )
 	TestRequest requestBadAccept(this, HttpMethod::GET, "/");
 	requestBadAccept.hdr["Accept"] = "not/supported";
 	process(&requestBadAccept);
-	auto h = parseHeaders(requestBadAccept.output);
+	auto h = requestBadAccept.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "406 Not Acceptable");
 	requestBadAccept.output.get();
 	BOOST_REQUIRE(requestBadAccept.output.eof());
@@ -489,7 +396,7 @@ BOOST_AUTO_TEST_CASE( testCallIndexComplexAccept )
 	TestRequest requestChoice(this, HttpMethod::GET, "/");
 	requestChoice.hdr["Accept"] = "something/special ; q = 20, application/json, application/xml;q=1.1";
 	process(&requestChoice);
-	auto h = parseHeaders(requestChoice.output);
+	auto h = requestChoice.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
 	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/xml");
 	auto v = Slicer::DeserializeAny<Slicer::XmlStreamDeserializer, TestIceSpider::SomeModelPtr>(requestChoice.output);
@@ -500,7 +407,7 @@ BOOST_AUTO_TEST_CASE( testCall404 )
 {
 	TestRequest requestGetIndex(this, HttpMethod::GET, "/this/404");
 	process(&requestGetIndex);
-	auto h = parseHeaders(requestGetIndex.output);
+	auto h = requestGetIndex.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "404 Not found");
 	requestGetIndex.output.get();
 	BOOST_REQUIRE(requestGetIndex.output.eof());
@@ -510,7 +417,7 @@ BOOST_AUTO_TEST_CASE( testCall405 )
 {
 	TestRequest requestGetIndex(this, HttpMethod::GET, "/405");
 	process(&requestGetIndex);
-	auto h = parseHeaders(requestGetIndex.output);
+	auto h = requestGetIndex.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "405 Method Not Allowed");
 	requestGetIndex.output.get();
 	BOOST_REQUIRE(requestGetIndex.output.eof());
@@ -522,7 +429,7 @@ BOOST_AUTO_TEST_CASE( testCallSearch )
 	request.qs["s"] = "something";
 	request.qs["i"] = "1234";
 	process(&request);
-	auto h = parseHeaders(request.output);
+	auto h = request.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
 	Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::SomeModelPtr>(request.output);
 }
@@ -533,7 +440,7 @@ BOOST_AUTO_TEST_CASE( testCallSearchBadLexicalCast )
 	request.qs["s"] = "something";
 	request.qs["i"] = "bar";
 	process(&request);
-	auto h = parseHeaders(request.output);
+	auto h = request.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "400 Bad Request");
 	request.output.get();
 	BOOST_REQUIRE(request.output.eof());
@@ -544,7 +451,7 @@ BOOST_AUTO_TEST_CASE( testCallSearchMissingS )
 	TestRequest request(this, HttpMethod::GET, "/search");
 	request.qs["i"] = "1234";
 	process(&request);
-	auto h = parseHeaders(request.output);
+	auto h = request.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "400 Bad Request");
 	request.output.get();
 	BOOST_REQUIRE(request.output.eof());
@@ -555,7 +462,7 @@ BOOST_AUTO_TEST_CASE( testCallSearchMissingI )
 	TestRequest request(this, HttpMethod::GET, "/search");
 	request.qs["s"] = "something";
 	process(&request);
-	auto h = parseHeaders(request.output);
+	auto h = request.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "400 Bad Request");
 	request.output.get();
 	BOOST_REQUIRE(request.output.eof());
@@ -567,7 +474,7 @@ BOOST_AUTO_TEST_CASE( testCookies )
 	request.cookies["mycookievar"] = "something";
 	request.qs["i"] = "1234";
 	process(&request);
-	auto h = parseHeaders(request.output);
+	auto h = request.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
 }
 

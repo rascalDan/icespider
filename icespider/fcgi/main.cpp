@@ -1,7 +1,7 @@
 #include <visibility.h>
 #include "fcgiRequest.h"
 #include "cgiRequest.h"
-#include "cgiCore.h"
+#include "core.h"
 
 using namespace IceSpider;
 
@@ -9,7 +9,7 @@ DLL_PUBLIC
 int
 main(int argc, char ** argv, char ** env)
 {
-	CgiCore core;
+	CoreWithDefaultRouter core;
 	if (!FCGX_IsCGI()) {
 		FCGX_Request request;
 
