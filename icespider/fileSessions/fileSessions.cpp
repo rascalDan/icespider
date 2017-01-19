@@ -68,7 +68,7 @@ namespace IceSpider {
 		private:
 			void save(SessionPtr s)
 			{
-				time(&s->lastUsed);
+				s->lastUsed = time(NULL);
 				auto buf = Ice::createOutputStream(ic);
 				buf->write(s);
 				auto range = buf->finished();
