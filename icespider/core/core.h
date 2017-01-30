@@ -18,6 +18,7 @@ namespace IceSpider {
 
 			virtual const IRouteHandler * findRoute(const IHttpRequest *) const = 0;
 			void process(IHttpRequest *, const IRouteHandler * = nullptr) const;
+			void handleError(IHttpRequest *, const std::exception &) const;
 
 			Ice::ObjectPrx getProxy(const char * type) const;
 
@@ -49,6 +50,17 @@ namespace IceSpider {
 	class DLL_PUBLIC Plugin : public virtual Ice::Object {
 	};
 	typedef AdHoc::Factory<Plugin, Ice::CommunicatorPtr, Ice::PropertiesPtr> PluginFactory;
+
+	enum ErrorHandlerResult {
+		ErrorHandlerResult_Unhandled,
+		ErrorHandlerResult_Handled,
+		ErrorHandlerResult_Modified,
+	};
+	class DLL_PUBLIC ErrorHandler : public AdHoc::AbstractPluginImplementation {
+		public:
+			virtual ErrorHandlerResult handleError(IHttpRequest * IHttpRequest, const std::exception &) const = 0;
+	};
+	typedef AdHoc::PluginOf<ErrorHandler> ErrorHandlerPlugin;
 }
 
 #endif

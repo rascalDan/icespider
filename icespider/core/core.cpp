@@ -6,6 +6,7 @@
 #include <factory.impl.h>
 
 INSTANTIATEFACTORY(IceSpider::Plugin, Ice::CommunicatorPtr, Ice::PropertiesPtr);
+INSTANTIATEPLUGINOF(IceSpider::ErrorHandler);
 
 namespace IceSpider {
 	const boost::filesystem::path Core::defaultConfig("config/ice.properties");
@@ -69,11 +70,38 @@ namespace IceSpider {
 			request->response(he.code, he.message);
 		}
 		catch (const std::exception & e) {
-			request->response(500, e.what());
+			handleError(request, e);
 		}
 		catch (...) {
 			request->response(500, "Unknown internal server error");
 		}
+	}
+
+	void
+	Core::handleError(IHttpRequest * request, const std::exception & exception) const
+	{
+		auto errorHandlers = AdHoc::PluginManager::getDefault()->getAll<ErrorHandler>();
+		for (const auto & eh : errorHandlers) {
+			try {
+				switch (eh->implementation()->handleError(request, exception)) {
+					case ErrorHandlerResult_Handled:
+						return;
+					case ErrorHandlerResult_Unhandled:
+						continue;
+					case ErrorHandlerResult_Modified:
+						process(request, nullptr);
+						return;
+				}
+			}
+			catch (const HttpException & he) {
+				request->response(he.code, he.message);
+				return;
+			}
+			catch (...) {
+				std::cerr << "Error handler failed" << std::endl;
+			}
+		}
+		request->response(500, exception.what());
 	}
 
 	Ice::ObjectPrx

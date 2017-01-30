@@ -14,8 +14,14 @@ namespace IceSpider {
 		}
 	}
 
-	const std::vector<std::string> &
+	const PathElements &
 	TestRequest::getRequestPath() const
+	{
+		return url;
+	}
+
+	PathElements &
+	TestRequest::getRequestPath()
 	{
 		return url;
 	}
@@ -26,28 +32,71 @@ namespace IceSpider {
 		return method;
 	}
 
-	IceUtil::Optional<std::string>
+	OptionalString
 	TestRequest::getEnv(const std::string & key) const
 	{
-		return env.find(key) == env.end() ? IceUtil::Optional<std::string>() : env.find(key)->second;
+		return get(key, env);
 	}
 
-	IceUtil::Optional<std::string>
+	OptionalString
 	TestRequest::getQueryStringParam(const std::string & key) const
 	{
-		return qs.find(key) == qs.end() ? IceUtil::Optional<std::string>() : qs.find(key)->second;
+		return get(key, qs);
 	}
 
-	IceUtil::Optional<std::string>
+	OptionalString
 	TestRequest::getCookieParam(const std::string & key) const
 	{
-		return cookies.find(key) == cookies.end() ? IceUtil::Optional<std::string>() : cookies.find(key)->second;
+		return get(key, cookies);
 	}
 
-	IceUtil::Optional<std::string>
+	OptionalString
 	TestRequest::getHeaderParam(const std::string & key) const
 	{
-		return hdr.find(key) == hdr.end() ? IceUtil::Optional<std::string>() : hdr.find(key)->second;
+		return get(key, hdr);
+	}
+
+	OptionalString
+	TestRequest::get(const std::string & key, const MapVars & vars) const
+	{
+		auto i = vars.find(key);
+		if (i == vars.end()) {
+			return IceUtil::None;
+		}
+		return i->second;
+	}
+
+	void
+	TestRequest::setQueryStringParam(const std::string & key, const OptionalString & val)
+	{
+		set(key, val, qs);
+	}
+
+	void
+	TestRequest::setHeaderParam(const std::string & key, const OptionalString & val)
+	{
+		set(key, val, hdr);
+	}
+		
+	void
+	TestRequest::setCookieParam(const std::string & key, const OptionalString & val)
+	{
+		set(key, val, cookies);
+	}
+
+	void
+	TestRequest::setEnv(const std::string & key, const OptionalString & val)
+	{
+		set(key, val, env);
+	}
+		
+	void
+	TestRequest::set(const std::string & key, const OptionalString & val, MapVars & vars)
+	{
+		if (val)
+			vars[key] = *val;
+		else
+			vars.erase(key);
 	}
 
 	std::istream &

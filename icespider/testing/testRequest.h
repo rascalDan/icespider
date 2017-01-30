@@ -8,16 +8,20 @@ namespace IceSpider {
 	class DLL_PUBLIC TestRequest : public IHttpRequest {
 		public:
 			typedef std::map<std::string, std::string> MapVars;
-			typedef std::vector<std::string> UrlVars;
 
 			TestRequest(const Core * c, HttpMethod m, const std::string & p);
 
-			const std::vector<std::string> & getRequestPath() const override;
+			const PathElements & getRequestPath() const override;
+			PathElements & getRequestPath() override;
 			HttpMethod getRequestMethod() const override;
-			IceUtil::Optional<std::string> getEnv(const std::string & key) const override;
-			IceUtil::Optional<std::string> getQueryStringParam(const std::string & key) const override;
-			IceUtil::Optional<std::string> getCookieParam(const std::string & key) const override;
-			IceUtil::Optional<std::string> getHeaderParam(const std::string & key) const override;
+			OptionalString getEnv(const std::string & key) const override;
+			OptionalString getQueryStringParam(const std::string & key) const override;
+			OptionalString getCookieParam(const std::string & key) const override;
+			OptionalString getHeaderParam(const std::string & key) const override;
+			void setQueryStringParam(const std::string &, const OptionalString &) override;
+			void setHeaderParam(const std::string &, const OptionalString &) override;
+			void setCookieParam(const std::string &, const OptionalString &) override;
+			void setEnv(const std::string &, const OptionalString &) override;
 			std::istream & getInputStream() const override;
 			std::ostream & getOutputStream() const override;
 			void response(short statusCode, const std::string & statusMsg) const override;
@@ -25,7 +29,7 @@ namespace IceSpider {
 
 			const MapVars & getResponseHeaders();
 
-			UrlVars url;
+			PathElements url;
 			MapVars qs;
 			MapVars cookies;
 			MapVars hdr;
@@ -33,6 +37,10 @@ namespace IceSpider {
 			mutable std::stringstream input;
 			mutable std::stringstream output;
 			const HttpMethod method;
+
+		protected:
+			OptionalString get(const std::string &, const MapVars &) const;
+			void set(const std::string &, const OptionalString &, MapVars &);
 
 		private:
 			MapVars responseHeaders;

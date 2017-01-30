@@ -154,6 +154,9 @@ class TestSerice : public TestIceSpider::TestApi {
 			if (s == "error") {
 				throw TestIceSpider::Ex("test error");
 			}
+			else if (s.length() == 3) {
+				throw TestIceSpider::Ex(s);
+			}
 			BOOST_REQUIRE_EQUAL(s, "some value");
 		}
 
@@ -491,12 +494,66 @@ BOOST_AUTO_TEST_CASE( testCookies )
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
 }
 
-BOOST_AUTO_TEST_CASE( testErrorHandler )
+class DummyErrorHandler : public IceSpider::ErrorHandler {
+	public:
+		IceSpider::ErrorHandlerResult
+		handleError(IceSpider::IHttpRequest * request, const std::exception & ex) const
+		{
+			if (const auto * tex = dynamic_cast<const TestIceSpider::Ex *>(&ex)) {
+				if (tex->message == "404") {
+					throw IceSpider::Http404_NotFound();
+				}
+				if (tex->message == "304") {
+					request->getRequestPath().front() = "some value";
+					return IceSpider::ErrorHandlerResult_Modified;
+				}
+				if (tex->message == "400") {
+					request->response(400, "Handled");
+					return IceSpider::ErrorHandlerResult_Handled;
+				}
+			}
+			return IceSpider::ErrorHandlerResult_Unhandled;
+		}
+};
+
+PLUGIN(DummyErrorHandler, IceSpider::ErrorHandler);
+
+BOOST_AUTO_TEST_CASE( testErrorHandler_Unhandled )
 {
 	TestRequest requestDeleteItem(this, HttpMethod::DELETE, "/error");
 	process(&requestDeleteItem);
 	auto h = requestDeleteItem.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "500 test error");
+	requestDeleteItem.output.get();
+	BOOST_REQUIRE(requestDeleteItem.output.eof());
+}
+
+BOOST_AUTO_TEST_CASE( testErrorHandler_Handled1 )
+{
+	TestRequest requestDeleteItem(this, HttpMethod::DELETE, "/404");
+	process(&requestDeleteItem);
+	auto h = requestDeleteItem.getResponseHeaders();
+	BOOST_REQUIRE_EQUAL(h["Status"], "404 Not found");
+	requestDeleteItem.output.get();
+	BOOST_REQUIRE(requestDeleteItem.output.eof());
+}
+
+BOOST_AUTO_TEST_CASE( testErrorHandler_Handled2 )
+{
+	TestRequest requestDeleteItem(this, HttpMethod::DELETE, "/400");
+	process(&requestDeleteItem);
+	auto h = requestDeleteItem.getResponseHeaders();
+	BOOST_REQUIRE_EQUAL(h["Status"], "400 Handled");
+	requestDeleteItem.output.get();
+	BOOST_REQUIRE(requestDeleteItem.output.eof());
+}
+
+BOOST_AUTO_TEST_CASE( testErrorHandler_Handled3 )
+{
+	TestRequest requestDeleteItem(this, HttpMethod::DELETE, "/304");
+	process(&requestDeleteItem);
+	auto h = requestDeleteItem.getResponseHeaders();
+	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
 	requestDeleteItem.output.get();
 	BOOST_REQUIRE(requestDeleteItem.output.eof());
 }

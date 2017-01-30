@@ -85,6 +85,12 @@ namespace IceSpider {
 		return pathElements;
 	}
 
+	PathElements &
+	CgiRequestBase::getRequestPath()
+	{
+		return pathElements;
+	}
+
 	HttpMethod
 	CgiRequestBase::getRequestMethod() const
 	{
@@ -119,6 +125,36 @@ namespace IceSpider {
 	CgiRequestBase::getHeaderParam(const std::string & key) const
 	{
 		return optionalLookup(("HTTP_" + boost::algorithm::to_upper_copy(key)).c_str(), envmap);
+	}
+
+	void
+	CgiRequestBase::setQueryStringParam(const std::string & key, const OptionalString & val)
+	{
+		if (val)
+			qsmap[key] = val;
+		else
+			qsmap.erase(key);
+	}
+
+	void
+	CgiRequestBase::setHeaderParam(const std::string &, const OptionalString &)
+	{
+		throw std::runtime_error("Changing the CGI environment is not supported.");
+	}
+
+	void
+	CgiRequestBase::setCookieParam(const std::string & key, const OptionalString & val)
+	{
+		if (val)
+			cookiemap[key] = val;
+		else
+			cookiemap.erase(key);
+	}
+
+	void
+	CgiRequestBase::setEnv(const std::string &, const OptionalString &)
+	{
+		throw std::runtime_error("Changing the CGI environment is not supported.");
 	}
 
 	void CgiRequestBase::response(short statusCode, const std::string & statusMsg) const
