@@ -36,6 +36,8 @@ namespace IceSpider {
 			void response(short, const std::string &) const override;
 			void setHeader(const std::string &, const std::string &) const override;
 
+			std::ostream & dump(std::ostream & s) const override;
+
 		private:
 			static OptionalString optionalLookup(const std::string & key, const VarMap &);
 			static OptionalString optionalLookup(const std::string & key, const StringMap &);

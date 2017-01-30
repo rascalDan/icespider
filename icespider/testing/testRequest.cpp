@@ -125,6 +125,12 @@ namespace IceSpider {
 		getOutputStream() << header << ": " << value << "\r\n";
 	}
 
+	std::ostream &
+	TestRequest::dump(std::ostream & s) const
+	{
+		return s;
+	}
+
 	const TestRequest::MapVars &
 	TestRequest::getResponseHeaders()
 	{

@@ -74,6 +74,7 @@ namespace IceSpider {
 		}
 		catch (...) {
 			request->response(500, "Unknown internal server error");
+			request->dump(std::cerr);
 		}
 	}
 
@@ -102,6 +103,7 @@ namespace IceSpider {
 			}
 		}
 		request->response(500, exception.what());
+		request->dump(std::cerr);
 	}
 
 	Ice::ObjectPrx

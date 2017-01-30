@@ -6,8 +6,15 @@
 #include <util.h>
 #include <slicer/modelPartsTypes.h>
 #include <slicer/common.h>
+#include <compileTimeFormatter.h>
 
 namespace ba = boost::algorithm;
+
+namespace std {
+	ostream & operator<<(ostream & s, const IceSpider::CgiRequestBase::Env & e) {
+		return s.write(std::get<0>(e), std::get<1>(e) - std::get<0>(e));
+	}
+}
 
 namespace IceSpider {
 	CgiRequestBase::CgiRequestBase(Core * c, char ** env) :
@@ -57,6 +64,30 @@ namespace IceSpider {
 				cookiemap.insert({ k, v });
 			}, "; ");
 		}
+	}
+
+	AdHocFormatter(VarFmt, "\t%?: [%?]\n");
+	AdHocFormatter(PathFmt, "\t[%?]\n");
+	std::ostream &
+	CgiRequestBase::dump(std::ostream & s) const
+	{
+		s << "Environment dump" << std::endl;
+		for (const auto & e : envmap) {
+			VarFmt::write(s, e.first, e.second);
+		}
+		s << "Path dump" << std::endl;
+		for (const auto & e : pathElements) {
+			PathFmt::write(s, e);
+		}
+		s << "Query string dump" << std::endl;
+		for (const auto & v : qsmap) {
+			VarFmt::write(s, v.first, v.second);
+		}
+		s << "Cookie dump" << std::endl;
+		for (const auto & c : cookiemap) {
+			VarFmt::write(s, c.first, c.second);
+		}
+		return s;
 	}
 
 	OptionalString

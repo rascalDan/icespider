@@ -26,6 +26,7 @@ namespace IceSpider {
 			std::ostream & getOutputStream() const override;
 			void response(short statusCode, const std::string & statusMsg) const override;
 			void setHeader(const std::string & header, const std::string & value) const override;
+			std::ostream & dump(std::ostream & s) const override;
 
 			const MapVars & getResponseHeaders();
 

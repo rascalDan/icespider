@@ -42,6 +42,8 @@ namespace IceSpider {
 			virtual std::ostream & getOutputStream() const = 0;
 			virtual void setHeader(const std::string &, const std::string &) const = 0;
 
+			virtual std::ostream & dump(std::ostream & s) const = 0;
+
 			template<typename T>
 			T getURLParam(unsigned int) const;
 			template<typename T>
