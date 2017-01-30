@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 	rc.applyDefaults(cfg, u);
 
 	BOOST_REQUIRE_EQUAL("common", cfg->name);
-	BOOST_REQUIRE_EQUAL(12, cfg->routes.size());
+	BOOST_REQUIRE_EQUAL(14, cfg->routes.size());
 
 	BOOST_REQUIRE_EQUAL("/", cfg->routes["index"]->path);
 	BOOST_REQUIRE_EQUAL(HttpMethod::GET, cfg->routes["index"]->method);
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE( testLoad )
 	BOOST_TEST_INFO(dlerror());
 	BOOST_REQUIRE(lib);
 
-	BOOST_REQUIRE_EQUAL(12, AdHoc::PluginManager::getDefault()->getAll<IceSpider::RouteHandlerFactory>().size());
+	BOOST_REQUIRE_EQUAL(14, AdHoc::PluginManager::getDefault()->getAll<IceSpider::RouteHandlerFactory>().size());
 	// smoke test (block ensure dlclose dones't cause segfault)
 	{
 		auto route = AdHoc::PluginManager::getDefault()->get<IceSpider::RouteHandlerFactory>("common::index");

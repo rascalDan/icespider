@@ -533,7 +533,7 @@ namespace IceSpider {
 		RouteCompiler::addSingleOperation(FILE * output, RoutePtr r, Slice::OperationPtr o) const
 		{
 			auto operation = r->operation->substr(r->operation->find_last_of('.') + 1);
-			if (o->returnsData()) {
+			if (o->returnType()) {
 				fprintbf(4, output, "auto _responseModel = prx0->%s(", operation);
 			}
 			else {
@@ -552,7 +552,7 @@ namespace IceSpider {
 			for(const auto & mutator : r->mutators) {
 				fprintbf(4, output, "%s(request, _responseModel);\n", mutator);
 			}
-			if (o->returnsData()) {
+			if (o->returnType()) {
 				fprintbf(4, output, "request->response(this, _responseModel);\n");
 			}
 			else {

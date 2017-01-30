@@ -120,6 +120,7 @@ run
 
 lib test-api :
 	test-api.ice
+	test-api-impl.cpp
 	:
 	<slicer>yes
 	<library>slicer

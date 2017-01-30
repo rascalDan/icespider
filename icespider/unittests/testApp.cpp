@@ -29,7 +29,7 @@ void forceEarlyChangeDir()
 
 BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 {
-	BOOST_REQUIRE_EQUAL(12, AdHoc::PluginManager::getDefault()->getAll<IceSpider::RouteHandlerFactory>().size());
+	BOOST_REQUIRE_EQUAL(14, AdHoc::PluginManager::getDefault()->getAll<IceSpider::RouteHandlerFactory>().size());
 }
 
 class CoreWithProps : public CoreWithDefaultRouter {
@@ -85,8 +85,8 @@ BOOST_AUTO_TEST_CASE( testCoreSettings )
 {
 	BOOST_REQUIRE_EQUAL(5, routes.size());
 	BOOST_REQUIRE_EQUAL(1, routes[0].size());
-	BOOST_REQUIRE_EQUAL(6, routes[1].size());
-	BOOST_REQUIRE_EQUAL(1, routes[2].size());
+	BOOST_REQUIRE_EQUAL(7, routes[1].size());
+	BOOST_REQUIRE_EQUAL(2, routes[2].size());
 	BOOST_REQUIRE_EQUAL(2, routes[3].size());
 	BOOST_REQUIRE_EQUAL(2, routes[4].size());
 }
@@ -151,6 +151,9 @@ class TestSerice : public TestIceSpider::TestApi {
 
 		void returnNothing(const std::string & s, const Ice::Current &) override
 		{
+			if (s == "error") {
+				throw TestIceSpider::Ex("test error");
+			}
 			BOOST_REQUIRE_EQUAL(s, "some value");
 		}
 
@@ -160,6 +163,16 @@ class TestSerice : public TestIceSpider::TestApi {
 			BOOST_REQUIRE_EQUAL("1234", *s);
 			BOOST_REQUIRE(m);
 			BOOST_REQUIRE_EQUAL("some value", m->value);
+		}
+
+		Ice::Int simple(const Ice::Current &) override
+		{
+			return 1;
+		}
+
+		std::string simplei(Ice::Int n, const Ice::Current &) override
+		{
+			return boost::lexical_cast<std::string>(n);
 		}
 };
 
@@ -476,6 +489,16 @@ BOOST_AUTO_TEST_CASE( testCookies )
 	process(&request);
 	auto h = request.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
+}
+
+BOOST_AUTO_TEST_CASE( testErrorHandler )
+{
+	TestRequest requestDeleteItem(this, HttpMethod::DELETE, "/error");
+	process(&requestDeleteItem);
+	auto h = requestDeleteItem.getResponseHeaders();
+	BOOST_REQUIRE_EQUAL(h["Status"], "500 test error");
+	requestDeleteItem.output.get();
+	BOOST_REQUIRE(requestDeleteItem.output.eof());
 }
 
 BOOST_AUTO_TEST_SUITE_END();

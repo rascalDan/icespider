@@ -21,6 +21,16 @@
 			"mutators": [ "testMutate" ],
 			"operation": "TestIceSpider.TestApi.index"
 		},
+		"simple": {
+			"path": "/simple",
+			"method": "GET",
+			"operation": "TestIceSpider.TestApi.simple"
+		},
+		"simplei": {
+			"path": "/simple/{i}",
+			"method": "GET",
+			"operation": "TestIceSpider.TestApi.simplei"
+		},
 		"item": {
 			"path": "/view/{s}/{i}",
 			"method": "GET",
