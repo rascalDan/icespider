@@ -33,8 +33,10 @@ namespace IceSpider {
 				void processBase(FILE * output, FILE * outputh, const RouteBases::value_type &, const Units &) const;
 				void processRoutes(FILE * output, RouteConfigurationPtr, const Units &) const;
 				void processRoute(FILE * output, const Routes::value_type &, const Units &) const;
+				void defineOutputSerializers(FILE * output, RoutePtr) const;
 				void registerOutputSerializers(FILE * output, RoutePtr) const;
 				void releaseOutputSerializers(FILE * output, RoutePtr) const;
+				void declareOutputSerializers(FILE * output, RoutePtr) const;
 				Proxies initializeProxies(FILE * output, RoutePtr) const;
 				void declareProxies(FILE * output, const Proxies &) const;
 				void addSingleOperation(FILE * output, RoutePtr, Slice::OperationPtr) const;

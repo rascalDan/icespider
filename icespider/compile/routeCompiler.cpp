@@ -9,6 +9,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include <Slice/CPlusPlusUtil.h>
+#include <compileTimeFormatter.h>
 
 namespace IceSpider {
 	namespace Compile {
@@ -239,21 +240,57 @@ namespace IceSpider {
 			return Slicer::ModelPartForEnum<Enum>::lookup(e);
 		}
 
+		static
+		std::string
+		outputSerializerClass(const IceSpider::OutputSerializers::value_type & os)
+		{
+			return boost::algorithm::replace_all_copy(os.second->serializer, ".", "::");
+		}
+
+		static
+		std::string
+		outputSerializerName(const IceSpider::OutputSerializers::value_type & os)
+		{
+			std::string name("_serializer_");
+			std::replace_copy_if(os.first.begin(), os.first.end(), std::back_inserter(name),
+					std::not1(std::ptr_fun(isalnum)), '_');
+			return name;
+		}
+
+		AdHocFormatter(MimePair, R"C({ "%?", "%?" })C");
+		static
+		std::string
+		outputSerializerMime(const IceSpider::OutputSerializers::value_type & os)
+		{
+			auto slash = os.first.find('/');
+			return MimePair::get(
+					os.first.substr(0, slash), os.first.substr(slash + 1));
+		}
+
 		void
-		RouteCompiler::registerOutputSerializers(FILE * output, RoutePtr r) const
+		RouteCompiler::defineOutputSerializers(FILE * output, RoutePtr r) const
 		{
 			for (const auto & os : r->outputSerializers) {
-				auto bs = boost::algorithm::replace_all_copy(os.second->serializer, ".", "::");
-				auto slash = os.first.find('/');
-				fprintbf(4, output, "addRouteSerializer({ \"%s\", \"%s\" }, new %s::IceSpiderFactory(",
-						os.first.substr(0, slash), os.first.substr(slash + 1), bs);
+				fprintf(output, ",\n");
+				fprintbf(4, output, "%s(",
+						outputSerializerName(os));
 				for (auto p = os.second->params.begin(); p != os.second->params.end(); ++p) {
 					if (p != os.second->params.begin()) {
 						fprintf(output, ", ");
 					}
 					fputs(p->c_str(), output);
 				}
-				fprintf(output, "));\n");
+				fprintf(output, ")");
+			}
+		}
+
+		void
+		RouteCompiler::registerOutputSerializers(FILE * output, RoutePtr r) const
+		{
+			for (const auto & os : r->outputSerializers) {
+				fprintbf(4, output, "addRouteSerializer(%s, &%s);\n",
+						outputSerializerMime(os),
+						outputSerializerName(os));
 			}
 		}
 
@@ -261,9 +298,18 @@ namespace IceSpider {
 		RouteCompiler::releaseOutputSerializers(FILE * output, RoutePtr r) const
 		{
 			for (const auto & os : r->outputSerializers) {
-				auto slash = os.first.find('/');
-				fprintbf(4, output, "removeRouteSerializer({ \"%s\", \"%s\" });\n",
-						os.first.substr(0, slash), os.first.substr(slash + 1));
+				fprintbf(4, output, "removeRouteSerializer(%s);\n",
+						outputSerializerMime(os));
+			}
+		}
+
+		void
+		RouteCompiler::declareOutputSerializers(FILE * output, RoutePtr r) const
+		{
+			for (const auto & os : r->outputSerializers) {
+				fprintbf(3, output, "%s::IceSpiderFactory %s;\n",
+						outputSerializerClass(os),
+						outputSerializerName(os));
 			}
 		}
 
@@ -386,6 +432,7 @@ namespace IceSpider {
 				fprintbf(4, output, "%s(core)", b);
 			}
 			auto proxies = initializeProxies(output, r.second);
+			defineOutputSerializers(output, r.second);
 			for (const auto & p : r.second->params) {
 				if (p.second->hasUserSource) {
 					if (p.second->source == ParameterSource::URL) {
@@ -485,6 +532,7 @@ namespace IceSpider {
 			fprintbf(3, output, "}\n\n");
 			fprintbf(2, output, "private:\n");
 			declareProxies(output, proxies);
+			declareOutputSerializers(output, r.second);
 			for (const auto & p : r.second->params) {
 				if (p.second->hasUserSource) {
 					if (p.second->source == ParameterSource::URL) {
