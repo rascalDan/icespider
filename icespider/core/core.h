@@ -14,7 +14,7 @@ namespace IceSpider {
 			typedef std::vector<const IRouteHandler *> AllRoutes;
 
 			Core(const Ice::StringSeq & = {});
-			~Core();
+			virtual ~Core();
 
 			virtual const IRouteHandler * findRoute(const IHttpRequest *) const = 0;
 			void process(IHttpRequest *, const IRouteHandler * = nullptr) const;
