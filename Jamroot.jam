@@ -3,7 +3,6 @@ import slice ;
 
 using gcc : : [ os.environ CXX ] ;
 
-variant component ;
 variant coverage : debug ;
 
 project
@@ -14,27 +13,9 @@ project
       <variant>debug:<linkflags>"-Wl,-z,defs,--warn-once"
       <variant>coverage:<cxxflags>"-W -Wall -Werror -Wwrite-strings -std=c++1y --coverage -fvisibility=hidden"
       <variant>coverage:<linkflags>"-Wl,-z,defs,--warn-once --coverage"
-      <variant>component:<cxxflags>"-W -Wall -Werror -Wwrite-strings -std=c++1y -fPIC -fvisibility=hidden"
-			<variant>component:<linkflags>"-Wl,-z,lazy,--warn-once,-fPIC"
 	;
 
-build-project gentoobrowse-api ;
-build-project gentoobrowse-client ;
-# build-project icetray ;
-build-project libadhocutil ;
-build-project libdbpp ;
-build-project libjsonpp ;
-build-project libmisc ;
-build-project libmysqlpp ;
-build-project libodbcpp ;
-build-project libpqpp ;
-build-project libsqlitepp ;
-build-project libtmdb ;
-build-project mythfs ;
-build-project netfs ;
-# build-project p2pvr ;
-build-project project2 ;
-build-project slicer ;
+build-project icespider ;
 
 # Some useful aliases
 
