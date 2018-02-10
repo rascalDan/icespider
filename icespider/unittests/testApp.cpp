@@ -523,9 +523,11 @@ BOOST_AUTO_TEST_CASE( testErrorHandler_Unhandled )
 	TestRequest requestDeleteItem(this, HttpMethod::DELETE, "/error");
 	process(&requestDeleteItem);
 	auto h = requestDeleteItem.getResponseHeaders();
-	BOOST_REQUIRE_EQUAL(h["Status"], "500 test error");
-	requestDeleteItem.output.get();
-	BOOST_REQUIRE(requestDeleteItem.output.eof());
+	BOOST_REQUIRE_EQUAL(h["Status"], "500 TestIceSpider::Ex");
+	BOOST_REQUIRE_EQUAL(h["Content-Type"], "text/plain");
+	auto & o = requestDeleteItem.output;
+	auto b = o.str().substr(o.tellg());
+	BOOST_REQUIRE_EQUAL(b, "test error");
 }
 
 BOOST_AUTO_TEST_CASE( testErrorHandler_Handled1 )

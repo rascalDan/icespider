@@ -102,7 +102,17 @@ namespace IceSpider {
 				std::cerr << "Error handler failed" << std::endl;
 			}
 		}
-		request->response(500, exception.what());
+		defaultErrorReport(request, exception);
+	}
+
+	void
+	Core::defaultErrorReport(IHttpRequest * request, const std::exception & exception) const
+	{
+		char * buf = __cxxabiv1::__cxa_demangle(typeid(exception).name(), NULL, NULL, NULL);
+		request->setHeader("Content-Type", "text/plain");
+		request->response(500, buf);
+		free(buf);
+		request->getOutputStream() << exception.what();
 		request->dump(std::cerr);
 	}
 

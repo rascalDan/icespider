@@ -33,6 +33,9 @@ namespace IceSpider {
 			Ice::ObjectAdapterPtr pluginAdapter;
 
 			static const boost::filesystem::path defaultConfig;
+
+		private:
+			void defaultErrorReport(IHttpRequest * request, const std::exception & ex) const;
 	};
 
 	class DLL_PUBLIC CoreWithDefaultRouter : public Core {
