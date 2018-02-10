@@ -527,7 +527,7 @@ BOOST_AUTO_TEST_CASE( testErrorHandler_Unhandled )
 	BOOST_REQUIRE_EQUAL(h["Content-Type"], "text/plain");
 	auto & o = requestDeleteItem.output;
 	auto b = o.str().substr(o.tellg());
-	BOOST_REQUIRE_EQUAL(b, "test error");
+	BOOST_REQUIRE_EQUAL(b, "Exception type: TestIceSpider::Ex\nDetail: test error\n");
 }
 
 BOOST_AUTO_TEST_CASE( testErrorHandler_Handled1 )

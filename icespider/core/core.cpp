@@ -4,6 +4,7 @@
 #include <Ice/ObjectAdapter.h>
 #include <boost/filesystem/convenience.hpp>
 #include <factory.impl.h>
+#include <compileTimeFormatter.h>
 
 INSTANTIATEFACTORY(IceSpider::Plugin, Ice::CommunicatorPtr, Ice::PropertiesPtr);
 INSTANTIATEPLUGINOF(IceSpider::ErrorHandler);
@@ -105,15 +106,17 @@ namespace IceSpider {
 		defaultErrorReport(request, exception);
 	}
 
+	AdHocFormatter(LogExp, "Exception type: %?\nDetail: %?\n");
 	void
 	Core::defaultErrorReport(IHttpRequest * request, const std::exception & exception) const
 	{
 		char * buf = __cxxabiv1::__cxa_demangle(typeid(exception).name(), NULL, NULL, NULL);
 		request->setHeader("Content-Type", "text/plain");
 		request->response(500, buf);
-		free(buf);
-		request->getOutputStream() << exception.what();
+		LogExp::write(request->getOutputStream(), buf, exception.what());
 		request->dump(std::cerr);
+		LogExp::write(std::cerr, buf, exception.what());
+		free(buf);
 	}
 
 	Ice::ObjectPrx
