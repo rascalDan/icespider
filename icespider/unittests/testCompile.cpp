@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE( testCompile )
 	auto libGenDir = (rootDir / "bin" / modeDir / "slicer-yes");
 
 	auto compileCommand = boost::algorithm::join<std::vector<std::string>>({
-		"gcc", "-c", "-std=c++1y", "-fPIC", "-fvisibility=hidden", "-O3",
+		"gcc", "-c", "-std=c++1y", "-fPIC", "-fvisibility=hidden", "-O3", "-flto", "-fvisibility-inlines-hidden",
 		"-I", "/usr/include/adhocutil",
 		"-I", "/usr/include/glib-2.0",
 		"-I", "/usr/include/glibmm-2.4",
