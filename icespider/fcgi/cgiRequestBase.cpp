@@ -44,6 +44,18 @@ namespace IceSpider {
 		return std::string(t);
 	}
 
+	template<typename in, typename out>
+	inline
+	void
+	mapVars(const std::string_view & vn, const in & envmap, out & map, const std::string_view & sp) {
+		auto qs = envmap.find(vn);
+		if (qs != envmap.end()) {
+			XWwwFormUrlEncoded::iterateVars(qs->second, [&map](auto k, auto v) {
+				map.insert({ k, v });
+			}, sp);
+		}
+	}
+
 	void
 	CgiRequestBase::initialize()
 	{
@@ -56,18 +68,8 @@ namespace IceSpider {
 			ba::split(pathElements, path, ba::is_any_of("/"), ba::token_compress_off);
 		}
 
-		auto qs = envmap.find(QUERY_STRING);
-		if (qs != envmap.end()) {
-			XWwwFormUrlEncoded::iterateVars(qs->second, [this](auto k, auto v) {
-				qsmap.insert({ k, v });
-			}, "&"sv);
-		}
-		auto cs = envmap.find(HTTP_COOKIE);
-		if (cs != envmap.end()) {
-			XWwwFormUrlEncoded::iterateVars(cs->second, [this](auto k, auto v) {
-				cookiemap.insert({ k, v });
-			}, "; "sv);
-		}
+		mapVars(QUERY_STRING, envmap, qsmap, "&"sv);
+		mapVars(HTTP_COOKIE, envmap, cookiemap, "; "sv);
 	}
 
 	AdHocFormatter(VarFmt, "\t%?: [%?]\n");
