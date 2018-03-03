@@ -4,9 +4,9 @@
 #include "http.ice"
 
 module IceSpider {
-	sequence<string> StringSeq;
+	local sequence<string> StringSeq;
 
-	class Parameter {
+	local class Parameter {
 		ParameterSource source = URL;
 		optional(0) string key;
 		bool isOptional = false;
@@ -19,25 +19,25 @@ module IceSpider {
 	};
 
 	["slicer:json:object"]
-	dictionary<string, Parameter> Parameters;
+	local dictionary<string, Parameter> Parameters;
 
-	class OutputSerializer {
+	local class OutputSerializer {
 		string serializer;
 		StringSeq params;
 	};
 
 	["slicer:json:object"]
-	dictionary<string, OutputSerializer> OutputSerializers;
+	local dictionary<string, OutputSerializer> OutputSerializers;
 
-	class Operation {
+	local class Operation {
 		string operation;
 		StringMap paramOverrides;
 	};
 
 	["slicer:json:object"]
-	dictionary<string, Operation> Operations;
+	local dictionary<string, Operation> Operations;
 
-	class Route {
+	local class Route {
 		string path;
 		HttpMethod method = GET;
 		optional(0) string operation;
@@ -50,17 +50,17 @@ module IceSpider {
 	};
 
 	["slicer:json:object"]
-	dictionary<string, Route> Routes;
+	local dictionary<string, Route> Routes;
 
-	class RouteBase {
+	local class RouteBase {
 		StringSeq proxies;
 		StringSeq functions;
 	};
 
 	["slicer:json:object"]
-	dictionary<string, RouteBase> RouteBases;
+	local dictionary<string, RouteBase> RouteBases;
 
-	class RouteConfiguration {
+	local class RouteConfiguration {
 		string name;
 		Routes routes;
 		RouteBases routeBases;

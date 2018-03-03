@@ -3,34 +3,34 @@
 
 module IceSpider {
 	["slicer:ignore"]
-	exception HttpException {
+	local exception HttpException {
 		int code;
 		string message;
 	};
 
-	enum HttpMethod {
+	local enum HttpMethod {
 		GET, HEAD, POST, PUT, DELETE, OPTIONS
 	};
 
-	enum ParameterSource {
+	local enum ParameterSource {
 		URL, Body, QueryString, Header, Cookie
 	};
 
 	["slicer:ignore"]
-	struct MimeType {
+	local struct MimeType {
 		string group;
 		string type;
 	};
 
 	["slicer:ignore"]
-	class Accept {
+	local class Accept {
 		optional(0) string group;
 		optional(1) string type;
 		float q = 1.0;
 	};
 
 	["slicer:json:object"]
-	dictionary<string, string> StringMap;
+	local dictionary<string, string> StringMap;
 };
 
 #endif

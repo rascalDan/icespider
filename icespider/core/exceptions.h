@@ -12,7 +12,7 @@
 			static const std::string message; \
 	}
 #define DefineHttpEx(Name, Code, Message) \
-	Name::Name() : ::IceSpider::HttpException(code, message) { } \
+	Name::Name() : ::IceSpider::HttpException(__FILE__, __LINE__, code, message) { } \
 	const int Name::code(Code); \
 	const std::string Name::message(Message);
 
