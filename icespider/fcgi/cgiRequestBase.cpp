@@ -91,25 +91,26 @@ namespace IceSpider {
 
 	AdHocFormatter(VarFmt, "\t%?: [%?]\n");
 	AdHocFormatter(PathFmt, "\t[%?]\n");
+	template<typename Fmt, typename Map>
+	void
+	dumpMap(std::ostream & s, const std::string_view & n, const Map & map)
+	{
+		s << n << std::endl;
+		for (const auto & p : map) {
+			Fmt::write(s, p.first, p.second);
+		}
+	}
+
 	std::ostream &
 	CgiRequestBase::dump(std::ostream & s) const
 	{
-		s << "Environment dump" << std::endl;
-		for (const auto & e : envmap) {
-			VarFmt::write(s, e.first, e.second);
-		}
+		dumpMap<VarFmt>(s, "Environment dump"sv, envmap);
 		s << "Path dump" << std::endl;
 		for (const auto & e : pathElements) {
 			PathFmt::write(s, e);
 		}
-		s << "Query string dump" << std::endl;
-		for (const auto & v : qsmap) {
-			VarFmt::write(s, v.first, v.second);
-		}
-		s << "Cookie dump" << std::endl;
-		for (const auto & c : cookiemap) {
-			VarFmt::write(s, c.first, c.second);
-		}
+		dumpMap<VarFmt>(s, "Query string dump"sv, qsmap);
+		dumpMap<VarFmt>(s, "Cookie dump"sv, cookiemap);
 		return s;
 	}
 
