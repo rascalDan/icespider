@@ -26,20 +26,19 @@ namespace IceSpider {
 	CGI_CONST(HTTP_COOKIE);
 	CGI_CONST(REQUEST_METHOD);
 
-	CgiRequestBase::CgiRequestBase(Core * c, char ** env) :
+	CgiRequestBase::CgiRequestBase(Core * c, const char * const * const env) :
 		IHttpRequest(c)
 	{
-		for(char * const * e = env; *e; ++e) {
+		for(const char * const * e = env; *e; ++e) {
 			addenv(*e);
 		}
 	}
 
 	void
-	CgiRequestBase::addenv(char * e)
+	CgiRequestBase::addenv(const char * const e)
 	{
 		if (auto eq = strchr(e, '=')) {
-			*eq++ = '\0';
-			envmap.insert({ e, Env(eq, strchr(eq, '\0')) });
+			envmap.insert({ std::string_view(e, eq - e), Env(eq + 1, strchr(eq, '\0')) });
 		}
 	}
 

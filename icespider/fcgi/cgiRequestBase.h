@@ -10,12 +10,12 @@
 namespace IceSpider {
 	class CgiRequestBase : public IHttpRequest {
 		protected:
-			CgiRequestBase(Core * c, char ** env);
-			void addenv(char *);
+			CgiRequestBase(Core * c, const char * const * const env);
+			void addenv(const char * const);
 			void initialize();
 
 		public:
-			typedef std::tuple<char *, char *> Env;
+			typedef std::tuple<const char * const, const char * const> Env;
 			typedef std::map<std::string_view, Env> VarMap;
 
 			const PathElements & getRequestPath() const override;
