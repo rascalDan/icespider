@@ -56,14 +56,31 @@ namespace IceSpider {
 		}
 	}
 
+	template<typename Ex, typename Map>
+	const std::string_view &
+	findFirstOrElse(const Map &, const std::string & msg)
+	{
+		throw Ex(msg);
+	}
+
+	template<typename Ex, typename Map, typename ... Ks>
+	const std::string_view &
+	findFirstOrElse(const Map & map, const std::string & msg, const std::string_view & k, const Ks & ... ks)
+	{
+		auto i = map.find(k);
+		if (i == map.end()) {
+			return findFirstOrElse<Ex>(map, msg, ks...);
+		}
+		return i->second;
+	}
+
 	void
 	CgiRequestBase::initialize()
 	{
 		namespace ba = boost::algorithm;
-		auto path = (optionalLookup(REDIRECT_URL, envmap) /
-			[this]() { return optionalLookup(SCRIPT_NAME, envmap); } /
-			[this]() -> std::string { throw std::runtime_error("Couldn't determine request path"); })
-			.substr(1);
+		auto path = findFirstOrElse<std::runtime_error>(envmap, "Couldn't determine request path"s,
+				REDIRECT_URL,
+				SCRIPT_NAME).substr(1);
 		if (!path.empty()) {
 			ba::split(pathElements, path, ba::is_any_of("/"), ba::token_compress_off);
 		}
