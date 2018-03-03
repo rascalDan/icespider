@@ -1,6 +1,7 @@
 #include "testRequest.h"
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <formatters.h>
 
 namespace IceSpider {
 	TestRequest::TestRequest(const Core * c, HttpMethod m, const std::string & p) :
@@ -114,15 +115,13 @@ namespace IceSpider {
 	void
 	TestRequest::response(short statusCode, const std::string & statusMsg) const
 	{
-		getOutputStream()
-			<< "Status: " << statusCode << " " << statusMsg << "\r\n"
-			<< "\r\n";
+		StatusFmt::write(getOutputStream(), statusCode, statusMsg);
 	}
 
 	void
 	TestRequest::setHeader(const std::string & header, const std::string & value) const
 	{
-		getOutputStream() << header << ": " << value << "\r\n";
+		HdrFmt::write(getOutputStream(), header, value);
 	}
 
 	std::ostream &

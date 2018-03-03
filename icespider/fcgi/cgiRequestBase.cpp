@@ -6,7 +6,7 @@
 #include <util.h>
 #include <slicer/modelPartsTypes.h>
 #include <slicer/common.h>
-#include <compileTimeFormatter.h>
+#include <formatters.h>
 
 namespace ba = boost::algorithm;
 
@@ -190,15 +190,13 @@ namespace IceSpider {
 
 	void CgiRequestBase::response(short statusCode, const std::string & statusMsg) const
 	{
-		getOutputStream()
-			<< "Status: " << statusCode << " " << statusMsg << "\r\n"
-			<< "\r\n";
+		StatusFmt::write(getOutputStream(), statusCode, statusMsg);
 	}
 
 	void
 	CgiRequestBase::setHeader(const std::string & header, const std::string & value) const
 	{
-		getOutputStream() << header << ": " << value << "\r\n";
+		HdrFmt::write(getOutputStream(), header, value);
 	}
 
 	bool
