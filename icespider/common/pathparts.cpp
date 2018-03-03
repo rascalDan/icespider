@@ -13,10 +13,10 @@ namespace IceSpider {
 		for (auto pi = ba::make_split_iterator(relp, ba::first_finder("/", ba::is_equal())); pi != decltype(pi)(); ++pi) {
 			std::string pp(pi->begin(), pi->end());
 			if (pp.front() == '{' && pp.back() == '}') {
-				parts.push_back(PathPartPtr(new PathParameter(pp)));
+				parts.push_back(std::make_shared<PathParameter>(pp));
 			}
 			else {
-				parts.push_back(PathPartPtr(new PathLiteral(pp)));
+				parts.push_back(std::make_shared<PathLiteral>(pp));
 			}
 		}
 	}
