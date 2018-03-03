@@ -5,21 +5,18 @@
 #include <ihttpRequest.h>
 #include <map>
 #include <tuple>
+#include <string_view>
 
 namespace IceSpider {
 	class CgiRequestBase : public IHttpRequest {
 		protected:
-			struct cmp_str {
-				bool operator()(char const *a, char const *b) const;
-			};
-
 			CgiRequestBase(Core * c, char ** env);
 			void addenv(char *);
 			void initialize();
 
 		public:
 			typedef std::tuple<char *, char *> Env;
-			typedef std::map<const char *, Env, cmp_str> VarMap;
+			typedef std::map<std::string_view, Env> VarMap;
 
 			const PathElements & getRequestPath() const override;
 			PathElements & getRequestPath() override;
@@ -39,7 +36,7 @@ namespace IceSpider {
 			std::ostream & dump(std::ostream & s) const override;
 
 		private:
-			static OptionalString optionalLookup(const std::string & key, const VarMap &);
+			static OptionalString optionalLookup(const std::string_view & key, const VarMap &);
 			static OptionalString optionalLookup(const std::string & key, const StringMap &);
 
 			VarMap envmap;

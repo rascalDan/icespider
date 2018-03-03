@@ -11,7 +11,7 @@ namespace IceSpider {
 	}
 
 	std::istream &
-		CgiRequest::getInputStream() const
+	CgiRequest::getInputStream() const
 	{
 		return std::cin;
 	}

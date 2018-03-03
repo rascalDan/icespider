@@ -16,7 +16,16 @@ namespace std {
 	}
 }
 
+#define CGI_CONST(NAME) static const std::string_view NAME(#NAME)
+
 namespace IceSpider {
+	static const std::string HEADER_PREFIX("HTTP_");
+	CGI_CONST(REDIRECT_URL);
+	CGI_CONST(SCRIPT_NAME);
+	CGI_CONST(QUERY_STRING);
+	CGI_CONST(HTTP_COOKIE);
+	CGI_CONST(REQUEST_METHOD);
+
 	CgiRequestBase::CgiRequestBase(Core * c, char ** env) :
 		IHttpRequest(c)
 	{
@@ -44,21 +53,21 @@ namespace IceSpider {
 	CgiRequestBase::initialize()
 	{
 		namespace ba = boost::algorithm;
-		auto path = (optionalLookup("REDIRECT_URL", envmap) /
-			[this]() { return optionalLookup("SCRIPT_NAME", envmap); } /
+		auto path = (optionalLookup(REDIRECT_URL, envmap) /
+			[this]() { return optionalLookup(SCRIPT_NAME, envmap); } /
 			[this]() -> std::string { throw std::runtime_error("Couldn't determine request path"); })
 			.substr(1);
 		if (!path.empty()) {
 			ba::split(pathElements, path, ba::is_any_of("/"), ba::token_compress_off);
 		}
 
-		auto qs = envmap.find("QUERY_STRING");
+		auto qs = envmap.find(QUERY_STRING);
 		if (qs != envmap.end()) {
 			XWwwFormUrlEncoded::iterateVars(*qs->second, [this](auto k, auto v) {
 				qsmap.insert({ k, v });
 			}, "&");
 		}
-		auto cs = envmap.find("HTTP_COOKIE");
+		auto cs = envmap.find(HTTP_COOKIE);
 		if (cs != envmap.end()) {
 			XWwwFormUrlEncoded::iterateVars(*cs->second, [this](auto k, auto v) {
 				cookiemap.insert({ k, v });
@@ -91,9 +100,9 @@ namespace IceSpider {
 	}
 
 	OptionalString
-	CgiRequestBase::optionalLookup(const std::string & key, const VarMap & vm)
+	CgiRequestBase::optionalLookup(const std::string_view & key, const VarMap & vm)
 	{
-		auto i = vm.find(key.c_str());
+		auto i = vm.find(key);
 		if (i == vm.end()) {
 			return IceUtil::None;
 		}
@@ -103,7 +112,7 @@ namespace IceSpider {
 	OptionalString
 	CgiRequestBase::optionalLookup(const std::string & key, const StringMap & vm)
 	{
-		auto i = vm.find(key.c_str());
+		auto i = vm.find(key);
 		if (i == vm.end()) {
 			return IceUtil::None;
 		}
@@ -126,7 +135,7 @@ namespace IceSpider {
 	CgiRequestBase::getRequestMethod() const
 	{
 		try {
-			auto i = envmap.find("REQUEST_METHOD");
+			auto i = envmap.find(REQUEST_METHOD);
 			return Slicer::ModelPartForEnum<HttpMethod>::lookup(*i->second);
 		}
 		catch (const Slicer::InvalidEnumerationSymbol &) {
@@ -155,7 +164,7 @@ namespace IceSpider {
 	OptionalString
 	CgiRequestBase::getHeaderParam(const std::string & key) const
 	{
-		return optionalLookup(("HTTP_" + boost::algorithm::to_upper_copy(key)).c_str(), envmap);
+		return optionalLookup(HEADER_PREFIX + boost::algorithm::to_upper_copy(key), envmap);
 	}
 
 	void
@@ -197,12 +206,6 @@ namespace IceSpider {
 	CgiRequestBase::setHeader(const std::string & header, const std::string & value) const
 	{
 		HdrFmt::write(getOutputStream(), header, value);
-	}
-
-	bool
-	CgiRequestBase::cmp_str::operator()(char const * a, char const * b) const
-	{
-		return std::strcmp(a, b) < 0;
 	}
 }
 
