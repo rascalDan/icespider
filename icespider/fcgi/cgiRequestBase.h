@@ -15,8 +15,7 @@ namespace IceSpider {
 			void initialize();
 
 		public:
-			typedef std::tuple<const char * const, const char * const> Env;
-			typedef std::map<std::string_view, Env> VarMap;
+			typedef std::map<std::string_view, const std::string_view> VarMap;
 
 			const PathElements & getRequestPath() const override;
 			PathElements & getRequestPath() override;

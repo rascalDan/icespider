@@ -4,6 +4,7 @@
 #include <Ice/BuiltinSequences.h>
 
 namespace ba = boost::algorithm;
+using namespace std::literals;
 
 extern long hextable[];
 
@@ -71,15 +72,17 @@ namespace IceSpider {
 	};
 
 	std::string
-	XWwwFormUrlEncoded::urlencode(const std::string & s)
+	XWwwFormUrlEncoded::urlencode(const std::string_view & s)
 	{
 		return urlencode(s.begin(), s.end());
 	}
 
 	inline char hexchar(char c) { return c < 10 ? '0' + c : 'a' - 10 + c; }
+	template<typename T>
+	inline char hexlookup(const T & i) { return hextable[(int)*i]; }
 
 	std::string
-	XWwwFormUrlEncoded::urlencode(std::string::const_iterator i, std::string::const_iterator e)
+	XWwwFormUrlEncoded::urlencode(std::string_view::const_iterator i, std::string_view::const_iterator e)
 	{
 		std::string t;
 		t.reserve(std::distance(i, e));
@@ -101,23 +104,29 @@ namespace IceSpider {
 	}
 
 	std::string
-	XWwwFormUrlEncoded::urldecode(std::string::const_iterator i, std::string::const_iterator e)
+	XWwwFormUrlEncoded::urldecode(std::string_view::const_iterator i, std::string_view::const_iterator e)
 	{
 		std::string t;
 		t.reserve(std::distance(i, e));
 		while (i != e) {
-			if (*i == '+') t += ' ';
-			else if (*i == '%') {
-				t += (16 * hextable[(int)*++i]) + hextable[(int)*++i];
+			switch (*i) {
+				case '+':
+					t += ' ';
+					break;
+				case '%':
+					t += (16 * hexlookup(i + 1)) + hexlookup(i + 2);
+					i += 2;
+					break;
+				default:
+					t += *i;
 			}
-			else t += *i;
 			++i;
 		}
 		return t;
 	}
 
 	void
-	XWwwFormUrlEncoded::iterateVars(const KVh & h, ba::split_iterator<std::string::const_iterator> pi)
+	XWwwFormUrlEncoded::iterateVars(const KVh & h, ba::split_iterator<std::string_view::const_iterator> pi)
 	{
 		for (; pi != decltype(pi)(); ++pi) {
 			auto eq = std::find(pi->begin(), pi->end(), '=');
@@ -131,7 +140,7 @@ namespace IceSpider {
 	}
 
 	void
-	XWwwFormUrlEncoded::iterateVars(const std::string & input, const KVh & h, const std::string & split)
+	XWwwFormUrlEncoded::iterateVars(const std::string_view & input, const KVh & h, const std::string_view & split)
 	{
 		if (!input.empty()) {
 			iterateVars(h, ba::make_split_iterator(input, ba::first_finder(split, ba::is_equal())));
@@ -141,7 +150,7 @@ namespace IceSpider {
 	void
 	XWwwFormUrlEncoded::iterateVars(const KVh & h)
 	{
-		iterateVars(input, h, "&");
+		iterateVars(input, h, "&"sv);
 	}
 
 	void

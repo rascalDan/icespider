@@ -9,12 +9,7 @@
 #include <formatters.h>
 
 namespace ba = boost::algorithm;
-
-namespace std {
-	ostream & operator<<(ostream & s, const IceSpider::CgiRequestBase::Env & e) {
-		return s.write(std::get<0>(e), std::get<1>(e) - std::get<0>(e));
-	}
-}
+using namespace std::literals;
 
 #define CGI_CONST(NAME) static const std::string_view NAME(#NAME)
 
@@ -38,14 +33,15 @@ namespace IceSpider {
 	CgiRequestBase::addenv(const char * const e)
 	{
 		if (auto eq = strchr(e, '=')) {
-			envmap.insert({ std::string_view(e, eq - e), Env(eq + 1, strchr(eq, '\0')) });
+			envmap.insert({ std::string_view(e, eq - e), eq + 1 });
 		}
 	}
 
+	inline
 	std::string
-	operator*(const CgiRequestBase::Env & t)
+	operator*(const std::string_view & t)
 	{
-		return std::string(std::get<0>(t), std::get<1>(t));
+		return std::string(t);
 	}
 
 	void
@@ -62,15 +58,15 @@ namespace IceSpider {
 
 		auto qs = envmap.find(QUERY_STRING);
 		if (qs != envmap.end()) {
-			XWwwFormUrlEncoded::iterateVars(*qs->second, [this](auto k, auto v) {
+			XWwwFormUrlEncoded::iterateVars(qs->second, [this](auto k, auto v) {
 				qsmap.insert({ k, v });
-			}, "&");
+			}, "&"sv);
 		}
 		auto cs = envmap.find(HTTP_COOKIE);
 		if (cs != envmap.end()) {
-			XWwwFormUrlEncoded::iterateVars(*cs->second, [this](auto k, auto v) {
+			XWwwFormUrlEncoded::iterateVars(cs->second, [this](auto k, auto v) {
 				cookiemap.insert({ k, v });
-			}, "; ");
+			}, "; "sv);
 		}
 	}
 

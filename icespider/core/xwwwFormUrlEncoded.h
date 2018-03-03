@@ -13,14 +13,14 @@ namespace IceSpider {
 			XWwwFormUrlEncoded(std::istream & in);
 
 			void Deserialize(Slicer::ModelPartForRootPtr mp) override;
-			DLL_PUBLIC static void iterateVars(const std::string & input, const KVh & h, const std::string & split);
+			DLL_PUBLIC static void iterateVars(const std::string_view & input, const KVh & h, const std::string_view & split);
 
-			DLL_PUBLIC static std::string urldecode(std::string::const_iterator s, std::string::const_iterator);
-			DLL_PUBLIC static std::string urlencode(std::string::const_iterator s, std::string::const_iterator);
-			DLL_PUBLIC static std::string urlencode(const std::string & s);
+			DLL_PUBLIC static std::string urldecode(std::string_view::const_iterator s, std::string_view::const_iterator);
+			DLL_PUBLIC static std::string urlencode(std::string_view::const_iterator s, std::string_view::const_iterator);
+			DLL_PUBLIC static std::string urlencode(const std::string_view & s);
 
 		private:
-			static inline void iterateVars(const KVh & h, boost::algorithm::split_iterator<std::string::const_iterator> pi);
+			static inline void iterateVars(const KVh & h, boost::algorithm::split_iterator<std::string_view::const_iterator> pi);
 
 			void iterateVars(const KVh & h);
 
