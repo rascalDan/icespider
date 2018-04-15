@@ -7,13 +7,14 @@ variant coverage : debug ;
 
 project
   : requirements
-      <cxxflags>"-std=c++17 -fvisibility=hidden"
-      <linkflags>"-Wl,-z,defs,--warn-once,--gc-sections"
-      <variant>release:<cxxflags>"-fvisibility-inlines-hidden -flto=2"
-      <variant>release:<linkflags>"-flto=2"
-      <variant>debug:<cxxflags>"-W -Wall -Wextra -Werror -Wwrite-strings"
-      <variant>coverage:<cxxflags>"--coverage"
-      <variant>coverage:<linkflags>"--coverage"
+			<define>ICE_CPP11_MAPPING
+			<cxxflags>"-std=c++17 -fvisibility-inlines-hidden -Werror -fvisibility=hidden"
+			<linkflags>"-Wl,-z,defs,--warn-once,--gc-sections"
+			<variant>release:<cxxflags>"-flto=2"
+			<variant>release:<linkflags>"-flto=2"
+			<variant>debug:<cxxflags>"-W -Wall -Wextra -Werror -Wwrite-strings"
+			<variant>coverage:<cxxflags>"--coverage"
+			<variant>coverage:<linkflags>"--coverage"
 	;
 
 build-project icespider ;

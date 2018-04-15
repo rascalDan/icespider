@@ -1,6 +1,7 @@
 #ifndef ICESPIDER_HTTP_ICE
 #define ICESPIDER_HTTP_ICE
 
+[["ice-prefix"]]
 module IceSpider {
 	["slicer:ignore"]
 	local exception HttpException {

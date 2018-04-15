@@ -1,6 +1,7 @@
 #ifndef ICESPIDER_SESSION_ICE
 #define ICESPIDER_SESSION_ICE
 
+[["ice-prefix"]]
 module IceSpider {
 	dictionary<string, string> Variables;
 

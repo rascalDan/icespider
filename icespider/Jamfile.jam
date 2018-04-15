@@ -8,8 +8,7 @@ build-project xslt ;
 build-project fileSessions ;
 build-project testing ;
 
-lib Ice ;
-lib IceUtil ;
+lib Ice : : <name>Ice++11 ;
 lib pthread ;
 
 package.install install : :

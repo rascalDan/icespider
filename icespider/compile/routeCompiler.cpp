@@ -11,10 +11,10 @@
 #include <Slice/CPlusPlusUtil.h>
 #include <compileTimeFormatter.h>
 
+
 namespace IceSpider {
 	namespace Compile {
-		RouteCompiler::RouteCompiler() :
-			allowIcePrefix(false)
+		RouteCompiler::RouteCompiler()
 		{
 			searchPath.push_back(boost::filesystem::current_path());
 		}
@@ -119,7 +119,7 @@ namespace IceSpider {
 		{
 			for (const auto & r : c->routes) {
 				if (r.second->operation) {
-					r.second->operations[std::string()] = new Operation(*r.second->operation, {});
+					r.second->operations[std::string()] = std::make_shared<Operation>(*r.second->operation, StringMap());
 				}
 				auto ps = findParameters(r.second, u);
 				for (const auto & p : ps) {
@@ -130,7 +130,7 @@ namespace IceSpider {
 						}
 					}
 					else {
-						defined = r.second->params.insert({ p.first, new Parameter(ParameterSource::URL, p.first, false, IceUtil::Optional<std::string>(), IceUtil::Optional<std::string>(), false) }).first;
+						defined = r.second->params.insert({ p.first, std::make_shared<Parameter>(ParameterSource::URL, p.first, false, Ice::optional<std::string>(), Ice::optional<std::string>(), false) }).first;
 					}
 					auto d = defined->second;
 					if (d->source == ParameterSource::URL) {
@@ -206,7 +206,7 @@ namespace IceSpider {
 					throw std::runtime_error("Preprocess failed");
 				}
 
-				Slice::UnitPtr u = Slice::Unit::createUnit(false, false, allowIcePrefix, false);
+				Slice::UnitPtr u = Slice::Unit::createUnit(false, false, false, false);
 				uDestroy.onFailure.push_back([u]() { u->destroy(); });
 
 				int parseStatus = u->parse(realSlice.string(), cppHandle, false);
@@ -247,16 +247,6 @@ namespace IceSpider {
 			return boost::algorithm::replace_all_copy(os.second->serializer, ".", "::");
 		}
 
-		static
-		std::string
-		outputSerializerName(const IceSpider::OutputSerializers::value_type & os)
-		{
-			std::string name("_serializer_");
-			std::replace_copy_if(os.first.begin(), os.first.end(), std::back_inserter(name),
-					std::not1(std::ptr_fun(isalnum)), '_');
-			return name;
-		}
-
 		AdHocFormatter(MimePair, R"C({ "%?", "%?" })C");
 		static
 		std::string
@@ -268,48 +258,20 @@ namespace IceSpider {
 		}
 
 		void
-		RouteCompiler::defineOutputSerializers(FILE * output, RoutePtr r) const
+		RouteCompiler::registerOutputSerializers(FILE * output, RoutePtr r) const
 		{
 			for (const auto & os : r->outputSerializers) {
-				fprintf(output, ",\n");
-				fprintbf(4, output, "%s(",
-						outputSerializerName(os));
+				fprintbf(4, output, "addRouteSerializer(%s,\n",
+						outputSerializerMime(os));
+				fprintbf(6, output, "std::make_shared<%s::IceSpiderFactory>(",
+						outputSerializerClass(os));
 				for (auto p = os.second->params.begin(); p != os.second->params.end(); ++p) {
 					if (p != os.second->params.begin()) {
 						fprintf(output, ", ");
 					}
 					fputs(p->c_str(), output);
 				}
-				fprintf(output, ")");
-			}
-		}
-
-		void
-		RouteCompiler::registerOutputSerializers(FILE * output, RoutePtr r) const
-		{
-			for (const auto & os : r->outputSerializers) {
-				fprintbf(4, output, "addRouteSerializer(%s, &%s);\n",
-						outputSerializerMime(os),
-						outputSerializerName(os));
-			}
-		}
-
-		void
-		RouteCompiler::releaseOutputSerializers(FILE * output, RoutePtr r) const
-		{
-			for (const auto & os : r->outputSerializers) {
-				fprintbf(4, output, "removeRouteSerializer(%s);\n",
-						outputSerializerMime(os));
-			}
-		}
-
-		void
-		RouteCompiler::declareOutputSerializers(FILE * output, RoutePtr r) const
-		{
-			for (const auto & os : r->outputSerializers) {
-				fprintbf(3, output, "%s::IceSpiderFactory %s;\n",
-						outputSerializerClass(os),
-						outputSerializerName(os));
+				fprintf(output, "));\n");
 			}
 		}
 
@@ -382,7 +344,7 @@ namespace IceSpider {
 			fprintf(output, "\n");
 			unsigned int pn = 0;
 			for (const auto & p : b.second->proxies) {
-				fprintbf(3, outputh, "const %sPrx prx%u;\n",
+				fprintbf(3, outputh, "const %sPrxPtr prx%u;\n",
 						boost::algorithm::replace_all_copy(p, ".", "::"), pn);
 				fprintbf(3, output, "prx%u(core->getProxy<%s>())",
 						pn, boost::algorithm::replace_all_copy(p, ".", "::"));
@@ -432,7 +394,6 @@ namespace IceSpider {
 				fprintbf(4, output, "%s(core)", b);
 			}
 			auto proxies = initializeProxies(output, r.second);
-			defineOutputSerializers(output, r.second);
 			for (const auto & p : r.second->params) {
 				if (p.second->hasUserSource) {
 					if (p.second->source == ParameterSource::URL) {
@@ -458,7 +419,7 @@ namespace IceSpider {
 				if (p.second->defaultExpr) {
 					fprintf(output, ",\n");
 					fprintbf(4, output, "_pd_%s(%s)",
-							p.first, p.second->defaultExpr.get());
+							p.first, *p.second->defaultExpr);
 				}
 			}
 			fprintf(output, "\n");
@@ -467,7 +428,6 @@ namespace IceSpider {
 			fprintbf(3, output, "}\n\n");
 			fprintbf(3, output, "~%s()\n", r.first);
 			fprintbf(3, output, "{\n");
-			releaseOutputSerializers(output, r.second);
 			fprintbf(3, output, "}\n\n");
 			fprintbf(3, output, "void execute(IceSpider::IHttpRequest * request) const\n");
 			fprintbf(3, output, "{\n");
@@ -532,7 +492,6 @@ namespace IceSpider {
 			fprintbf(3, output, "}\n\n");
 			fprintbf(2, output, "private:\n");
 			declareProxies(output, proxies);
-			declareOutputSerializers(output, r.second);
 			for (const auto & p : r.second->params) {
 				if (p.second->hasUserSource) {
 					if (p.second->source == ParameterSource::URL) {
@@ -573,7 +532,7 @@ namespace IceSpider {
 		RouteCompiler::declareProxies(FILE * output, const Proxies & proxies) const
 		{
 			for (const auto & p : proxies) {
-				fprintbf(3, output, "const %sPrx prx%d;\n", boost::algorithm::replace_all_copy(p.first, ".", "::"), p.second);
+				fprintbf(3, output, "const %sPrxPtr prx%d;\n", boost::algorithm::replace_all_copy(p.first, ".", "::"), p.second);
 			}
 		}
 
@@ -614,7 +573,7 @@ namespace IceSpider {
 			for (const auto & o : r->operations) {
 				auto proxyName = o.second->operation.substr(0, o.second->operation.find_last_of('.'));
 				auto operation = o.second->operation.substr(o.second->operation.find_last_of('.') + 1);
-				fprintbf(4, output, "auto _ar_%s = prx%s->begin_%s(", o.first, proxies.find(proxyName)->second, operation);
+				fprintbf(4, output, "auto _ar_%s = prx%s->%sAsync(", o.first, proxies.find(proxyName)->second, operation);
 				auto so = findOperation(o.second->operation, us);
 				for (const auto & p : so->parameters()) {
 					auto po = o.second->paramOverrides.find(p->name());
@@ -631,7 +590,7 @@ namespace IceSpider {
 			auto t = findType(r->type, us);
 			Slice::DataMemberList members;
 			if (t.second) {
-				fprintbf(4, output, "%s _responseModel = new %s();\n",
+				fprintbf(4, output, "%s _responseModel = std::make_shared<%s>();\n",
 						Slice::typeToString(t.second),
 						t.second->scoped());
 				members = t.second->definition()->dataMembers();
@@ -650,7 +609,7 @@ namespace IceSpider {
 					auto proxyName = o.second->operation.substr(0, o.second->operation.find_last_of('.'));
 					auto operation = o.second->operation.substr(o.second->operation.find_last_of('.') + 1);
 					if (mi->name() == o.first) {
-						fprintbf(output, "prx%s->end_%s(_ar_%s)", proxies.find(proxyName)->second, operation, o.first);
+						fprintbf(output, "_ar_%s.get()", o.first);
 						isOp = true;
 						break;
 					}

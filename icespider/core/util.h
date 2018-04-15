@@ -4,9 +4,9 @@
 #include <IceUtil/Exception.h>
 #include <IceUtil/Optional.h>
 
-namespace IceUtil {
+namespace std::experimental::Ice {
 	template <typename T, typename TF>
-	auto operator/(const IceUtil::Optional<T> & o, const TF & tf) -> decltype(tf())
+	auto operator/(const Ice::optional<T> & o, const TF & tf) -> decltype(tf())
 	{
 		if (o) return *o;
 		return tf();

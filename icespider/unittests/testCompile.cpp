@@ -7,6 +7,7 @@
 #include "../compile/routeCompiler.h"
 #include "../core/irouteHandler.h"
 #include <boost/algorithm/string/join.hpp>
+#include <slicer/modelPartsTypes.h>
 
 using namespace IceSpider;
 
@@ -25,6 +26,13 @@ class CoreFixture {
 		boost::filesystem::path modeDir;
 };
 
+namespace std {
+	ostream & operator<<(ostream & s, const IceSpider::HttpMethod & m) {
+		s << Slicer::ModelPartForEnum<IceSpider::HttpMethod>::lookup(m);
+		return s;
+	}
+}
+
 BOOST_FIXTURE_TEST_SUITE(cf, CoreFixture)
 
 BOOST_AUTO_TEST_CASE( testLoadConfiguration )
@@ -40,7 +48,7 @@ BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 
 	BOOST_REQUIRE_EQUAL("/", cfg->routes["index"]->path);
 	BOOST_REQUIRE_EQUAL(HttpMethod::GET, cfg->routes["index"]->method);
-	BOOST_REQUIRE_EQUAL("TestIceSpider.TestApi.index", cfg->routes["index"]->operation);
+	BOOST_REQUIRE_EQUAL("TestIceSpider.TestApi.index", *cfg->routes["index"]->operation);
 	BOOST_REQUIRE_EQUAL(0, cfg->routes["index"]->params.size());
 
 	BOOST_REQUIRE_EQUAL("/view/{s}/{i}", cfg->routes["item"]->path);
@@ -70,73 +78,6 @@ BOOST_AUTO_TEST_CASE( testRouteCompile )
 	Compile::RouteCompiler rc;
 	rc.searchPath.push_back(rootDir);
 	rc.compile(input, outputc);
-}
-
-BOOST_AUTO_TEST_CASE( testCompile )
-{
-	auto outputc = binDir / "testRoutes.cpp";
-	auto outputo = binDir / "testRoutes.o";
-	auto libGenDir = (rootDir / "bin" / modeDir / "slicer-yes");
-
-	auto compileCommand = boost::algorithm::join<std::vector<std::string>>({
-		"gcc", "-c", "-std=c++1y", "-fPIC", "-fvisibility=hidden", "-O3", "-flto", "-fvisibility-inlines-hidden",
-		"-I", "/usr/include/adhocutil",
-		"-I", "/usr/include/glib-2.0",
-		"-I", "/usr/include/glibmm-2.4",
-		"-I", "/usr/include/libxml2",
-		"-I", "/usr/include/libxml++-3.0",
-		"-I", "/usr/include/libxslt",
-		"-I", "/usr/include/slicer",
-		"-I", "/usr/lib/glib-2.0/include",
-		"-I", "/usr/lib/glibmm-2.4/include",
-		"-I", "/usr/lib/libxml++-3.0/include",
-		"-I", rootDir.string(),
-		"-I", (rootDir.parent_path() / "core").string(),
-		"-I", (rootDir.parent_path() / "common").string(),
-		"-I", (rootDir.parent_path() / "xslt").string(),
-		"-I", (rootDir.parent_path() / "common" / "bin" / modeDir / "allow-ice-yes").string(),
-		"-I", libGenDir.string(),
-		"-o", outputo.string(),
-		outputc.string(),
-	}, " ");
-	BOOST_TEST_INFO("Compile command: " << compileCommand);
-	int compileResult = system(compileCommand.c_str());
-	BOOST_REQUIRE_EQUAL(0, compileResult);
-}
-
-BOOST_AUTO_TEST_CASE( testLink )
-{
-	auto outputo = binDir / "testRoutes.o";
-	BOOST_REQUIRE(boost::filesystem::exists(outputo));
-	auto outputso = binDir / "testRoutes.so";
-
-	auto linkCommand = boost::algorithm::join<std::vector<std::string>>({
-		"gcc", "-shared", "-Wl,--warn-once,--gc-sections,-z,lazy",
-		"-o", outputso.string(),
-		outputo.string(),
-	}, " ");
-	BOOST_TEST_INFO("Link command: " << linkCommand);
-	int linkResult = system(linkCommand.c_str());
-	BOOST_REQUIRE_EQUAL(0, linkResult);
-}
-
-BOOST_AUTO_TEST_CASE( testLoad )
-{
-	auto outputso = binDir / "testRoutes.so";
-	BOOST_REQUIRE(boost::filesystem::exists(outputso));
-
-	auto lib = dlopen(outputso.c_str(), RTLD_LAZY);
-	BOOST_TEST_INFO(dlerror());
-	BOOST_REQUIRE(lib);
-
-	BOOST_REQUIRE_EQUAL(13, AdHoc::PluginManager::getDefault()->getAll<IceSpider::RouteHandlerFactory>().size());
-	// smoke test (block ensure dlclose dones't cause segfault)
-	{
-		auto route = AdHoc::PluginManager::getDefault()->get<IceSpider::RouteHandlerFactory>("common::index");
-		BOOST_REQUIRE(route);
-	}
-
-	BOOST_REQUIRE_EQUAL(0, dlclose(lib));
 }
 
 BOOST_AUTO_TEST_SUITE_END();

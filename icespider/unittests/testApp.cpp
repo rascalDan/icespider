@@ -7,6 +7,7 @@
 #include <exceptions.h>
 #include <test-api.h>
 #include <Ice/ObjectAdapter.h>
+#include <Ice/Initialize.h>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
@@ -139,17 +140,17 @@ class TestSerice : public TestIceSpider::TestApi {
 	public:
 		TestIceSpider::SomeModelPtr index(const Ice::Current &) override
 		{
-			return new TestIceSpider::SomeModel("index");
+			return std::make_shared<TestIceSpider::SomeModel>("index");
 		}
 
-		TestIceSpider::SomeModelPtr withParams(const std::string & s, Ice::Int i, const Ice::Current &) override
+		TestIceSpider::SomeModelPtr withParams(const std::string s, Ice::Int i, const Ice::Current &) override
 		{
 			BOOST_REQUIRE_EQUAL(s, "something");
 			BOOST_REQUIRE_EQUAL(i, 1234);
-			return new TestIceSpider::SomeModel("withParams");
+			return std::make_shared<TestIceSpider::SomeModel>("withParams");
 		}
 
-		void returnNothing(const std::string & s, const Ice::Current &) override
+		void returnNothing(const std::string s, const Ice::Current &) override
 		{
 			if (s == "error") {
 				throw TestIceSpider::Ex("test error");
@@ -160,7 +161,7 @@ class TestSerice : public TestIceSpider::TestApi {
 			BOOST_REQUIRE_EQUAL(s, "some value");
 		}
 
-		void complexParam(const IceUtil::Optional<std::string> & s, const TestIceSpider::SomeModelPtr & m, const Ice::Current &) override
+		void complexParam(const Ice::optional<std::string> s, const TestIceSpider::SomeModelPtr m, const Ice::Current &) override
 		{
 			BOOST_REQUIRE(s);
 			BOOST_REQUIRE_EQUAL("1234", *s);
@@ -185,7 +186,7 @@ class TestApp : public CoreWithDefaultRouter {
 			adp(communicator->createObjectAdapterWithEndpoints("test", "default"))
 		{
 			adp->activate();
-			adp->add(new TestSerice(), communicator->stringToIdentity("Test"));
+			adp->add(std::make_shared<TestSerice>(), Ice::stringToIdentity("Test"));
 		}
 
 		~TestApp()

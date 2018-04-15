@@ -4,30 +4,32 @@ lib slicer-json ;
 lib boost_program_options ;
 lib boost_system ;
 lib boost_filesystem ;
-lib Slice ;
+lib mcpp ;
 
 lib icespider-compile :
-	[ glob-tree *.cpp : bin main.cpp ]
-	../common/routes.ice
+	routeCompiler.cpp
+	routes.ice
 	:
-	<slicer>pure
-	<allow-ice>yes
+	<slicer>yes
+# Need to disable LTO here cos of a GCC bug, this isn't
+# performance critical anyway
+	<linkflags>-fno-lto
+	<cxxflags>-fno-lto
 	<library>slicer
 	<library>adhocutil
 	<library>slicer-json
 	<library>boost_system
 	<library>boost_filesystem
-	<library>Slice
+	<library>slice//Slice
 	<library>../common//icespider-common
-	<implicit-dependency>../common
+	<implicit-dependency>../common//icespider-common
 	<library>..//Ice
-	<library>..//IceUtil
 	<library>..//pthread
+	<library>mcpp
 	: :
 	<library>boost_system
 	<library>boost_filesystem
 	<library>../common//icespider-common
-	<implicit-dependency>../common
 	;
 
 exe icespider :
@@ -35,5 +37,6 @@ exe icespider :
 	:
 	<library>boost_program_options
 	<library>icespider-compile
+	<implicit-dependency>icespider-compile
 	;
 

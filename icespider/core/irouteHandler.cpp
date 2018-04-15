@@ -52,14 +52,5 @@ namespace IceSpider {
 		routeSerializers.erase(ct);
 		routeSerializers.insert({ ct, ssfp });
 	}
-
-	void
-	IRouteHandler::removeRouteSerializer(const MimeType & ct)
-	{
-		auto i = routeSerializers.find(ct);
-		if (i != routeSerializers.end()) {
-			routeSerializers.erase(i);
-		}
-	}
 }
 

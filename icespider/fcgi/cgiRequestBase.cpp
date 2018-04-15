@@ -186,7 +186,7 @@ namespace IceSpider {
 	CgiRequestBase::setQueryStringParam(const std::string & key, const OptionalString & val)
 	{
 		if (val)
-			qsmap[key] = val;
+			qsmap[key] = *val;
 		else
 			qsmap.erase(key);
 	}
@@ -201,7 +201,7 @@ namespace IceSpider {
 	CgiRequestBase::setCookieParam(const std::string & key, const OptionalString & val)
 	{
 		if (val)
-			cookiemap[key] = val;
+			cookiemap[key] = *val;
 		else
 			cookiemap.erase(key);
 	}

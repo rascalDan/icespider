@@ -3,6 +3,7 @@
 
 #include "http.ice"
 
+[["ice-prefix"]]
 module IceSpider {
 	local sequence<string> StringSeq;
 

@@ -5,7 +5,6 @@ cpp http-slicer :
 	http.ice
 	:
 	<slicer>pure
-	<allow-ice>yes
 	;
 
 lib icespider-common :
@@ -13,15 +12,12 @@ lib icespider-common :
 	http-slicer
 	:
 	<library>adhocutil
-	<allow-ice>yes
 	<library>..//pthread
 	<library>..//Ice
-	<library>..//IceUtil
 	<library>slicer
 	: :
 	<library>..//pthread
 	<library>..//Ice
-	<library>..//IceUtil
 	<include>.
 	;
 

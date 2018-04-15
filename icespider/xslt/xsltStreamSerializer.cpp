@@ -29,7 +29,7 @@ namespace IceSpider {
 		xsltFreeStylesheet(stylesheet);
 	}
 
-	XsltStreamSerializer *
+	Slicer::SerializerPtr
 	XsltStreamSerializer::IceSpiderFactory::create(std::ostream & strm) const
 	{
 		auto newMtime = boost::filesystem::last_write_time(stylesheetPath);
@@ -43,7 +43,7 @@ namespace IceSpider {
 			}
 			stylesheetWriteTime = newMtime;
 		}
-		return new XsltStreamSerializer(strm, stylesheet);
+		return std::make_shared<XsltStreamSerializer>(strm, stylesheet);
 	}
 
 	XsltStreamSerializer::XsltStreamSerializer(std::ostream & os, xsltStylesheet * ss) :

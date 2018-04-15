@@ -30,9 +30,7 @@ path-constant me : . ;
 alias testCommon : :
 	<define>ROOT=\"$(me)\"
 	<library>..//Ice
-	<library>..//IceUtil
 	: :
-	<library>..//IceUtil
 	<library>..//Ice
 	<library>boost_utf
 	<define>ROOT=\"$(me)\"
@@ -127,6 +125,5 @@ lib test-api :
 	<library>adhocutil
 	<library>..//pthread
 	<library>..//Ice
-	<library>..//IceUtil
 	;
 

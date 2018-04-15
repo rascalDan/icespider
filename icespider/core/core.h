@@ -11,7 +11,7 @@
 namespace IceSpider {
 	class DLL_PUBLIC Core {
 		public:
-			typedef std::vector<const IRouteHandler *> AllRoutes;
+			typedef std::vector<IRouteHandlerCPtr> AllRoutes;
 
 			Core(const Ice::StringSeq & = {});
 			virtual ~Core();
@@ -20,12 +20,12 @@ namespace IceSpider {
 			void process(IHttpRequest *, const IRouteHandler * = nullptr) const;
 			void handleError(IHttpRequest *, const std::exception &) const;
 
-			Ice::ObjectPrx getProxy(const char * type) const;
+			Ice::ObjectPrxPtr getProxy(const char * type) const;
 
 			template<typename Interface>
-			typename Interface::ProxyType getProxy() const
+			auto getProxy() const
 			{
-				return Interface::ProxyType::uncheckedCast(getProxy(typeid(Interface).name()));
+				return Ice::uncheckedCast<typename Interface::ProxyType>(getProxy(typeid(Interface).name()));
 			}
 
 			AllRoutes allRoutes;
@@ -40,7 +40,7 @@ namespace IceSpider {
 
 	class DLL_PUBLIC CoreWithDefaultRouter : public Core {
 		public:
-			typedef std::vector<const IRouteHandler *> LengthRoutes;
+			typedef std::vector<IRouteHandlerCPtr> LengthRoutes;
 			typedef std::vector<LengthRoutes> Routes;
 
 			CoreWithDefaultRouter(const Ice::StringSeq & = {});

@@ -10,7 +10,8 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
-#include <Ice/Stream.h>
+#include <Ice/OutputStream.h>
+#include <Ice/InputStream.h>
 #include "Ice/Initialize.h"
 
 namespace IceSpider {
@@ -33,14 +34,14 @@ namespace IceSpider {
 
 			SessionPtr createSession(const ::Ice::Current &) override
 			{
-				SessionPtr s = new Session();
+				auto s = std::make_shared<Session>();
 				s->id = boost::lexical_cast<std::string>(boost::uuids::random_generator()());
 				s->duration = duration;
 				save(s);
 				return s;
 			}
 
-			SessionPtr getSession(const ::std::string & id, const ::Ice::Current & current) override
+			SessionPtr getSession(const ::std::string id, const ::Ice::Current & current) override
 			{
 				auto s = load(id);
 				if (s && isExpired(s)) {
@@ -50,12 +51,12 @@ namespace IceSpider {
 				return s;
 			}
 
-			void updateSession(const SessionPtr & s, const ::Ice::Current &) override
+			void updateSession(const SessionPtr s, const ::Ice::Current &) override
 			{
 				save(s);
 			}
 
-			void destroySession(const ::std::string & id, const ::Ice::Current &) override
+			void destroySession(const ::std::string id, const ::Ice::Current &) override
 			{
 				try {
 					boost::filesystem::remove(root / id);
@@ -69,9 +70,9 @@ namespace IceSpider {
 			void save(SessionPtr s)
 			{
 				s->lastUsed = time(NULL);
-				auto buf = Ice::createOutputStream(ic);
-				buf->write(s);
-				auto range = buf->finished();
+				Ice::OutputStream buf(ic);
+				buf.write(s);
+				auto range = buf.finished();
 				AdHoc::FileUtils::FileHandle f(root / s->id, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
 				sysassert(flock(f.fh, LOCK_EX), -1);
 				sysassert(pwrite(f.fh, range.first, range.second - range.first, 0), -1);
@@ -87,9 +88,9 @@ namespace IceSpider {
 					AdHoc::FileUtils::MemMap f(path);
 					sysassert(flock(f.fh, LOCK_SH), -1);
 					auto fbuf = (Ice::Byte *)f.data;
-					auto buf = Ice::createInputStream(ic, std::make_pair(fbuf, fbuf + f.getStat().st_size));
+					Ice::InputStream buf(ic, std::make_pair(fbuf, fbuf + f.getStat().st_size));
 					SessionPtr s;
-					buf->read(s);
+					buf.read(s);
 					sysassert(flock(f.fh, LOCK_UN), -1);
 					return s;
 				}

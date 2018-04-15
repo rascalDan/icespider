@@ -1,0 +1,22 @@
+project ice :
+  : requirements
+	;
+
+path-constant ice : ../../../ice ;
+
+lib Slice :
+	$(ice)/cpp/src/Slice/Parser.cpp
+	$(ice)/cpp/src/Slice/Grammar.cpp
+	$(ice)/cpp/src/Slice/Preprocessor.cpp
+	$(ice)/cpp/src/Slice/CPlusPlusUtil.cpp
+	$(ice)/cpp/src/Slice/SliceUtil.cpp
+	$(ice)/cpp/src/Slice/FileTracker.cpp
+	$(ice)/cpp/src/Slice/Scanner.cpp
+	:
+	<cxxflags>-fPIC
+	<include>$(ice)/cpp/src
+	<link>static
+	: :
+	<include>$(ice)/cpp/src
+	;
+

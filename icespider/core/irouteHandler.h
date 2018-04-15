@@ -5,10 +5,8 @@
 #include "util.h"
 #include "exceptions.h"
 #include <pathparts.h>
-#include <routes.h>
 #include <factory.h>
 #include <visibility.h>
-#include <boost/lexical_cast.hpp>
 
 namespace IceSpider {
 	class Core;
@@ -25,7 +23,7 @@ namespace IceSpider {
 			const HttpMethod method;
 
 		protected:
-			typedef Slicer::StreamSerializerFactory * StreamSerializerFactoryPtr;
+			typedef std::shared_ptr<Slicer::StreamSerializerFactory> StreamSerializerFactoryPtr;
 			typedef std::map<MimeType, StreamSerializerFactoryPtr> RouteSerializers;
 			RouteSerializers routeSerializers;
 
@@ -41,8 +39,9 @@ namespace IceSpider {
 			}
 
 			void addRouteSerializer(const MimeType &, StreamSerializerFactoryPtr);
-			void removeRouteSerializer(const MimeType &);
 	};
+	typedef std::shared_ptr<IRouteHandler> IRouteHandlerPtr;
+	typedef std::shared_ptr<const IRouteHandler> IRouteHandlerCPtr;
 	typedef AdHoc::Factory<IRouteHandler, const Core *> RouteHandlerFactory;
 }
 

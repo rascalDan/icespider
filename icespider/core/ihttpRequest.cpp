@@ -46,15 +46,15 @@ namespace IceSpider {
 			while ((v = sscanf(accept, " %[^ /] / %[^ ;,] %n , %n", grp, type, &chars, &chars)) == 2) {
 				accept += chars;
 				chars = 0;
-				auto a = new Accept();
+				auto a = std::make_shared<Accept>();
 				if ((v = sscanf(accept, " ; q = %f %n , %n", &pri, &chars, &chars)) == 1) {
 					a->q = pri;
 				}
 				if (strcmp(grp, "*")) {
-					a->group = grp;
+					a->group.emplace(grp);
 				}
 				if (strcmp(type, "*")) {
-					a->type = type;
+					a->type.emplace(type);
 				}
 				accept += chars;
 				accepts.push_back(a);
@@ -98,8 +98,8 @@ namespace IceSpider {
 	// Set-Cookie: value[; expires=date][; domain=domain][; path=path][; secure]
 	// Sat, 02 May 2009 23:38:25 GMT
 	void IHttpRequest::setCookie(const std::string & name, const std::string & value,
-			const IceUtil::Optional<std::string> & d, const IceUtil::Optional<std::string> & p, bool s,
-			IceUtil::Optional<time_t> e)
+			const Ice::optional<std::string> & d, const Ice::optional<std::string> & p, bool s,
+			Ice::optional<time_t> e)
 	{
 		std::stringstream o;
 		o << XWwwFormUrlEncoded::urlencode(name) <<
@@ -119,13 +119,13 @@ namespace IceSpider {
 	}
 
 	template <typename T>
-	inline IceUtil::Optional<T> optionalLexicalCast(const IceUtil::Optional<std::string> & p)
+	inline Ice::optional<T> optionalLexicalCast(const Ice::optional<std::string> & p)
 	{
 		if (p) return wrapLexicalCast<T>(*p);
-		return IceUtil::Optional<T>();
+		return Ice::optional<T>();
 	}
 
-	void IHttpRequest::responseRedirect(const std::string & url, const IceUtil::Optional<std::string> & statusMsg) const
+	void IHttpRequest::responseRedirect(const std::string & url, const Ice::optional<std::string> & statusMsg) const
 	{
 		setHeader("Location", url);
 		response(303, (statusMsg ? *statusMsg : "Moved"));
@@ -134,24 +134,24 @@ namespace IceSpider {
 
 #define getParams(T) \
 	template<> void IHttpRequest::setCookie<T>(const std::string & n, const T & v, \
-					const IceUtil::Optional<std::string> & d, const IceUtil::Optional<std::string> & p, \
-					bool s, IceUtil::Optional<time_t> e) { \
+					const Ice::optional<std::string> & d, const Ice::optional<std::string> & p, \
+					bool s, Ice::optional<time_t> e) { \
 		setCookie(n, boost::lexical_cast<std::string>(v), d, p, s, e); } \
 	template<> T IHttpRequest::getURLParam<T>(unsigned int idx) const { \
 		return wrapLexicalCast<T>(getURLParam(idx)); } \
-	template<> IceUtil::Optional<T> IHttpRequest::getQueryStringParam<T>(const std::string & key) const { \
+	template<> Ice::optional<T> IHttpRequest::getQueryStringParam<T>(const std::string & key) const { \
 		return optionalLexicalCast<T>(getQueryStringParam(key)); } \
-	template<> IceUtil::Optional<T> IHttpRequest::getCookieParam<T>(const std::string & key) const { \
+	template<> Ice::optional<T> IHttpRequest::getCookieParam<T>(const std::string & key) const { \
 		return optionalLexicalCast<T>(getCookieParam(key)); } \
-	template<> IceUtil::Optional<T> IHttpRequest::getHeaderParam<T>(const std::string & key) const { \
+	template<> Ice::optional<T> IHttpRequest::getHeaderParam<T>(const std::string & key) const { \
 		return optionalLexicalCast<T>(getHeaderParam(key)); }
 	template<> std::string IHttpRequest::getURLParam<std::string>(unsigned int idx) const {
 		return getURLParam(idx); }
-	template<> IceUtil::Optional<std::string> IHttpRequest::getQueryStringParam<std::string>(const std::string & key) const { \
+	template<> Ice::optional<std::string> IHttpRequest::getQueryStringParam<std::string>(const std::string & key) const { \
 		return getQueryStringParam(key); }
-	template<> IceUtil::Optional<std::string> IHttpRequest::getCookieParam<std::string>(const std::string & key) const { \
+	template<> Ice::optional<std::string> IHttpRequest::getCookieParam<std::string>(const std::string & key) const { \
 		return getCookieParam(key); }
-	template<> IceUtil::Optional<std::string> IHttpRequest::getHeaderParam<std::string>(const std::string & key) const { \
+	template<> Ice::optional<std::string> IHttpRequest::getHeaderParam<std::string>(const std::string & key) const { \
 		return getHeaderParam(key); }
 
 	getParams(bool);

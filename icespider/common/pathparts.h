@@ -9,6 +9,8 @@
 namespace IceSpider {
 	class DLL_PUBLIC PathPart {
 		public:
+			virtual ~PathPart() = default;
+
 			virtual bool matches(const std::string &) const = 0;
 	};
 	typedef std::shared_ptr<PathPart> PathPartPtr;

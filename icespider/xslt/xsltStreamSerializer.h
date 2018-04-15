@@ -14,7 +14,7 @@ namespace IceSpider {
 					IceSpiderFactory(const char *);
 					~IceSpiderFactory();
 
-					XsltStreamSerializer * create(std::ostream &) const override;
+					Slicer::SerializerPtr create(std::ostream &) const override;
 
 				private:
 					const boost::filesystem::path stylesheetPath;

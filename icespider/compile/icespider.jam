@@ -8,11 +8,10 @@ type.register JSON : json ;
 
 generators.register-standard icespider.routes2cpp : JSON : CPP(icespider-routes-%) H(icespider-routes-%) ;
 flags icespider.routes2cpp INCLUDES <include> ;
-flags icespider.routes2cpp ALLOWICE <allow-ice>yes : --ice ;
 
 actions icespider.routes2cpp bind ICESPIDER
 {
-  icespider -I"$(INCLUDES)" $(ALLOWICE[1]) $(2) $(1[1])
+  icespider -I"$(INCLUDES)" $(2) $(1[1])
 }
 
 IMPORT $(__name__) : icespider.routes2cpp : : icespider.routes2cpp ;

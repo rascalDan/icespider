@@ -36,7 +36,7 @@ namespace IceSpider {
 			pluginAdapter = communicator->createObjectAdapterWithEndpoints("plugins", "default");
 			for (const auto & pf : plugins) {
 				auto p = pf->implementation()->create(communicator, communicator->getProperties());
-				pluginAdapter->add(p, communicator->stringToIdentity(pf->name));
+				pluginAdapter->add(p, Ice::stringToIdentity(pf->name));
 			}
 			pluginAdapter->activate();
 		}
@@ -48,14 +48,10 @@ namespace IceSpider {
 		auto plugins = AdHoc::PluginManager::getDefault()->getAll<PluginFactory>();
 		if (!plugins.empty()) {
 			for (const auto & pf : plugins) {
-				pluginAdapter->remove(communicator->stringToIdentity(pf->name));
+				pluginAdapter->remove(Ice::stringToIdentity(pf->name));
 			}
 			pluginAdapter->deactivate();
 			pluginAdapter->destroy();
-		}
-		// Terminate routes
-		for (auto r : allRoutes) {
-			delete r;
 		}
 
 		if (communicator) communicator->destroy();
@@ -119,7 +115,7 @@ namespace IceSpider {
 		free(buf);
 	}
 
-	Ice::ObjectPrx
+	Ice::ObjectPrxPtr
 	Core::getProxy(const char * type) const
 	{
 		char * buf = __cxxabiv1::__cxa_demangle(type, NULL, NULL, NULL);
@@ -174,9 +170,9 @@ namespace IceSpider {
 		const auto & routeSet = routes[pathparts.size()];
 		bool match = false;
 		for (const auto & r : routeSet) {
-			if (pathparts /= r) {
+			if (pathparts /= r.get()) {
 				if (r->method == method) {
-					return r;
+					return r.get();
 				}
 				match = true;
 			}

@@ -2,7 +2,6 @@ lib adhocutil : : : : <include>/usr/include/adhocutil ;
 lib slicer-xml : : : : <include>/usr/include/slicer ;
 lib boost_system ;
 lib boost_filesystem ;
-lib IceUtil ;
 lib xslt ;
 lib exslt ;
 
@@ -13,7 +12,6 @@ lib icespider-xslt :
 	<library>slicer-xml
 	<library>boost_system
 	<library>boost_filesystem
-	<library>IceUtil
 	<library>xslt
 	<library>exslt
 	<library>../..//libxmlpp
