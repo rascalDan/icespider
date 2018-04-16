@@ -9,5 +9,6 @@ lib icespider-filesessions :
 	<library>boost_filesystem
 	<library>adhocutil
 	<library>../core//icespider-core
+	<implicit-dependency>../core//icespider-core
 	;
 

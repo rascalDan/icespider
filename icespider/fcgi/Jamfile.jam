@@ -1,12 +1,16 @@
+lib slicer ;
 lib fcgi : : <name>fcgi ;
 lib fcgi++ : : <name>fcgi++ ;
 
 lib icespider-fcgi :
 	[ glob-tree *.cpp : bin ]
 	:
+	<library>slicer
 	<library>fcgi
 	<library>fcgi++
-	<library>..//core
+	<library>..//core//icespider-core
+	<implicit-dependency>../core//icespider-core
 	: :
-	<library>..//core
+	<library>..//core//icespider-core
+	<implicit-dependency>../core//icespider-core
 	;

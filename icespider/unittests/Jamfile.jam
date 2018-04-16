@@ -50,11 +50,11 @@ run
 	<library>slicer-xml
 	<library>../xslt//icespider-xslt
 	<library>../core//icespider-core
+	<implicit-dependency>../core//icespider-core
 	<library>../compile//icespider-compile
 	<implicit-dependency>../compile//icespider-compile
 	<include>.
 	<implicit-dependency>test-api
-	<dependency>../core
 	: testCompile :
 	;
 
@@ -76,6 +76,7 @@ run
 	<library>slicer-xml
 	<library>../common//icespider-common
 	<library>../core//icespider-core
+	<implicit-dependency>../core//icespider-core
 	<library>../xslt//icespider-xslt
 	<library>../testing//icespider-testing
 	<implicit-dependency>../common//icespider-common
@@ -94,6 +95,7 @@ run
 	<library>testCommon
 	<library>../common//icespider-common
 	<library>../core//icespider-core
+	<implicit-dependency>../core//icespider-core
 	<library>boost_system
 	<library>boost_filesystem
 	<library>slicer
@@ -114,6 +116,7 @@ run
 	<library>boost_system
 	<library>boost_filesystem
 	<library>../core//icespider-core
+	<implicit-dependency>../core//icespider-core
 	;
 
 lib test-api :

@@ -5,14 +5,23 @@
 INSTANTIATEFACTORY(IceSpider::IRouteHandler, const IceSpider::Core *);
 
 namespace IceSpider {
+	const RouteOptions IRouteHandler::defaultRouteOptions {
+	};
 	IRouteHandler::IRouteHandler(HttpMethod m, const std::string & p) :
+		IRouteHandler(m, p, defaultRouteOptions)
+	{
+	}
+
+	IRouteHandler::IRouteHandler(HttpMethod m, const std::string & p, const RouteOptions & ro) :
 		Path(p),
 		method(m)
 	{
-		auto globalSerializers = AdHoc::PluginManager::getDefault()->getAll<Slicer::StreamSerializerFactory>();
-		for (const auto & gs : globalSerializers) {
-			auto slash = gs->name.find('/');
-			routeSerializers.insert({ { gs->name.substr(0, slash), gs->name.substr(slash + 1) }, gs->implementation() });
+		if (ro.addDefaultSerializers) {
+			auto globalSerializers = AdHoc::PluginManager::getDefault()->getAll<Slicer::StreamSerializerFactory>();
+			for (const auto & gs : globalSerializers) {
+				auto slash = gs->name.find('/');
+				routeSerializers.insert({ { gs->name.substr(0, slash), gs->name.substr(slash + 1) }, gs->implementation() });
+			}
 		}
 	}
 

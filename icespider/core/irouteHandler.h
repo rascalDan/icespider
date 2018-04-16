@@ -7,13 +7,17 @@
 #include <pathparts.h>
 #include <factory.h>
 #include <visibility.h>
+#include "routeOptions.h"
 
 namespace IceSpider {
 	class Core;
 
 	class DLL_PUBLIC IRouteHandler : public Path {
 		public:
+			const static RouteOptions defaultRouteOptions;
+
 			IRouteHandler(HttpMethod, const std::string & path);
+			IRouteHandler(HttpMethod, const std::string & path, const RouteOptions &);
 			virtual ~IRouteHandler();
 
 			virtual void execute(IHttpRequest * request) const = 0;

@@ -4,7 +4,7 @@ lib boost_system ;
 lib boost_filesystem ;
 
 lib icespider-core :
-	[ glob-tree *.c *.cpp : bin ]
+	[ glob-tree *.c *.cpp *.ice : bin ]
 	:
 	<library>../common//icespider-common
 	<library>adhocutil
