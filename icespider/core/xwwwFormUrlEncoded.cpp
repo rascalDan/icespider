@@ -9,6 +9,11 @@ using namespace std::literals;
 extern long hextable[];
 
 namespace IceSpider {
+	static const std::string AMP = "&";
+	static const std::string TRUE = "true";
+	static const std::string FALSE = "false";
+	static const std::string KEY = "key";
+	static const std::string VALUE = "value";
 
 	XWwwFormUrlEncoded::XWwwFormUrlEncoded(std::istream & in) :
 		input(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>())
@@ -46,8 +51,8 @@ namespace IceSpider {
 
 			void set(bool & t) const override
 			{
-				if (s == "true") t = true;
-				else if (s == "false") t = false;
+				if (s == TRUE) t = true;
+				else if (s == FALSE) t = false;
 				else throw Http400_BadRequest();
 			}
 
@@ -150,7 +155,7 @@ namespace IceSpider {
 	void
 	XWwwFormUrlEncoded::iterateVars(const KVh & h)
 	{
-		iterateVars(input, h, "&"sv);
+		iterateVars(input, h, AMP);
 	}
 
 	void
@@ -178,8 +183,8 @@ namespace IceSpider {
 	{
 		iterateVars([mp](auto k, auto v) {
 			auto p = mp->GetAnonChild();
-			p->GetChild("key")->SetValue(SetFromString(k));
-			p->GetChild("value")->SetValue(SetFromString(v));
+			p->GetChild(KEY)->SetValue(SetFromString(k));
+			p->GetChild(VALUE)->SetValue(SetFromString(v));
 			p->Complete();
 		});
 	}

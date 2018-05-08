@@ -5,6 +5,7 @@
 #include "xwwwFormUrlEncoded.h"
 #include <boost/lexical_cast.hpp>
 #include <time.h>
+#include <formatters.h>
 
 namespace IceSpider {
 	IHttpRequest::IHttpRequest(const Core * c) :
@@ -23,7 +24,7 @@ namespace IceSpider {
 	{
 		try {
 			return Slicer::StreamDeserializerFactory::createNew(
-				getEnv("CONTENT_TYPE") / []() -> std::string {
+				getEnv(E::CONTENT_TYPE) / []() -> std::string {
 					throw Http400_BadRequest();
 				}, getInputStream());
 		}
@@ -35,7 +36,7 @@ namespace IceSpider {
 	ContentTypeSerializer
 	IHttpRequest::getSerializer(const IRouteHandler * handler) const
 	{
-		auto acceptHdr = getHeaderParam("Accept");
+		auto acceptHdr = getHeaderParam(H::ACCEPT);
 		if (acceptHdr) {
 			auto accept = acceptHdr->c_str();
 			std::vector<AcceptPtr> accepts;
@@ -115,7 +116,7 @@ namespace IceSpider {
 		if (d) o << "; domain=" << *d;
 		if (p) o << "; path=" << *p;
 		if (s) o << "; secure";
-		setHeader("Set-Cookie", o.str());
+		setHeader(H::SET_COOKIE, o.str());
 	}
 
 	template <typename T>
@@ -127,16 +128,16 @@ namespace IceSpider {
 
 	void IHttpRequest::responseRedirect(const std::string & url, const Ice::optional<std::string> & statusMsg) const
 	{
-		setHeader("Location", url);
-		response(303, (statusMsg ? *statusMsg : "Moved"));
+		setHeader(H::LOCATION, url);
+		response(303, (statusMsg ? *statusMsg : S::MOVED));
 	}
 
 	void
 	IHttpRequest::modelPartResponse(const IRouteHandler * route, const Slicer::ModelPartForRootPtr & mp) const
 	{
 		auto s = getSerializer(route);
-		setHeader("Content-Type", s.first.group + "/" + s.first.type);
-		response(200, "OK");
+		setHeader(H::CONTENT_TYPE, MimeTypeFmt::get(s.first.group, s.first.type));
+		response(200, S::OK);
 		s.second->Serialize(mp);
 	}
 

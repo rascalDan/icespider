@@ -1,10 +1,15 @@
 #include "irouteHandler.h"
 #include "core.h"
 #include <factory.impl.h>
+#include <formatters.h>
 
 INSTANTIATEFACTORY(IceSpider::IRouteHandler, const IceSpider::Core *);
 
 namespace IceSpider {
+	static const std::string APPLICATION = "application";
+	static const std::string JSON = "json";
+	static const std::string APPLICATION_JSON = MimeTypeFmt::get(APPLICATION, JSON);
+
 	const RouteOptions IRouteHandler::defaultRouteOptions {
 	};
 	IRouteHandler::IRouteHandler(HttpMethod m, const std::string & p) :
@@ -44,8 +49,8 @@ namespace IceSpider {
 	IRouteHandler::defaultSerializer(std::ostream & strm) const
 	{
 		return {
-			{ "application", "json" },
-			Slicer::StreamSerializerFactory::createNew("application/json", strm)
+			{ APPLICATION, JSON },
+			Slicer::StreamSerializerFactory::createNew(APPLICATION_JSON, strm)
 		};
 	}
 
