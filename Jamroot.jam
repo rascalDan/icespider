@@ -8,7 +8,7 @@ variant coverage : debug ;
 project
   : requirements
 			<define>ICE_CPP11_MAPPING
-			<cxxflags>"-std=c++17 -fvisibility-inlines-hidden -Werror -fvisibility=hidden"
+			<cxxflags>"-std=c++17 -fvisibility-inlines-hidden -fvisibility=hidden"
 			<linkflags>"-Wl,-z,defs,--warn-once,--gc-sections"
 			<variant>release:<cxxflags>"-flto=2"
 			<variant>release:<linkflags>"-flto=2"
