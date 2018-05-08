@@ -131,6 +131,14 @@ namespace IceSpider {
 		response(303, (statusMsg ? *statusMsg : "Moved"));
 	}
 
+	void
+	IHttpRequest::modelPartResponse(const IRouteHandler * route, const Slicer::ModelPartForRootPtr & mp) const
+	{
+		auto s = getSerializer(route);
+		setHeader("Content-Type", s.first.group + "/" + s.first.type);
+		response(200, "OK");
+		s.second->Serialize(mp);
+	}
 
 #define getParams(T) \
 	template<> void IHttpRequest::setCookie<T>(const std::string & n, const T & v, \

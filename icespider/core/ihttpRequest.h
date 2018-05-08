@@ -82,11 +82,9 @@ namespace IceSpider {
 			template<typename T>
 			void response(const IRouteHandler * route, const T & t) const
 			{
-				auto s = getSerializer(route);
-				setHeader("Content-Type", s.first.group + "/" + s.first.type);
-				response(200, "OK");
-				Slicer::SerializeAnyWith<T>(t, s.second);
+				modelPartResponse(route, Slicer::ModelPart::CreateRootFor(t));
 			}
+			void modelPartResponse(const IRouteHandler * route, const Slicer::ModelPartForRootPtr &) const;
 
 			const Core * core;
 	};
