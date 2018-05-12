@@ -12,12 +12,12 @@ namespace IceSpider {
 
 	const RouteOptions IRouteHandler::defaultRouteOptions {
 	};
-	IRouteHandler::IRouteHandler(HttpMethod m, const std::string & p) :
+	IRouteHandler::IRouteHandler(HttpMethod m, const std::string_view & p) :
 		IRouteHandler(m, p, defaultRouteOptions)
 	{
 	}
 
-	IRouteHandler::IRouteHandler(HttpMethod m, const std::string & p, const RouteOptions & ro) :
+	IRouteHandler::IRouteHandler(HttpMethod m, const std::string_view & p, const RouteOptions & ro) :
 		Path(p),
 		method(m)
 	{
@@ -55,7 +55,7 @@ namespace IceSpider {
 	}
 
 	void
-	IRouteHandler::requiredParameterNotFound(const char *, const std::string &) const
+	IRouteHandler::requiredParameterNotFound(const char *, const std::string_view &) const
 	{
 		throw Http400_BadRequest();
 	}

@@ -2,7 +2,7 @@
 #define ICESPIDER_CORE_PATHS_H
 
 #include <vector>
-#include <string>
+#include <string_view>
 #include <memory>
 #include <visibility.h>
 
@@ -11,35 +11,35 @@ namespace IceSpider {
 		public:
 			virtual ~PathPart() = default;
 
-			virtual bool matches(const std::string &) const = 0;
+			virtual bool matches(const std::string_view &) const = 0;
 	};
-	typedef std::shared_ptr<PathPart> PathPartPtr;
+	typedef std::unique_ptr<PathPart> PathPartPtr;
 
 	class DLL_PUBLIC PathLiteral : public PathPart {
 		public:
-			PathLiteral(const std::string & v);
+			PathLiteral(const std::string_view & v);
 
-			bool matches(const std::string &) const;
+			bool matches(const std::string_view &) const;
 
-			const std::string value;
+			const std::string_view value;
 	};
 
 	class DLL_PUBLIC PathParameter : public PathPart {
 		public:
-			PathParameter(const std::string &);
+			PathParameter(const std::string_view &);
 
-			bool matches(const std::string &) const;
+			bool matches(const std::string_view &) const;
 
-			const std::string name;
+			const std::string_view name;
 	};
 
 	class DLL_PUBLIC Path {
 		public:
 			typedef std::vector<PathPartPtr> PathParts;
 
-			Path(const std::string &);
+			Path(const std::string_view &);
 
-			const std::string path;
+			const std::string_view path;
 
 			unsigned int pathElementCount() const;
 

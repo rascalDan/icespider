@@ -137,7 +137,7 @@ namespace IceSpider {
 						Path path(r.second->path);
 						d->hasUserSource = std::find_if(path.parts.begin(), path.parts.end(), [d](const auto & pp) {
 							if (auto par = dynamic_cast<PathParameter *>(pp.get())) {
-								return par->name == d->key;
+								return par->name == *d->key;
 							}
 							return false;
 						}) != path.parts.end();
@@ -402,7 +402,7 @@ namespace IceSpider {
 						unsigned int idx = -1;
 						for (const auto & pp : path.parts) {
 							if (auto par = dynamic_cast<PathParameter *>(pp.get())) {
-								if (par->name == p.second->key) {
+								if (par->name == *p.second->key) {
 									idx = &pp - &path.parts.front();
 								}
 							}

@@ -16,8 +16,8 @@ namespace IceSpider {
 		public:
 			const static RouteOptions defaultRouteOptions;
 
-			IRouteHandler(HttpMethod, const std::string & path);
-			IRouteHandler(HttpMethod, const std::string & path, const RouteOptions &);
+			IRouteHandler(HttpMethod, const std::string_view & path);
+			IRouteHandler(HttpMethod, const std::string_view & path, const RouteOptions &);
 			virtual ~IRouteHandler();
 
 			virtual void execute(IHttpRequest * request) const = 0;
@@ -31,7 +31,7 @@ namespace IceSpider {
 			typedef std::map<MimeType, StreamSerializerFactoryPtr> RouteSerializers;
 			RouteSerializers routeSerializers;
 
-			void requiredParameterNotFound(const char *, const std::string & key) const;
+			void requiredParameterNotFound(const char *, const std::string_view & key) const;
 
 			template <typename T, typename K>
 			inline T requiredParameterNotFound(const char * s, const K & key) const
