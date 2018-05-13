@@ -59,6 +59,19 @@ run
 	;
 
 run
+	testAccept.cpp
+	: : :
+	<define>BOOST_TEST_DYN_LINK
+	<library>testCommon
+	<library>adhocutil
+	<library>../common//icespider-common
+	<library>../core//icespider-core
+	<implicit-dependency>../core//icespider-core
+	<library>../testing//icespider-testing
+	<implicit-dependency>../common//icespider-common
+	;
+
+run
 	testApp.cpp
 	base2.cpp
 	testRoutes.json

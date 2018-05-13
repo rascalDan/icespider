@@ -33,34 +33,41 @@ namespace IceSpider {
 		}
 	}
 
+	Accepted
+	IHttpRequest::parseAccept(const std::string & acceptHdr)
+	{
+		auto accept = acceptHdr.c_str();
+		Accepted accepts;
+		accepts.reserve(5);
+		char grp[BUFSIZ], type[BUFSIZ];
+		float pri = 0.0f;
+		int chars, v;
+		while ((v = sscanf(accept, " %[^ /] / %[^ ;,] %n , %n", grp, type, &chars, &chars)) == 2) {
+			accept += chars;
+			chars = 0;
+			auto a = std::make_shared<Accept>();
+			if ((v = sscanf(accept, " ; q = %f %n , %n", &pri, &chars, &chars)) == 1) {
+				a->q = pri;
+			}
+			if (strcmp(grp, "*")) {
+				a->group.emplace(grp);
+			}
+			if (strcmp(type, "*")) {
+				a->type.emplace(type);
+			}
+			accept += chars;
+			accepts.push_back(a);
+		}
+		std::stable_sort(accepts.begin(), accepts.end(), [](const auto & a, const auto & b) { return a->q > b->q; });
+		return accepts;
+	}
+
 	ContentTypeSerializer
 	IHttpRequest::getSerializer(const IRouteHandler * handler) const
 	{
 		auto acceptHdr = getHeaderParam(H::ACCEPT);
 		if (acceptHdr) {
-			auto accept = acceptHdr->c_str();
-			std::vector<AcceptPtr> accepts;
-			accepts.reserve(5);
-			char grp[BUFSIZ], type[BUFSIZ];
-			float pri = 0.0f;
-			int chars, v;
-			while ((v = sscanf(accept, " %[^ /] / %[^ ;,] %n , %n", grp, type, &chars, &chars)) == 2) {
-				accept += chars;
-				chars = 0;
-				auto a = std::make_shared<Accept>();
-				if ((v = sscanf(accept, " ; q = %f %n , %n", &pri, &chars, &chars)) == 1) {
-					a->q = pri;
-				}
-				if (strcmp(grp, "*")) {
-					a->group.emplace(grp);
-				}
-				if (strcmp(type, "*")) {
-					a->type.emplace(type);
-				}
-				accept += chars;
-				accepts.push_back(a);
-			}
-			std::stable_sort(accepts.begin(), accepts.end(), [](const auto & a, const auto & b) { return a->q > b->q; });
+			auto accepts = parseAccept(*acceptHdr);
 			auto & strm = getOutputStream();
 			for(auto & a : accepts) {
 				ContentTypeSerializer serializer = handler->getSerializer(a, strm);

@@ -32,6 +32,7 @@ namespace IceSpider {
 			virtual OptionalString getHeaderParam(const std::string_view &) const = 0;
 			virtual OptionalString getCookieParam(const std::string_view &) const = 0;
 			virtual OptionalString getEnv(const std::string_view &) const = 0;
+			static Accepted parseAccept(const std::string &);
 			virtual Slicer::DeserializerPtr getDeserializer() const;
 			virtual ContentTypeSerializer getSerializer(const IRouteHandler *) const;
 			virtual std::istream & getInputStream() const = 0;
