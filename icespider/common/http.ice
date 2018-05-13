@@ -31,7 +31,8 @@ module IceSpider {
 		float q = 1.0;
 	};
 
-	["slicer:json:object"]
+	["slicer:json:object",
+		"cpp:type:std::map<std::string, std::string, std::less<>>"]
 	local dictionary<string, string> StringMap;
 
 	module S { // Statuses

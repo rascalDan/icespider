@@ -4,7 +4,7 @@
 #include <formatters.h>
 
 namespace IceSpider {
-	TestRequest::TestRequest(const Core * c, HttpMethod m, const std::string & p) :
+	TestRequest::TestRequest(const Core * c, HttpMethod m, const std::string_view & p) :
 		IHttpRequest(c),
 		method(m)
 	{
@@ -34,31 +34,31 @@ namespace IceSpider {
 	}
 
 	OptionalString
-	TestRequest::getEnv(const std::string & key) const
+	TestRequest::getEnv(const std::string_view & key) const
 	{
 		return get(key, env);
 	}
 
 	OptionalString
-	TestRequest::getQueryStringParam(const std::string & key) const
+	TestRequest::getQueryStringParam(const std::string_view & key) const
 	{
 		return get(key, qs);
 	}
 
 	OptionalString
-	TestRequest::getCookieParam(const std::string & key) const
+	TestRequest::getCookieParam(const std::string_view & key) const
 	{
 		return get(key, cookies);
 	}
 
 	OptionalString
-	TestRequest::getHeaderParam(const std::string & key) const
+	TestRequest::getHeaderParam(const std::string_view & key) const
 	{
 		return get(key, hdr);
 	}
 
 	OptionalString
-	TestRequest::get(const std::string & key, const MapVars & vars) const
+	TestRequest::get(const std::string_view & key, const MapVars & vars) const
 	{
 		auto i = vars.find(key);
 		if (i == vars.end()) {
@@ -68,36 +68,36 @@ namespace IceSpider {
 	}
 
 	void
-	TestRequest::setQueryStringParam(const std::string & key, const OptionalString & val)
+	TestRequest::setQueryStringParam(const std::string_view & key, const OptionalString & val)
 	{
 		set(key, val, qs);
 	}
 
 	void
-	TestRequest::setHeaderParam(const std::string & key, const OptionalString & val)
+	TestRequest::setHeaderParam(const std::string_view & key, const OptionalString & val)
 	{
 		set(key, val, hdr);
 	}
-		
+
 	void
-	TestRequest::setCookieParam(const std::string & key, const OptionalString & val)
+	TestRequest::setCookieParam(const std::string_view & key, const OptionalString & val)
 	{
 		set(key, val, cookies);
 	}
 
 	void
-	TestRequest::setEnv(const std::string & key, const OptionalString & val)
+	TestRequest::setEnv(const std::string_view & key, const OptionalString & val)
 	{
 		set(key, val, env);
 	}
-		
+
 	void
-	TestRequest::set(const std::string & key, const OptionalString & val, MapVars & vars)
+	TestRequest::set(const std::string_view & key, const OptionalString & val, MapVars & vars)
 	{
 		if (val)
-			vars[key] = *val;
+			vars[std::string(key)] = *val;
 		else
-			vars.erase(key);
+			vars.erase(vars.find(key));
 	}
 
 	std::istream &
@@ -113,13 +113,13 @@ namespace IceSpider {
 	}
 
 	void
-	TestRequest::response(short statusCode, const std::string & statusMsg) const
+	TestRequest::response(short statusCode, const std::string_view & statusMsg) const
 	{
 		StatusFmt::write(getOutputStream(), statusCode, statusMsg);
 	}
 
 	void
-	TestRequest::setHeader(const std::string & header, const std::string & value) const
+	TestRequest::setHeader(const std::string_view & header, const std::string_view & value) const
 	{
 		HdrFmt::write(getOutputStream(), header, value);
 	}

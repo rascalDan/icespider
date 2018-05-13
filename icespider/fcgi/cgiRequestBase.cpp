@@ -125,7 +125,7 @@ namespace IceSpider {
 	}
 
 	OptionalString
-	CgiRequestBase::optionalLookup(const std::string & key, const StringMap & vm)
+	CgiRequestBase::optionalLookup(const std::string_view & key, const StringMap & vm)
 	{
 		auto i = vm.find(key);
 		if (i == vm.end()) {
@@ -159,36 +159,39 @@ namespace IceSpider {
 	}
 
 	OptionalString
-	CgiRequestBase::getQueryStringParam(const std::string & key) const
+	CgiRequestBase::getQueryStringParam(const std::string_view & key) const
 	{
 		return optionalLookup(key, qsmap);
 	}
 
 	OptionalString
-	CgiRequestBase::getCookieParam(const std::string & key) const
+	CgiRequestBase::getCookieParam(const std::string_view & key) const
 	{
 		return optionalLookup(key, cookiemap);
 	}
 
 	OptionalString
-	CgiRequestBase::getEnv(const std::string & key) const
+	CgiRequestBase::getEnv(const std::string_view & key) const
 	{
 		return optionalLookup(key, envmap);
 	}
 
 	OptionalString
-	CgiRequestBase::getHeaderParam(const std::string & key) const
+	CgiRequestBase::getHeaderParam(const std::string_view & key) const
 	{
-		return optionalLookup(HEADER_PREFIX + boost::algorithm::to_upper_copy(key), envmap);
+		// TODO: Fix this mess
+		std::string ks(key);
+		boost::algorithm::to_upper(ks);
+		return optionalLookup(HEADER_PREFIX + ks, envmap);
 	}
 
-	void CgiRequestBase::response(short statusCode, const std::string & statusMsg) const
+	void CgiRequestBase::response(short statusCode, const std::string_view & statusMsg) const
 	{
 		StatusFmt::write(getOutputStream(), statusCode, statusMsg);
 	}
 
 	void
-	CgiRequestBase::setHeader(const std::string & header, const std::string & value) const
+	CgiRequestBase::setHeader(const std::string_view & header, const std::string_view & value) const
 	{
 		HdrFmt::write(getOutputStream(), header, value);
 	}

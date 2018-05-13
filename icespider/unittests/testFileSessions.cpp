@@ -7,7 +7,7 @@
 #include <core.h>
 #include <definedDirs.h>
 
-BOOST_TEST_DONT_PRINT_LOG_VALUE(IceSpider::StringMap);
+BOOST_TEST_DONT_PRINT_LOG_VALUE(IceSpider::Variables);
 
 class TestCore : public IceSpider::CoreWithDefaultRouter {
 	public:

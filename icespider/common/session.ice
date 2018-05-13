@@ -3,6 +3,7 @@
 
 [["ice-prefix"]]
 module IceSpider {
+	["cpp:type:std::map<std::string, std::string, std::less<>>"]
 	dictionary<string, string> Variables;
 
 	exception SessionError {

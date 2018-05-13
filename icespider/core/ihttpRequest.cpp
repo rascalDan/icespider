@@ -98,7 +98,7 @@ namespace IceSpider {
 
 	// Set-Cookie: value[; expires=date][; domain=domain][; path=path][; secure]
 	// Sat, 02 May 2009 23:38:25 GMT
-	void IHttpRequest::setCookie(const std::string & name, const std::string & value,
+	void IHttpRequest::setCookie(const std::string_view & name, const std::string_view & value,
 			const Ice::optional<std::string> & d, const Ice::optional<std::string> & p, bool s,
 			Ice::optional<time_t> e)
 	{
@@ -126,7 +126,7 @@ namespace IceSpider {
 		return Ice::optional<T>();
 	}
 
-	void IHttpRequest::responseRedirect(const std::string & url, const Ice::optional<std::string> & statusMsg) const
+	void IHttpRequest::responseRedirect(const std::string_view & url, const Ice::optional<std::string> & statusMsg) const
 	{
 		setHeader(H::LOCATION, url);
 		response(303, (statusMsg ? *statusMsg : S::MOVED));
@@ -142,25 +142,27 @@ namespace IceSpider {
 	}
 
 #define getParams(T) \
-	template<> void IHttpRequest::setCookie<T>(const std::string & n, const T & v, \
+	template<> void IHttpRequest::setCookie<T>(const std::string_view & n, const T & v, \
 					const Ice::optional<std::string> & d, const Ice::optional<std::string> & p, \
 					bool s, Ice::optional<time_t> e) { \
-		setCookie(n, boost::lexical_cast<std::string>(v), d, p, s, e); } \
+		auto vs = boost::lexical_cast<std::string>(v); \
+		setCookie(n, std::string_view(vs), d, p, s, e); \
+	} \
 	template<> T IHttpRequest::getURLParam<T>(unsigned int idx) const { \
 		return wrapLexicalCast<T>(getURLParam(idx)); } \
-	template<> Ice::optional<T> IHttpRequest::getQueryStringParam<T>(const std::string & key) const { \
+	template<> Ice::optional<T> IHttpRequest::getQueryStringParam<T>(const std::string_view & key) const { \
 		return optionalLexicalCast<T>(getQueryStringParam(key)); } \
-	template<> Ice::optional<T> IHttpRequest::getCookieParam<T>(const std::string & key) const { \
+	template<> Ice::optional<T> IHttpRequest::getCookieParam<T>(const std::string_view & key) const { \
 		return optionalLexicalCast<T>(getCookieParam(key)); } \
-	template<> Ice::optional<T> IHttpRequest::getHeaderParam<T>(const std::string & key) const { \
+	template<> Ice::optional<T> IHttpRequest::getHeaderParam<T>(const std::string_view & key) const { \
 		return optionalLexicalCast<T>(getHeaderParam(key)); }
 	template<> std::string IHttpRequest::getURLParam<std::string>(unsigned int idx) const {
 		return getURLParam(idx); }
-	template<> Ice::optional<std::string> IHttpRequest::getQueryStringParam<std::string>(const std::string & key) const { \
+	template<> Ice::optional<std::string> IHttpRequest::getQueryStringParam<std::string>(const std::string_view & key) const { \
 		return getQueryStringParam(key); }
-	template<> Ice::optional<std::string> IHttpRequest::getCookieParam<std::string>(const std::string & key) const { \
+	template<> Ice::optional<std::string> IHttpRequest::getCookieParam<std::string>(const std::string_view & key) const { \
 		return getCookieParam(key); }
-	template<> Ice::optional<std::string> IHttpRequest::getHeaderParam<std::string>(const std::string & key) const { \
+	template<> Ice::optional<std::string> IHttpRequest::getHeaderParam<std::string>(const std::string_view & key) const { \
 		return getHeaderParam(key); }
 
 	getParams(bool);
