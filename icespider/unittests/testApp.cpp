@@ -411,7 +411,7 @@ BOOST_AUTO_TEST_CASE( testCallIndexAcceptNotSupported )
 BOOST_AUTO_TEST_CASE( testCallIndexComplexAccept )
 {
 	TestRequest requestChoice(this, HttpMethod::GET, "/");
-	requestChoice.hdr["Accept"] = "something/special ; q = 20, application/json, application/xml;q=1.1";
+	requestChoice.hdr["Accept"] = "something/special ; q = 0.9, application/json ; q = 0.8, application/xml;q=1.0";
 	process(&requestChoice);
 	auto h = requestChoice.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");

@@ -5,6 +5,7 @@
 #include "xwwwFormUrlEncoded.h"
 #include <boost/lexical_cast.hpp>
 #include <time.h>
+#include <stdio.h>
 #include <formatters.h>
 
 namespace IceSpider {
@@ -34,29 +35,47 @@ namespace IceSpider {
 	}
 
 	Accepted
-	IHttpRequest::parseAccept(const std::string & acceptHdr)
+	IHttpRequest::parseAccept(const std::string_view & acceptHdr)
 	{
-		auto accept = acceptHdr.c_str();
+		auto accept = std::unique_ptr<FILE, decltype(&fclose)>(
+				fmemopen(const_cast<char *>(acceptHdr.data()), acceptHdr.length(), "r"), &fclose);
 		Accepted accepts;
-		accepts.reserve(5);
-		char grp[BUFSIZ], type[BUFSIZ];
-		float pri = 0.0f;
-		int chars, v;
-		while ((v = sscanf(accept, " %[^ /] / %[^ ;,] %n , %n", grp, type, &chars, &chars)) == 2) {
-			accept += chars;
-			chars = 0;
+		accepts.reserve(acceptHdr.length() / 15);
+		int grpstart, grpend, typestart, typeend;
+		auto reset = [&]() {
+			grpstart = grpend = typestart = typeend = 0;
+			return ftell(accept.get());
+		};
+
+		for (auto off = reset();
+				fscanf(accept.get(), " %n%*[^ /]%n / %n%*[^ ;,]%n", &grpstart, &grpend, &typestart, &typeend) == 0;
+				off = reset()) {
+			if (grpend <= grpstart || typestart <= grpend || typeend <= typestart) {
+				throw Http400_BadRequest();
+			}
 			auto a = std::make_shared<Accept>();
-			if ((v = sscanf(accept, " ; q = %f %n , %n", &pri, &chars, &chars)) == 1) {
-				a->q = pri;
+			if (auto g = acceptHdr.substr(typestart + off, typeend - typestart); g != "*") {
+				a->type.emplace(g);
 			}
-			if (strcmp(grp, "*")) {
-				a->group.emplace(grp);
+			if (auto t = acceptHdr.substr(grpstart + off, grpend - grpstart); t != "*") {
+				a->group.emplace(t);
 			}
-			if (strcmp(type, "*")) {
-				a->type.emplace(type);
+			else if (a->type) {
+				throw Http400_BadRequest();
 			}
-			accept += chars;
+			if (fscanf(accept.get(), " ; q = %f ", &a->q) == 1) {
+				if (a->q <= 0.0f || a->q > 1.0f) {
+					throw Http400_BadRequest();
+				}
+			}
 			accepts.push_back(a);
+			if (fscanf(accept.get(), " ,") != 0) {
+				break;
+			}
+		}
+
+		if (accepts.empty()) {
+			throw Http400_BadRequest();
 		}
 		std::stable_sort(accepts.begin(), accepts.end(), [](const auto & a, const auto & b) { return a->q > b->q; });
 		return accepts;
