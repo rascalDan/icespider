@@ -62,7 +62,7 @@ namespace IceSpider {
 	{
 		auto i = vars.find(key);
 		if (i == vars.end()) {
-			return IceUtil::None;
+			return {};
 		}
 		return i->second;
 	}

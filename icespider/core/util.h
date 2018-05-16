@@ -13,6 +13,15 @@ namespace std::experimental::Ice {
 	}
 }
 
+namespace std {
+	template <typename T, typename TF>
+	auto operator/(const std::optional<T> & o, const TF & tf) -> decltype(tf())
+	{
+		if (o) return *o;
+		return tf();
+	}
+}
+
 template <typename T>
 T orelse(const T & a, const T & b)
 {

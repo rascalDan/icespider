@@ -10,7 +10,7 @@
 using namespace std::literals;
 namespace std {
 	template<typename T>
-	ostream & operator<<(ostream & s, const Ice::optional<T> & o) {
+	ostream & operator<<(ostream & s, const std::optional<T> & o) {
 		if (o) s << *o;
 		return s;
 	}
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( NoEnvironment )
 	BOOST_REQUIRE_THROW({
 		CharPtrPtrArray env;
 		TestRequest r(this, env);
-	}, std::runtime_error);
+	}, IceSpider::Http400_BadRequest);
 }
 
 BOOST_AUTO_TEST_CASE( script_name_root )
@@ -218,6 +218,27 @@ BOOST_AUTO_TEST_CASE( requestmethod_bad )
 	CharPtrPtrArray env ({ "SCRIPT_NAME=/", "REQUEST_METHOD=No" });
 	TestRequest r(this, env);
 	BOOST_REQUIRE_THROW(r.getRequestMethod(), IceSpider::Http405_MethodNotAllowed);
+}
+
+BOOST_AUTO_TEST_CASE( requestmethod_missing )
+{
+	CharPtrPtrArray env ({ "SCRIPT_NAME=/" });
+	TestRequest r(this, env);
+	BOOST_REQUIRE_THROW(r.getRequestMethod(), IceSpider::Http400_BadRequest);
+}
+
+BOOST_AUTO_TEST_CASE( acceptheader )
+{
+	CharPtrPtrArray env ({ "SCRIPT_NAME=/", "HTTP_ACCEPT=text/html" });
+	TestRequest r(this, env);
+	BOOST_REQUIRE_EQUAL("text/html", *r.getHeaderParam("ACCEPT"));
+}
+
+BOOST_AUTO_TEST_CASE( missingheader )
+{
+	CharPtrPtrArray env ({ "SCRIPT_NAME=/", "HTTP_ACCEPT=text/html" });
+	TestRequest r(this, env);
+	BOOST_REQUIRE(!r.getHeaderParam("ACCEPT_LANGUAGE"));
 }
 
 BOOST_AUTO_TEST_CASE( postxwwwformurlencoded_simple )

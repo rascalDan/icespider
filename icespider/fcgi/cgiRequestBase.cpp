@@ -3,6 +3,7 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <util.h>
 #include <slicer/modelPartsTypes.h>
 #include <slicer/common.h>
@@ -14,7 +15,9 @@ using namespace std::literals;
 #define CGI_CONST(NAME) static const std::string_view NAME(#NAME)
 
 namespace IceSpider {
-	static const std::string HEADER_PREFIX("HTTP_");
+	static const std::string_view amp("&");
+	static const std::string_view semi("; ");
+	static const std::string_view HEADER_PREFIX("HTTP_");
 	CGI_CONST(REDIRECT_URL);
 	CGI_CONST(SCRIPT_NAME);
 	CGI_CONST(QUERY_STRING);
@@ -37,20 +40,13 @@ namespace IceSpider {
 		}
 	}
 
-	inline
-	std::string
-	operator*(const std::string_view & t)
-	{
-		return std::string(t);
-	}
-
 	template<typename in, typename out>
 	inline
 	void
 	mapVars(const std::string_view & vn, const in & envmap, out & map, const std::string_view & sp) {
 		auto qs = envmap.find(vn);
 		if (qs != envmap.end()) {
-			XWwwFormUrlEncoded::iterateVars(qs->second, [&map](auto k, auto v) {
+			XWwwFormUrlEncoded::iterateVars(qs->second, [&map](const auto & k, const auto & v) {
 				map.insert({ k, v });
 			}, sp);
 		}
@@ -58,18 +54,18 @@ namespace IceSpider {
 
 	template<typename Ex, typename Map>
 	const std::string_view &
-	findFirstOrElse(const Map &, const std::string & msg)
+	findFirstOrElse(const Map &)
 	{
-		throw Ex(msg);
+		throw Ex();
 	}
 
 	template<typename Ex, typename Map, typename ... Ks>
 	const std::string_view &
-	findFirstOrElse(const Map & map, const std::string & msg, const std::string_view & k, const Ks & ... ks)
+	findFirstOrElse(const Map & map, const std::string_view & k, const Ks & ... ks)
 	{
 		auto i = map.find(k);
 		if (i == map.end()) {
-			return findFirstOrElse<Ex>(map, msg, ks...);
+			return findFirstOrElse<Ex>(map, ks...);
 		}
 		return i->second;
 	}
@@ -78,15 +74,18 @@ namespace IceSpider {
 	CgiRequestBase::initialize()
 	{
 		namespace ba = boost::algorithm;
-		auto path = findFirstOrElse<std::runtime_error>(envmap, "Couldn't determine request path"s,
-				REDIRECT_URL,
-				SCRIPT_NAME).substr(1);
-		if (!path.empty()) {
+		if (auto path = findFirstOrElse<Http400_BadRequest>(envmap, REDIRECT_URL, SCRIPT_NAME).substr(1);
+				!path.empty()) {
 			ba::split(pathElements, path, ba::is_any_of("/"), ba::token_compress_off);
 		}
 
-		mapVars(QUERY_STRING, envmap, qsmap, "&"sv);
-		mapVars(HTTP_COOKIE, envmap, cookiemap, "; "sv);
+		mapVars(QUERY_STRING, envmap, qsmap, amp);
+		mapVars(HTTP_COOKIE, envmap, cookiemap, semi);
+		for (auto header = envmap.lower_bound(HEADER_PREFIX);
+				header != envmap.end() && ba::starts_with(header->first, HEADER_PREFIX);
+				header++) {
+			hdrmap.insert({ header->first.substr(HEADER_PREFIX.length()), header->second });
+		}
 	}
 
 	AdHocFormatter(VarFmt, "\t%?: [%?]\n");
@@ -119,9 +118,9 @@ namespace IceSpider {
 	{
 		auto i = vm.find(key);
 		if (i == vm.end()) {
-			return IceUtil::None;
+			return {};
 		}
-		return *i->second;
+		return i->second;
 	}
 
 	OptionalString
@@ -129,7 +128,7 @@ namespace IceSpider {
 	{
 		auto i = vm.find(key);
 		if (i == vm.end()) {
-			return IceUtil::None;
+			return {};
 		}
 		return i->second;
 	}
@@ -151,7 +150,10 @@ namespace IceSpider {
 	{
 		try {
 			auto i = envmap.find(REQUEST_METHOD);
-			return Slicer::ModelPartForEnum<HttpMethod>::lookup(*i->second);
+			if (i == envmap.end()) {
+				throw IceSpider::Http400_BadRequest();
+			}
+			return Slicer::ModelPartForEnum<HttpMethod>::lookup(i->second);
 		}
 		catch (const Slicer::InvalidEnumerationSymbol &) {
 			throw IceSpider::Http405_MethodNotAllowed();
@@ -179,10 +181,7 @@ namespace IceSpider {
 	OptionalString
 	CgiRequestBase::getHeaderParam(const std::string_view & key) const
 	{
-		// TODO: Fix this mess
-		std::string ks(key);
-		boost::algorithm::to_upper(ks);
-		return optionalLookup(HEADER_PREFIX + ks, envmap);
+		return optionalLookup(key, hdrmap);
 	}
 
 	void CgiRequestBase::response(short statusCode, const std::string_view & statusMsg) const

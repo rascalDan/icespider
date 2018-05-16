@@ -15,7 +15,7 @@ namespace IceSpider {
 	class IRouteHandler;
 
 	typedef std::vector<std::string> PathElements;
-	typedef Ice::optional<std::string> OptionalString;
+	typedef std::optional<std::string_view> OptionalString;
 	typedef std::pair<MimeType, Slicer::SerializerPtr> ContentTypeSerializer;
 
 	class DLL_PUBLIC IHttpRequest {
@@ -44,37 +44,37 @@ namespace IceSpider {
 			template<typename T>
 			T getURLParam(unsigned int) const;
 			template<typename T>
-			Ice::optional<T> getBody() const
+			std::optional<T> getBody() const
 			{
 				return Slicer::DeserializeAnyWith<T>(getDeserializer());
 			}
 			template<typename T>
-			Ice::optional<T> getBodyParam(const Ice::optional<IceSpider::StringMap> & map, const std::string_view & key) const
+			std::optional<T> getBodyParam(const Ice::optional<IceSpider::StringMap> & map, const std::string_view & key) const
 			{
 				if (!map) {
-					return Ice::optional<T>();
+					return {};
 				}
 				auto i = map->find(key);
 				if (i == map->end()) {
-					return Ice::optional<T>();
+					return {};
 				}
 				else {
 					return boost::lexical_cast<T>(i->second);
 				}
 			}
-			void responseRedirect(const std::string_view & url, const Ice::optional<std::string> & = IceUtil::None) const;
+			void responseRedirect(const std::string_view & url, const OptionalString & = {}) const;
 			void setCookie(const std::string_view &, const std::string_view &,
-					const Ice::optional<std::string> & = IceUtil::None, const Ice::optional<std::string> & = IceUtil::None,
-					bool = false, Ice::optional<time_t> = IceUtil::None);
+					const OptionalString & = {}, const OptionalString & = {},
+					bool = false, std::optional<time_t> = {});
 			template<typename T>
-			void setCookie(const std::string_view &, const T &, const Ice::optional<std::string> & = IceUtil::None,
-					const Ice::optional<std::string> & = IceUtil::None, bool = false, Ice::optional<time_t> = IceUtil::None);
+			void setCookie(const std::string_view &, const T &, const OptionalString & = {},
+					const OptionalString & = {}, bool = false, std::optional<time_t> = {});
 			template<typename T>
-			Ice::optional<T> getQueryStringParam(const std::string_view & key) const;
+			std::optional<T> getQueryStringParam(const std::string_view & key) const;
 			template<typename T>
-			Ice::optional<T> getHeaderParam(const std::string_view & key) const;
+			std::optional<T> getHeaderParam(const std::string_view & key) const;
 			template<typename T>
-			Ice::optional<T> getCookieParam(const std::string_view & key) const;
+			std::optional<T> getCookieParam(const std::string_view & key) const;
 			virtual void response(short, const std::string_view &) const = 0;
 			template<typename T>
 			void response(const IRouteHandler * route, const T & t) const

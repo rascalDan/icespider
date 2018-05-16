@@ -37,6 +37,7 @@ namespace IceSpider {
 			VarMap envmap;
 			StringMap qsmap;
 			StringMap cookiemap;
+			VarMap hdrmap;
 			PathElements pathElements;
 	};
 }
