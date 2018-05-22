@@ -315,5 +315,13 @@ BOOST_AUTO_TEST_CASE( cookies )
 	BOOST_REQUIRE_EQUAL("Set-Cookie: some+int%2e=1234; expires=Mon, 10 Oct 2016 23:32:58 GMT; domain=www.com; path=/dir; secure\r\n", r.out.str());
 }
 
+BOOST_AUTO_TEST_CASE( response )
+{
+	CharPtrPtrArray env ({ "SCRIPT_NAME=/" });
+	TestRequest r(this, env);
+	r.response(200, "OK");
+	BOOST_REQUIRE_EQUAL("Status: 200 OK\r\n\r\n", r.out.str());
+}
+
 BOOST_AUTO_TEST_SUITE_END();
 
