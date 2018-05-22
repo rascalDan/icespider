@@ -24,10 +24,6 @@ namespace IceSpider {
 			OptionalString getHeaderParam(const std::string & key) const override;
 			OptionalString getCookieParam(const std::string & key) const override;
 			OptionalString getEnv(const std::string & key) const override;
-			void setQueryStringParam(const std::string &, const OptionalString &) override;
-			void setHeaderParam(const std::string &, const OptionalString &) override;
-			void setCookieParam(const std::string &, const OptionalString &) override;
-			void setEnv(const std::string &, const OptionalString &) override;
 
 			void response(short, const std::string &) const override;
 			void setHeader(const std::string &, const std::string &) const override;
