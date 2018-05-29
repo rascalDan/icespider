@@ -105,6 +105,23 @@ run
 	: testFcgi ;
 
 run
+	testEmbedded.cpp
+	: : :
+	<slicer>yes
+	<define>BOOST_TEST_DYN_LINK
+	<library>testCommon
+	<library>../embedded//icespider-embedded
+	<library>../common//icespider-common
+	<library>../core//icespider-core
+	<implicit-dependency>../core//icespider-core
+	<library>boost_system
+	<library>boost_filesystem
+	<library>slicer
+	<library>slicer-json
+	<library>adhocutil
+	;
+
+run
 	testFileSessions.cpp
 	: :
 	config/ice.properties
