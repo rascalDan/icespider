@@ -1,75 +1,15 @@
 #ifndef ICESPIDER_EMBEDDED_H
 #define ICESPIDER_EMBEDDED_H
 
-#include <sys/select.h>
-#include <netinet/in.h>
 #include <visibility.h>
 #include <memory>
 #include <array>
 #include <vector>
-#include <future>
 #include </usr/include/semaphore.h>
 #include <blockingconcurrentqueue.h>
+#include "socketHandler.h"
 
 namespace IceSpider::Embedded {
-	class Listener;
-
-	enum class FDSetChange {
-		NoChange,
-		AddNew,
-		Remove,
-	};
-	typedef std::tuple<FDSetChange> SocketEventResult;
-	typedef std::future<SocketEventResult> SocketEventResultFuture;
-	typedef std::tuple<int, SocketEventResultFuture> FdSocketEventResultFuture;
-
-	class SocketHandler {
-		public:
-			typedef std::packaged_task<SocketEventResult()> Work;
-
-			SocketHandler(int f);
-			~SocketHandler();
-
-			static inline FdSocketEventResultFuture returnNow(int, const SocketEventResult &&);
-			static inline FdSocketEventResultFuture returnQueued(Listener *, int, Work &&);
-
-			virtual FdSocketEventResultFuture read(Listener *) = 0;
-			virtual FdSocketEventResultFuture except(Listener *);
-
-			const int fd;
-	};
-
-	class ClientSocket : public SocketHandler {
-		public:
-			ClientSocket(int fd);
-
-			FdSocketEventResultFuture read(Listener * listener) override;
-
-		private:
-			inline void read_headers(int bytes);
-			inline void stream_input(int bytes);
-
-			enum class State {
-				reading_headers,
-				streaming_input,
-			};
-
-			struct sockaddr_in clientaddr;
-			std::vector<char> buf;
-			std::size_t rec;
-			State state;
-	};
-
-	class ListenSocket : public SocketHandler {
-		public:
-			ListenSocket(unsigned short portno);
-
-			FdSocketEventResultFuture read(Listener * listener) override;
-
-		private:
-			struct sockaddr_in serveraddr;
-	};
-
 	class DLL_PUBLIC Listener {
 		public:
 			typedef moodycamel::BlockingConcurrentQueue<SocketHandler::Work> WorkQueue;
@@ -83,7 +23,12 @@ namespace IceSpider::Embedded {
 
 			void run();
 
-			template<typename T, typename ... P> inline int create(const P & ... p);
+			template<typename T, typename ... P> inline int create(const P & ... p)
+			{
+				auto s = std::make_unique<T>(p...);
+				topSock = std::max(s->fd + 1, topSock);
+				return (sockets[s->fd] = std::move(s))->fd;
+			}
 
 			WorkQueue work;
 
