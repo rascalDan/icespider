@@ -1,19 +1,15 @@
 lib slicer ;
-lib fcgi : : <name>fcgi ;
-lib fcgi++ : : <name>fcgi++ ;
 lib adhocutil : : : : <include>/usr/include/adhocutil/ ;
 
 lib icespider-embedded :
-	[ glob-tree *.cpp : bin concurrentqueue ]
+	[ glob-tree *.cpp : bin ]
 	:
 	<library>slicer
-	<include>concurrentqueue
 	<library>..//core//icespider-core
 	<implicit-dependency>../core//icespider-core
 	: :
 	<library>..//core//icespider-core
 	<implicit-dependency>../core//icespider-core
 	<include>.
-	<include>concurrentqueue
 	;
 

@@ -2,6 +2,3 @@
 	path = ice
 	url = https://github.com/zeroc-ice/ice
 	branch = 3.7
-[submodule "icespider/fcgi/concurrentqueue"]
-	path = icespider/embedded/concurrentqueue
-	url = https://github.com/cameron314/concurrentqueue/

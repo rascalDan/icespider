@@ -1,95 +1,77 @@
 #include "embedded.h"
 #include "listenSocket.h"
+#include <unistd.h>
+#include <string.h>
+#include <sys/epoll.h>
+#include <boost/assert.hpp>
+#include <thread>
 
 namespace IceSpider::Embedded {
 	Listener::Listener() :
-		work(1024),
-		topSock(0)
+		sockCount(0),
+		epollfd(epoll_create1(0))
 	{
-		FD_ZERO(&rfds);
-		FD_ZERO(&wfds);
-		FD_ZERO(&efds);
 	}
 
 	Listener::~Listener()
 	{
+		close(epollfd);
 	}
 
 	int Listener::listen(unsigned short portno)
 	{
 		int fd = create<ListenSocket>(portno);
-		add(fd);
+		add(fd, EPOLLIN | EPOLLET | EPOLLONESHOT);
 		return fd;
 	}
 
 	void Listener::unlisten(int fd)
 	{
 		if (sockets[fd] && dynamic_cast<ListenSocket *>(sockets[fd].get())) {
+			sockCount--;
 			remove(fd);
-		}
-	}
-
-	void Listener::worker()
-	{
-		while (topSock > 0) {
-			try {
-				SocketHandler::Work w;
-				if (work.wait_dequeue_timed(w, 500000)) {
-					w();
-				};
-			}
-			catch (std::exception & e) {
-			}
+			sockets[fd].reset();
 		}
 	}
 
 	void Listener::run()
 	{
 		std::vector<std::thread> workers;
-		std::vector<FdSocketEventResultFuture> pending;
 
 		for (auto x = std::thread::hardware_concurrency(); x; x--) {
-			workers.emplace_back(&Listener::worker, this);
-		}
-
-		while (topSock > 0) {
-			auto r = rfds, w = wfds, e = efds;
-			struct timeval to = { 0, pending.empty() ? 500000 : 50 };
-			if (auto s = select(topSock, &r, &w, &e, &to) > 0) {
-				pending.reserve(pending.size() + s);
-
-				for (int fd = 0; fd < topSock; fd++) {
-					if (FD_ISSET(fd, &r)) {
-						pending.emplace_back(sockets[fd]->read(this));
-					}
-					else if (FD_ISSET(fd, &e)) {
-						pending.emplace_back(sockets[fd]->except(this));
+			workers.emplace_back([this]() {
+				while (sockCount) {
+					std::array<epoll_event, 4> events;
+					if (auto s = epoll_wait(epollfd, &events.front(), events.size(), 500); s > 0) {
+						for (int n = 0; n < s; n++) {
+							auto & sh = sockets[events[n].data.fd];
+							int act = 0;
+							if (events[n].events & (EPOLLRDHUP | EPOLLERR | EPOLLHUP)) {
+								act = sh->except(this);
+							}
+							else {
+								if (events[n].events & EPOLLIN) {
+									act = sh->read(this);
+								}
+								if (events[n].events & EPOLLOUT) {
+									act = sh->write(this);
+								}
+							}
+							switch (act) {
+								case -1:
+									sh.reset();
+									sockCount--;
+									break;
+								case 0:
+									break;
+								default:
+									rearm(events[n].data.fd, act);
+									break;
+							}
+						}
 					}
 				}
-			}
-
-			for (auto p = pending.begin(); p != pending.end(); ) {
-				auto & [ fd, ser ] = *p;
-				if (ser.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-					auto [ op ] = ser.get();
-					switch (op) {
-						case FDSetChange::NoChange:
-							FD_SET(fd, &rfds);
-							break;
-						case FDSetChange::AddNew:
-							add(fd);
-							break;
-						case FDSetChange::Remove:
-							remove(fd);
-							break;
-					}
-					p = pending.erase(p);
-				}
-				else {
-					FD_CLR(fd, &rfds);
-					p++;
-				}
-			}
+			});
 		}
 
 		for (auto & t : workers) {
@@ -97,21 +79,25 @@ namespace IceSpider::Embedded {
 		}
 	}
 
-	void Listener::add(int fd)
+	void Listener::add(int fd, int flags)
 	{
-		FD_SET(fd, &rfds);
-		FD_SET(fd, &efds);
+		epoll_event ev;
+		ev.data.fd = fd;
+		ev.events = flags;
+		BOOST_VERIFY(epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &ev) == 0);
+	}
+
+	void Listener::rearm(int fd, int flags)
+	{
+		epoll_event ev;
+		ev.data.fd = fd;
+		ev.events = flags;
+		BOOST_VERIFY(epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &ev) == 0);
 	}
 
 	void Listener::remove(int fd)
 	{
-		FD_CLR(fd, &rfds);
-		FD_CLR(fd, &wfds);
-		FD_CLR(fd, &efds);
-		sockets[fd].reset();
-		while (topSock > 0 && !sockets[topSock - 1]) {
-			--topSock;
-		}
+		BOOST_VERIFY(epoll_ctl(epollfd, EPOLL_CTL_DEL, fd, NULL) == 0);
 	}
 }
 

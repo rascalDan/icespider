@@ -2,6 +2,7 @@
 #include "embedded.h"
 #include "clientSocket.h"
 #include <string.h>
+#include <sys/epoll.h>
 
 namespace IceSpider::Embedded {
 	ListenSocket::ListenSocket(unsigned short portno) :
@@ -24,9 +25,17 @@ namespace IceSpider::Embedded {
 		}
 	}
 
-	FdSocketEventResultFuture ListenSocket::read(Listener * listener)
+	int ListenSocket::read(Listener * listener)
 	{
-		return returnNow(listener->create<ClientSocket>(fd), FDSetChange::AddNew);
+		int newfd = listener->create<ClientSocket>(fd);
+		listener->add(newfd, EPOLLET | EPOLLRDHUP | EPOLLONESHOT | EPOLLIN | EPOLLERR | EPOLLHUP);
+		return EPOLLIN | EPOLLET | EPOLLONESHOT;
+	}
+
+	int ListenSocket::write(Listener *)
+	{
+		// Log a warning about this nonsense?
+		return 0;
 	}
 }
 

@@ -10,11 +10,12 @@ namespace IceSpider::Embedded {
 		public:
 			ClientSocket(int fd);
 
-			FdSocketEventResultFuture read(Listener * listener) override;
+			int read(Listener * listener) override;
+			int write(Listener * listener) override;
 
 		private:
-			inline void read_headers(int bytes);
-			inline void stream_input(int bytes);
+			inline int read_headers();
+			inline int stream_input();
 
 			enum class State {
 				reading_headers,

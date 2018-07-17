@@ -17,23 +17,9 @@ namespace IceSpider::Embedded {
 		close(fd);
 	}
 
-	FdSocketEventResultFuture SocketHandler::returnNow(int fd, const SocketEventResult && ser)
+	int SocketHandler::except(Listener *)
 	{
-		std::promise<SocketEventResult> p;
-		p.set_value(ser);
-		return { fd, p.get_future() };
-	}
-
-	FdSocketEventResultFuture SocketHandler::returnQueued(Listener * listener, int fd, Work && work)
-	{
-		auto f = work.get_future();
-		BOOST_VERIFY_MSG(listener->work.try_enqueue(std::move(work)), "try_enqueue");
-		return { fd, std::move(f) };
-	}
-
-	FdSocketEventResultFuture SocketHandler::except(Listener *)
-	{
-		return returnNow(fd, FDSetChange::Remove);
+		return -1;
 	}
 }
 

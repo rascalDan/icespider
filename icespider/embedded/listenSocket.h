@@ -9,7 +9,8 @@ namespace IceSpider::Embedded {
 		public:
 			ListenSocket(unsigned short portno);
 
-			FdSocketEventResultFuture read(Listener * listener) override;
+			int read(Listener * listener) override;
+			int write(Listener * listener) override;
 
 		private:
 			struct sockaddr_in serveraddr;

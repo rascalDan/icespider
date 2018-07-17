@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <embedded.h>
+#include <thread>
 
 class EmbeddedIceSpiderInstance : public IceSpider::Embedded::Listener {
 	public:

@@ -5,15 +5,11 @@
 #include <memory>
 #include <array>
 #include <vector>
-#include </usr/include/semaphore.h>
-#include <blockingconcurrentqueue.h>
 #include "socketHandler.h"
 
 namespace IceSpider::Embedded {
 	class DLL_PUBLIC Listener {
 		public:
-			typedef moodycamel::BlockingConcurrentQueue<SocketHandler::Work> WorkQueue;
-
 			Listener();
 			Listener(unsigned short portno);
 			~Listener();
@@ -26,23 +22,19 @@ namespace IceSpider::Embedded {
 			template<typename T, typename ... P> inline int create(const P & ... p)
 			{
 				auto s = std::make_unique<T>(p...);
-				topSock = std::max(s->fd + 1, topSock);
+				sockCount++;
 				return (sockets[s->fd] = std::move(s))->fd;
 			}
 
-			WorkQueue work;
+			void add(int fd, int flags);
+			void rearm(int fd, int flags);
+			void remove(int fd);
 
 		private:
-			inline void add(int fd);
-			inline void remove(int fd);
-
-			void worker();
-
 			typedef std::unique_ptr<SocketHandler> SocketPtr;
 			typedef std::array<SocketPtr, 1024> Sockets;
-			int topSock;
+			int sockCount, epollfd;
 			Sockets sockets;
-			fd_set rfds, wfds, efds;
 	};
 };
 
