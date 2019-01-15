@@ -49,7 +49,7 @@ namespace IceSpider {
 				return Slicer::DeserializeAnyWith<T>(getDeserializer());
 			}
 			template<typename T>
-			std::optional<T> getBodyParam(const Ice::optional<IceSpider::StringMap> & map, const std::string_view & key) const
+			std::optional<T> getBodyParam(const std::optional<IceSpider::StringMap> & map, const std::string_view & key) const
 			{
 				if (!map) {
 					return {};
