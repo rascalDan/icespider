@@ -67,8 +67,17 @@ namespace IceSpider {
 					const OptionalString & = {}, const OptionalString & = {},
 					bool = false, std::optional<time_t> = {});
 			template<typename T>
-			void setCookie(const std::string_view &, const T &, const OptionalString & = {},
-					const OptionalString & = {}, bool = false, std::optional<time_t> = {});
+			void setCookie(const std::string_view & n, const T & v,
+					const OptionalString & d, const OptionalString & p,
+					bool s, std::optional<time_t> e) {
+				if constexpr (std::is_constructible<std::string_view, T>::value) {
+					setCookie(n, std::string_view(v), d, p, s, e);
+				}
+				else {
+					auto vs = boost::lexical_cast<std::string>(v);
+					setCookie(n, std::string_view(vs), d, p, s, e);
+				}
+			}
 			template<typename T>
 			std::optional<T> getQueryStringParam(const std::string_view & key) const;
 			template<typename T>

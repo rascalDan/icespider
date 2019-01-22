@@ -9,6 +9,8 @@
 #include <formatters.h>
 
 namespace IceSpider {
+	using namespace AdHoc::literals;
+
 	IHttpRequest::IHttpRequest(const Core * c) :
 		core(c)
 	{
@@ -129,8 +131,9 @@ namespace IceSpider {
 			std::optional<time_t> e)
 	{
 		std::stringstream o;
-		o << XWwwFormUrlEncoded::urlencode(name) <<
-			'=' << XWwwFormUrlEncoded::urlencode(value);
+		XWwwFormUrlEncoded::urlencodeto(o, name.begin(), name.end());
+		o << '=';
+		XWwwFormUrlEncoded::urlencodeto(o, value.begin(), value.end());
 		if (e) {
 			char buf[45];
 			struct tm tm;
@@ -139,9 +142,9 @@ namespace IceSpider {
 			auto l = strftime(buf, sizeof(buf), "; expires=%a, %d %b %Y %T %Z", &tm);
 			o.write(buf, l);
 		}
-		if (d) o << "; domain=" << *d;
-		if (p) o << "; path=" << *p;
-		if (s) o << "; secure";
+		if (d) "; domain=%?"_fmt(o, *d);
+		if (p) "; path=%?"_fmt(o, *p);
+		if (s) "; secure"_fmt(o);
 		setHeader(H::SET_COOKIE, o.str());
 	}
 
@@ -176,12 +179,6 @@ namespace IceSpider {
 	}
 
 #define getParams(T) \
-	template<> void IHttpRequest::setCookie<T>(const std::string_view & n, const T & v, \
-					const OptionalString & d, const OptionalString & p, \
-					bool s, std::optional<time_t> e) { \
-		auto vs = boost::lexical_cast<std::string>(v); \
-		setCookie(n, std::string_view(vs), d, p, s, e); \
-	} \
 	template<> T IHttpRequest::getURLParam<T>(unsigned int idx) const { \
 		return wrapLexicalCast<T>(getURLParam(idx)); } \
 	template<> std::optional<T> IHttpRequest::getQueryStringParam<T>(const std::string_view & key) const { \

@@ -89,23 +89,28 @@ namespace IceSpider {
 	std::string
 	XWwwFormUrlEncoded::urlencode(std::string_view::const_iterator i, std::string_view::const_iterator e)
 	{
-		std::string t;
-		t.reserve(std::distance(i, e));
+		std::stringstream o;
+		urlencodeto(o, i, e);
+		return o.str();
+	}
+
+	void
+	XWwwFormUrlEncoded::urlencodeto(std::ostream & o, std::string_view::const_iterator i, std::string_view::const_iterator e)
+	{
 		while (i != e) {
 			if (*i == ' ') {
-				t += '+';
+				o.put('+');
 			}
 			else if (!isalnum(*i)) {
-				t += '%';
-				t += hexchar(*i >> 4);
-				t += hexchar(*i & 0xf);
+				o.put('%');
+				o.put(hexchar(*i >> 4));
+				o.put(hexchar(*i & 0xf));
 			}
 			else {
-				t += *i;
+				o.put(*i);
 			}
 			++i;
 		}
-		return t;
 	}
 
 	std::string

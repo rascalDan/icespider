@@ -17,6 +17,7 @@ namespace IceSpider {
 
 			DLL_PUBLIC static std::string urldecode(std::string_view::const_iterator s, std::string_view::const_iterator);
 			DLL_PUBLIC static std::string urlencode(std::string_view::const_iterator s, std::string_view::const_iterator);
+			DLL_PUBLIC static void urlencodeto(std::ostream &, std::string_view::const_iterator s, std::string_view::const_iterator);
 			DLL_PUBLIC static std::string urlencode(const std::string_view & s);
 
 		private:
