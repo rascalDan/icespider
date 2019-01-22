@@ -4,7 +4,6 @@
 #include <core.h>
 #include <ihttpRequest.h>
 #include <map>
-#include <tuple>
 #include <string_view>
 
 namespace IceSpider {
