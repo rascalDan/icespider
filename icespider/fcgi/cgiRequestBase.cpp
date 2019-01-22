@@ -70,6 +70,11 @@ namespace IceSpider {
 		return i->second;
 	}
 
+	bool CgiRequestBase::ciLess::operator() (const std::string_view & s1, const std::string_view & s2) const
+	{
+		return lexicographical_compare(s1, s2, ba::is_iless());
+	}
+
 	void
 	CgiRequestBase::initialize()
 	{
@@ -113,18 +118,9 @@ namespace IceSpider {
 		return s;
 	}
 
+	template<typename MapType>
 	OptionalString
-	CgiRequestBase::optionalLookup(const std::string_view & key, const VarMap & vm)
-	{
-		auto i = vm.find(key);
-		if (i == vm.end()) {
-			return {};
-		}
-		return i->second;
-	}
-
-	OptionalString
-	CgiRequestBase::optionalLookup(const std::string_view & key, const StringMap & vm)
+	CgiRequestBase::optionalLookup(const std::string_view & key, const MapType & vm)
 	{
 		auto i = vm.find(key);
 		if (i == vm.end()) {

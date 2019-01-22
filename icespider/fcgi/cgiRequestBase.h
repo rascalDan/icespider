@@ -14,7 +14,11 @@ namespace IceSpider {
 			void initialize();
 
 		public:
+			struct ciLess {
+				bool operator()(const std::string_view & s1, const std::string_view & s2) const;
+			};
 			typedef std::map<std::string_view, const std::string_view> VarMap;
+			typedef std::map<std::string_view, const std::string_view, ciLess> HdrMap;
 
 			const PathElements & getRequestPath() const override;
 			PathElements & getRequestPath() override;
@@ -30,13 +34,13 @@ namespace IceSpider {
 			std::ostream & dump(std::ostream & s) const override;
 
 		private:
-			static OptionalString optionalLookup(const std::string_view & key, const VarMap &);
-			static OptionalString optionalLookup(const std::string_view & key, const StringMap &);
+			template<typename MapType>
+			static OptionalString optionalLookup(const std::string_view & key, const MapType &);
 
 			VarMap envmap;
 			StringMap qsmap;
 			StringMap cookiemap;
-			VarMap hdrmap;
+			HdrMap hdrmap;
 			PathElements pathElements;
 	};
 }

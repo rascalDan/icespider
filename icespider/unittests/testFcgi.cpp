@@ -232,6 +232,7 @@ BOOST_AUTO_TEST_CASE( acceptheader )
 	CharPtrPtrArray env ({ "SCRIPT_NAME=/", "HTTP_ACCEPT=text/html" });
 	TestRequest r(this, env);
 	BOOST_REQUIRE_EQUAL("text/html", *r.getHeaderParam("ACCEPT"));
+	BOOST_REQUIRE_EQUAL("text/html", *r.getHeaderParam(IceSpider::H::ACCEPT));
 }
 
 BOOST_AUTO_TEST_CASE( missingheader )
