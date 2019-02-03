@@ -2,7 +2,8 @@
 #include "exceptions.h"
 #include <Ice/Initialize.h>
 #include <Ice/ObjectAdapter.h>
-#include <boost/filesystem/convenience.hpp>
+#include <filesystem>
+#include <cxxabi.h>
 #include <factory.impl.h>
 #include <compileTimeFormatter.h>
 
@@ -10,7 +11,7 @@ INSTANTIATEFACTORY(IceSpider::Plugin, Ice::CommunicatorPtr, Ice::PropertiesPtr);
 INSTANTIATEPLUGINOF(IceSpider::ErrorHandler);
 
 namespace IceSpider {
-	const boost::filesystem::path Core::defaultConfig("config/ice.properties");
+	const std::filesystem::path Core::defaultConfig("config/ice.properties");
 
 	Core::Core(const Ice::StringSeq & args)
 	{
@@ -18,7 +19,7 @@ namespace IceSpider {
 		id.properties = Ice::createProperties();
 		id.properties->parseCommandLineOptions("", args);
 		auto config = id.properties->getPropertyWithDefault("IceSpider.Config", defaultConfig.string());
-		if (boost::filesystem::exists(config)) {
+		if (std::filesystem::exists(config)) {
 			id.properties->load(config);
 		}
 		communicator = Ice::initialize(id);

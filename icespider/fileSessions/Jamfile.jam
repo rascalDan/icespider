@@ -1,12 +1,10 @@
 lib adhocutil : : : : <include>/usr/include/adhocutil ;
-lib boost_system ;
-lib boost_filesystem ;
+lib stdc++fs ;
 
 lib icespider-filesessions :
 	[ glob *.cpp ]
 	:
-	<library>boost_system
-	<library>boost_filesystem
+	<library>stdc++fs
 	<library>adhocutil
 	<library>../core//icespider-core
 	<implicit-dependency>../core//icespider-core

@@ -14,7 +14,7 @@ using namespace IceSpider;
 static void forceEarlyChangeDir() __attribute__((constructor(101)));
 void forceEarlyChangeDir()
 {
-	boost::filesystem::current_path(XSTR(ROOT));
+	std::filesystem::current_path(XSTR(ROOT));
 }
 
 class CoreFixture {
@@ -23,7 +23,7 @@ class CoreFixture {
 			modeDir(binDir.lexically_relative(rootDir / "bin" / "testCompile.test"))
 		{
 		}
-		boost::filesystem::path modeDir;
+		std::filesystem::path modeDir;
 };
 
 namespace std {

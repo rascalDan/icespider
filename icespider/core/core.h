@@ -5,7 +5,7 @@
 #include <vector>
 #include "irouteHandler.h"
 #include <Ice/Communicator.h>
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 #include <plugins.h>
 
 namespace IceSpider {
@@ -32,7 +32,7 @@ namespace IceSpider {
 			Ice::CommunicatorPtr communicator;
 			Ice::ObjectAdapterPtr pluginAdapter;
 
-			static const boost::filesystem::path defaultConfig;
+			static const std::filesystem::path defaultConfig;
 
 		private:
 			void defaultErrorReport(IHttpRequest * request, const std::exception & ex) const;

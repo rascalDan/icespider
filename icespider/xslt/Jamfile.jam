@@ -1,7 +1,6 @@
 lib adhocutil : : : : <include>/usr/include/adhocutil ;
 lib slicer-xml : : : : <include>/usr/include/slicer ;
-lib boost_system ;
-lib boost_filesystem ;
+lib stdc++fs ;
 lib xslt ;
 lib exslt ;
 
@@ -10,8 +9,7 @@ lib icespider-xslt :
 	:
 	<library>adhocutil
 	<library>slicer-xml
-	<library>boost_system
-	<library>boost_filesystem
+	<library>stdc++fs
 	<library>xslt
 	<library>exslt
 	<library>../..//libxmlpp

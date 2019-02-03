@@ -8,7 +8,7 @@ main(int c, char ** v)
 {
 	bool showHelp;
 	IceSpider::Compile::RouteCompiler rc;
-	boost::filesystem::path input, output;
+	std::filesystem::path input, output;
 	po::options_description opts("IceSpider compile options");
 	opts.add_options()
 		("input", po::value(&input), "Input .json file")

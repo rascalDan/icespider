@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <factory.impl.h>
-#include <boost/filesystem/operations.hpp>
+#include <filesystem>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <Ice/OutputStream.h>
@@ -23,8 +23,8 @@ namespace IceSpider {
 				duration(p->getPropertyAsIntWithDefault("IceSpider.FileSessions.Duration", 3600))
 			{
 				if (!root.empty())
-					if (!boost::filesystem::exists(root))
-						boost::filesystem::create_directories(root);
+					if (!std::filesystem::exists(root))
+						std::filesystem::create_directories(root);
 			}
 
 			~FileSessions()
@@ -59,7 +59,7 @@ namespace IceSpider {
 			void destroySession(const ::std::string id, const ::Ice::Current &) override
 			{
 				try {
-					boost::filesystem::remove(root / id);
+					std::filesystem::remove(root / id);
 				}
 				catch (const std::exception & e) {
 					throw SessionError(e.what());
@@ -83,7 +83,7 @@ namespace IceSpider {
 			SessionPtr load(const std::string & id)
 			{
 				auto path = root / id;
-				if (!boost::filesystem::exists(path)) return NULL;
+				if (!std::filesystem::exists(path)) return NULL;
 				try {
 					AdHoc::FileUtils::MemMap f(path);
 					sysassert(flock(f.fh, LOCK_SH), -1);
@@ -104,10 +104,10 @@ namespace IceSpider {
 
 			void removeExpired()
 			{
-				if (root.empty() || !boost::filesystem::exists(root)) return;
-				boost::filesystem::directory_iterator di(root);
-				while (di != boost::filesystem::directory_iterator()) {
-					auto s = load(di->path().leaf().string());
+				if (root.empty() || !std::filesystem::exists(root)) return;
+				std::filesystem::directory_iterator di(root);
+				while (di != std::filesystem::directory_iterator()) {
+					auto s = load(di->path());
 					if (s && isExpired(s)) {
 						destroySession(s->id, Ice::Current());
 					}
@@ -131,7 +131,7 @@ namespace IceSpider {
 			}
 
 			Ice::CommunicatorPtr ic;
- 			const boost::filesystem::path root;
+ 			const std::filesystem::path root;
 			const Ice::Int duration;
 	};
 }

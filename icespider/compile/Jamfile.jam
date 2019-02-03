@@ -2,8 +2,7 @@ lib adhocutil : : : : <include>/usr/include/adhocutil ;
 lib slicer : : : : <include>/usr/include/slicer <include>/usr/include/adhocutil ;
 lib slicer-json ;
 lib boost_program_options ;
-lib boost_system ;
-lib boost_filesystem ;
+lib stdc++fs ;
 lib mcpp ;
 
 lib icespider-compile :
@@ -18,8 +17,7 @@ lib icespider-compile :
 	<library>slicer
 	<library>adhocutil
 	<library>slicer-json
-	<library>boost_system
-	<library>boost_filesystem
+	<library>stdc++fs
 	<library>slice//Slice
 	<library>../common//icespider-common
 	<implicit-dependency>../common//icespider-common
@@ -27,8 +25,7 @@ lib icespider-compile :
 	<library>..//pthread
 	<library>mcpp
 	: :
-	<library>boost_system
-	<library>boost_filesystem
+	<library>stdc++fs
 	<library>../common//icespider-common
 	;
 

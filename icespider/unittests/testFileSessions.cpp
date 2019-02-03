@@ -20,14 +20,14 @@ class TestCore : public IceSpider::CoreWithDefaultRouter {
 			root(communicator->getProperties()->getProperty("IceSpider.FileSessions.Path"))
 		{
 		}
-		const boost::filesystem::path root;
+		const std::filesystem::path root;
 };
 
 BOOST_AUTO_TEST_CASE( clear )
 {
 	TestCore tc;
-	if (boost::filesystem::exists(tc.root)) {
-		boost::filesystem::remove_all(tc.root);
+	if (std::filesystem::exists(tc.root)) {
+		std::filesystem::remove_all(tc.root);
 	}
 }
 
@@ -44,11 +44,11 @@ BOOST_AUTO_TEST_CASE( createAndDestroy )
 {
 	auto prx = this->getProxy<IceSpider::SessionManager>();
 	auto s = prx->createSession();
-	BOOST_REQUIRE(boost::filesystem::exists(root / s->id));
+	BOOST_REQUIRE(std::filesystem::exists(root / s->id));
 	BOOST_REQUIRE_EQUAL(0, s->duration);
 	BOOST_REQUIRE_EQUAL(time(NULL), s->lastUsed);
 	prx->destroySession(s->id);
-	BOOST_REQUIRE(!boost::filesystem::exists(root / s->id));
+	BOOST_REQUIRE(!std::filesystem::exists(root / s->id));
 }
 
 BOOST_AUTO_TEST_CASE( createAndChangeRestore )
@@ -69,32 +69,32 @@ BOOST_AUTO_TEST_CASE( createAndExpire )
 {
 	auto prx = this->getProxy<IceSpider::SessionManager>();
 	auto s = prx->createSession();
-	BOOST_REQUIRE(boost::filesystem::exists(root / s->id));
+	BOOST_REQUIRE(std::filesystem::exists(root / s->id));
 	BOOST_REQUIRE_EQUAL(0, s->duration);
 	BOOST_REQUIRE_EQUAL(time(NULL), s->lastUsed);
 	usleep(1001000);
-	BOOST_REQUIRE(boost::filesystem::exists(root / s->id));
+	BOOST_REQUIRE(std::filesystem::exists(root / s->id));
 	BOOST_REQUIRE(!prx->getSession(s->id));
-	BOOST_REQUIRE(!boost::filesystem::exists(root / s->id));
+	BOOST_REQUIRE(!std::filesystem::exists(root / s->id));
 }
 
 BOOST_AUTO_TEST_CASE( missing )
 {
 	auto prx = this->getProxy<IceSpider::SessionManager>();
 	BOOST_REQUIRE(!prx->getSession("missing"));
-	BOOST_REQUIRE(!boost::filesystem::exists(root / "missing"));
+	BOOST_REQUIRE(!std::filesystem::exists(root / "missing"));
 }
 
 BOOST_AUTO_TEST_CASE( createAndLeave )
 {
 	auto prx = this->getProxy<IceSpider::SessionManager>();
 	auto s = prx->createSession();
-	BOOST_REQUIRE(boost::filesystem::exists(root / s->id));
+	BOOST_REQUIRE(std::filesystem::exists(root / s->id));
 }
 
 BOOST_AUTO_TEST_CASE( left )
 {
-	BOOST_REQUIRE(!boost::filesystem::is_empty(root));
+	BOOST_REQUIRE(!std::filesystem::is_empty(root));
 }
 
 BOOST_AUTO_TEST_CASE( expire )
@@ -107,6 +107,6 @@ BOOST_AUTO_TEST_SUITE_END();
 BOOST_AUTO_TEST_CASE( empty )
 {
 	TestCore tc;
-	BOOST_REQUIRE(boost::filesystem::is_empty(tc.root));
+	BOOST_REQUIRE(std::filesystem::is_empty(tc.root));
 }
 

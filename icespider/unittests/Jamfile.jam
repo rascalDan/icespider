@@ -22,8 +22,7 @@ lib slicer : : : : <include>/usr/include/slicer ;
 lib slicer-json : : : : <include>/usr/include/slicer ;
 lib slicer-xml : : : : <include>/usr/include/slicer ;
 lib boost_utf : : <name>boost_unit_test_framework ;
-lib boost_system ;
-lib boost_filesystem ;
+lib stdc++fs ;
 lib dl ;
 path-constant me : . ;
 
@@ -109,8 +108,7 @@ run
 	<library>../common//icespider-common
 	<library>../core//icespider-core
 	<implicit-dependency>../core//icespider-core
-	<library>boost_system
-	<library>boost_filesystem
+	<library>stdc++fs
 	<library>slicer
 	<library>slicer-json
 	<library>adhocutil
@@ -126,8 +124,7 @@ run
 	<library>../fileSessions//icespider-filesessions
 	<library>../common//icespider-common
 	<library>testCommon
-	<library>boost_system
-	<library>boost_filesystem
+	<library>stdc++fs
 	<library>../core//icespider-core
 	<implicit-dependency>../core//icespider-core
 	;

@@ -5,7 +5,7 @@
 #include <Slice/Preprocessor.h>
 #include <scopeExit.h>
 #include <fprintbf.h>
-#include <boost/filesystem/convenience.hpp>
+#include <filesystem>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include <Slice/CPlusPlusUtil.h>
@@ -16,11 +16,11 @@ namespace IceSpider {
 	namespace Compile {
 		RouteCompiler::RouteCompiler()
 		{
-			searchPath.push_back(boost::filesystem::current_path());
+			searchPath.push_back(std::filesystem::current_path());
 		}
 
 		RouteConfigurationPtr
-		RouteCompiler::loadConfiguration(const boost::filesystem::path & input) const
+		RouteCompiler::loadConfiguration(const std::filesystem::path & input) const
 		{
 			auto deserializer = Slicer::DeserializerPtr(Slicer::FileDeserializerFactory::createNew(input.extension().string(), input));
 			return Slicer::DeserializeAnyWith<RouteConfigurationPtr>(deserializer);
@@ -147,11 +147,11 @@ namespace IceSpider {
 		}
 
 		void
-		RouteCompiler::compile(const boost::filesystem::path & input, const boost::filesystem::path & output) const
+		RouteCompiler::compile(const std::filesystem::path & input, const std::filesystem::path & output) const
 		{
 			auto configuration = loadConfiguration(input);
 			auto units = loadUnits(configuration);
-			auto outputh = boost::filesystem::change_extension(output, ".h");
+			auto outputh = std::filesystem::path(output).replace_extension(".h");
 			applyDefaults(configuration, units);
 
 			AdHoc::ScopeExit uDestroy([&units]() {
@@ -172,8 +172,8 @@ namespace IceSpider {
 				},
 				NULL,
 				[&output,&outputh]() {
-					boost::filesystem::remove(output);
-					boost::filesystem::remove(outputh);
+					std::filesystem::remove(output);
+					std::filesystem::remove(outputh);
 				});
 			processConfiguration(out, outh, output.stem().string(), configuration, units);
 		}
@@ -184,9 +184,9 @@ namespace IceSpider {
 			RouteCompiler::Units units;
 			AdHoc::ScopeExit uDestroy;
 			for (const auto & slice : c->slices) {
-				boost::filesystem::path realSlice;
+				std::filesystem::path realSlice;
 				for (const auto & p : searchPath) {
-					if (boost::filesystem::exists(p / slice)) {
+					if (std::filesystem::exists(p / slice)) {
 						realSlice = p / slice;
 						break;
 					}
@@ -294,7 +294,7 @@ namespace IceSpider {
 
 			fprintf(outputh, "\n// Interface headers.\n");
 			for (const auto & s : c->slices) {
-				boost::filesystem::path slicePath(s);
+				std::filesystem::path slicePath(s);
 				slicePath.replace_extension(".h");
 				fprintbf(outputh, "#include <%s>\n", slicePath.string());
 			}

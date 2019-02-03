@@ -1,7 +1,7 @@
 #ifndef ICESPIDER_COMPILE_ROURTECOMPILER_H
 #define ICESPIDER_COMPILE_ROURTECOMPILER_H
 
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 #include <visibility.h>
 #include <vector>
 #include <routes.h>
@@ -16,13 +16,13 @@ namespace IceSpider {
 
 				RouteCompiler();
 
-				RouteConfigurationPtr loadConfiguration(const boost::filesystem::path &) const;
+				RouteConfigurationPtr loadConfiguration(const std::filesystem::path &) const;
 				Units loadUnits(RouteConfigurationPtr) const;
 
 				void applyDefaults(RouteConfigurationPtr, const Units & u) const;
-				void compile(const boost::filesystem::path & input, const boost::filesystem::path & output) const;
+				void compile(const std::filesystem::path & input, const std::filesystem::path & output) const;
 
-				std::vector<boost::filesystem::path> searchPath;
+				std::vector<std::filesystem::path> searchPath;
 
 			private:
 				typedef std::map<std::string, int> Proxies;

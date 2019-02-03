@@ -11,7 +11,7 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/filesystem/operations.hpp>
+#include <filesystem>
 #include <definedDirs.h>
 #include <slicer/slicer.h>
 #include <xml/serializer.h>
@@ -25,7 +25,7 @@ using namespace IceSpider;
 static void forceEarlyChangeDir() __attribute__((constructor(101)));
 void forceEarlyChangeDir()
 {
-	boost::filesystem::current_path(XSTR(ROOT));
+	std::filesystem::current_path(XSTR(ROOT));
 }
 
 BOOST_AUTO_TEST_CASE( testLoadConfiguration )
