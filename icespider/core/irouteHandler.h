@@ -49,6 +49,12 @@ namespace IceSpider {
 	typedef AdHoc::Factory<IRouteHandler, const Core *> RouteHandlerFactory;
 }
 
+#if __cplusplus < 201709
+namespace std {
+	template <typename T> using remove_cvref = typename std::remove_cv<typename std::remove_reference<T>::type>;
+}
+#endif
+
 #endif
 
 

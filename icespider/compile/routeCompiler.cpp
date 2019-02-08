@@ -13,6 +13,7 @@
 
 
 namespace IceSpider {
+	using namespace AdHoc::literals;
 	namespace Compile {
 		RouteCompiler::RouteCompiler()
 		{
@@ -436,36 +437,37 @@ namespace IceSpider {
 			for (const auto & p : r.second->params) {
 				if (p.second->hasUserSource) {
 					auto ip = ps.find(p.first)->second;
+					const auto paramType = "std::remove_cvref<%?>::type"_fmt(
+						Slice::inputTypeToString(ip->type(), false, "", ip->getMetaData()));
 					if (p.second->source == ParameterSource::Body) {
 						if (p.second->key) {
 							if (!doneBody) {
 								if (p.second->type) {
-									fprintbf(4, output, "auto _pbody(request->getBody<%s>());\n",
+									fprintbf(4, output, "const auto _pbody(request->getBody<%s>());\n",
 											*p.second->type);
 								}
 								else {
-									fprintbf(4, output, "auto _pbody(request->getBody<IceSpider::StringMap>());\n");
+									fprintbf(4, output, "const auto _pbody(request->getBody<IceSpider::StringMap>());\n");
 								}
 								doneBody = true;
 							}
 							if (p.second->type) {
-								fprintbf(4, output, "auto _p_%s(_pbody->%s",
+								fprintbf(4, output, "const auto _p_%s(_pbody->%s",
 										p.first, p.first);
 							}
 							else {
-								fprintbf(4, output, "auto _p_%s(request->getBodyParam<%s>(_pbody, _pn_%s)",
-										p.first, Slice::typeToString(ip->type()),
-										p.first);
+								fprintbf(4, output, "const auto _p_%s(request->getBodyParam<%s>(_pbody, _pn_%s)",
+										p.first, paramType, p.first);
 							}
 						}
 						else {
-							fprintbf(4, output, "auto _p_%s(request->getBody<%s>()",
-									p.first, Slice::typeToString(ip->type()));
+							fprintbf(4, output, "const auto _p_%s(request->getBody<%s>()",
+									p.first, paramType);
 						}
 					}
 					else {
-						fprintbf(4, output, "auto _p_%s(request->get%sParam<%s>(_p%c_%s)",
-								p.first, getEnumString(p.second->source), Slice::typeToString(ip->type()),
+						fprintbf(4, output, "const auto _p_%s(request->get%sParam<%s>(_p%c_%s)",
+								p.first, getEnumString(p.second->source), paramType,
 								p.second->source == ParameterSource::URL ? 'i' : 'n',
 								p.first);
 					}

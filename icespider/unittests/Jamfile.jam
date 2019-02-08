@@ -138,5 +138,6 @@ lib test-api :
 	<library>adhocutil
 	<library>..//pthread
 	<library>..//Ice
+	<include>.
 	;
 

@@ -150,13 +150,13 @@ class TestSerice : public TestIceSpider::TestApi {
 			return std::make_shared<TestIceSpider::SomeModel>("withParams");
 		}
 
-		void returnNothing(const std::string s, const Ice::Current &) override
+		void returnNothing(const std::string_view s, const Ice::Current &) override
 		{
 			if (s == "error") {
 				throw TestIceSpider::Ex("test error");
 			}
 			else if (s.length() == 3) {
-				throw TestIceSpider::Ex(s);
+				throw TestIceSpider::Ex(std::string(s));
 			}
 			BOOST_REQUIRE_EQUAL(s, "some value");
 		}

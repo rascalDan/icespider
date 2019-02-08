@@ -1,3 +1,5 @@
+#define stringview ["cpp:view-type:std::string_view"] string
+[["cpp:include:string_view_support.h"]]
 module TestIceSpider {
 	class SomeModel {
 		string value;
@@ -24,7 +26,7 @@ module TestIceSpider {
 		string simplei(int i);
 		SomeModel index();
 		SomeModel withParams(string s, int i) throws Ex;
-		void returnNothing(string s) throws Ex;
+		void returnNothing(stringview s) throws Ex;
 		void complexParam(optional(0) string s, SomeModel m);
 	};
 	interface DummyPlugin {
