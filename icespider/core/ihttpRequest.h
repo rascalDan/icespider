@@ -9,6 +9,7 @@
 #include <slicer/slicer.h>
 #include <Ice/Optional.h>
 #include <boost/lexical_cast.hpp>
+#include "exceptions.h"
 
 namespace IceSpider {
 	class Core;
@@ -27,7 +28,7 @@ namespace IceSpider {
 			virtual PathElements & getRequestPath() = 0;
 			virtual HttpMethod getRequestMethod() const = 0;
 
-			const std::string & getURLParam(unsigned int) const;
+			OptionalString getURLParam(const unsigned int &) const;
 			virtual OptionalString getQueryStringParam(const std::string_view &) const = 0;
 			virtual OptionalString getHeaderParam(const std::string_view &) const = 0;
 			virtual OptionalString getCookieParam(const std::string_view &) const = 0;
@@ -41,8 +42,35 @@ namespace IceSpider {
 
 			virtual std::ostream & dump(std::ostream & s) const = 0;
 
+			template<typename T, typename K>
+			inline
+			std::optional<T> getFrom(const K & key, OptionalString (IHttpRequest::*src)(const K &) const) const
+			{
+				if (auto v = (this->*src)(key)) {
+					if constexpr (std::is_convertible<std::string_view, T>::value) {
+						return *v;
+					}
+					else if constexpr (std::is_constructible<std::string_view, T>::value) {
+						return T(*v);
+					}
+					else {
+						try {
+							return boost::lexical_cast<T>(*v);
+						}
+						catch (const boost::bad_lexical_cast & e) {
+							throw Http400_BadRequest();
+						}
+					}
+				}
+				else {	
+					return std::nullopt;
+				}
+			}
 			template<typename T>
-			T getURLParam(unsigned int) const;
+			T getURLParam(unsigned int n) const
+			{
+				return *getFrom<T, unsigned int>(n, &IHttpRequest::getURLParam);
+			}
 			template<typename T>
 			std::optional<T> getBody() const
 			{
@@ -79,11 +107,20 @@ namespace IceSpider {
 				}
 			}
 			template<typename T>
-			std::optional<T> getQueryStringParam(const std::string_view & key) const;
+			std::optional<T> getQueryStringParam(const std::string_view & key) const
+			{
+				return getFrom<T, std::string_view>(key, &IHttpRequest::getQueryStringParam);
+			}
 			template<typename T>
-			std::optional<T> getHeaderParam(const std::string_view & key) const;
+			std::optional<T> getHeaderParam(const std::string_view & key) const
+			{
+				return getFrom<T, std::string_view>(key, &IHttpRequest::getHeaderParam);
+			}
 			template<typename T>
-			std::optional<T> getCookieParam(const std::string_view & key) const;
+			std::optional<T> getCookieParam(const std::string_view & key) const
+			{
+				return getFrom<T, std::string_view>(key, &IHttpRequest::getCookieParam);
+			}
 			virtual void response(short, const std::string_view &) const = 0;
 			template<typename T>
 			void response(const IRouteHandler * route, const T & t) const

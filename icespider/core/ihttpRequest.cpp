@@ -103,8 +103,8 @@ namespace IceSpider {
 		}
 	}
 
-	const std::string &
-	IHttpRequest::getURLParam(unsigned int idx) const
+	OptionalString
+	IHttpRequest::getURLParam(const unsigned int & idx) const
 	{
 		auto & url = getRequestPath();
 		if (idx >= url.size()) {
@@ -170,45 +170,9 @@ namespace IceSpider {
 		s.second->Serialize(mp);
 	}
 
-	std::optional<std::string>
-	operator!(const std::optional<std::string_view> & sv)
-	{
-		// TODO: Fix this mess (only required if operation requires std::string)
-		if (sv) return { std::string(*sv) };
-		return {};
-	}
-
-#define getParams(T) \
-	template<> T IHttpRequest::getURLParam<T>(unsigned int idx) const { \
-		return wrapLexicalCast<T>(getURLParam(idx)); } \
-	template<> std::optional<T> IHttpRequest::getQueryStringParam<T>(const std::string_view & key) const { \
-		return optionalLexicalCast<T>(getQueryStringParam(key)); } \
-	template<> std::optional<T> IHttpRequest::getCookieParam<T>(const std::string_view & key) const { \
-		return optionalLexicalCast<T>(getCookieParam(key)); } \
-	template<> std::optional<T> IHttpRequest::getHeaderParam<T>(const std::string_view & key) const { \
-		return optionalLexicalCast<T>(getHeaderParam(key)); }
-	template<> std::string_view IHttpRequest::getURLParam<std::string_view>(unsigned int idx) const {
-		return getURLParam(idx); }
-	template<> OptionalString IHttpRequest::getQueryStringParam<std::string_view>(const std::string_view & key) const { \
-		return getQueryStringParam(key); }
-	template<> OptionalString IHttpRequest::getCookieParam<std::string_view>(const std::string_view & key) const { \
-		return getCookieParam(key); }
-	template<> OptionalString IHttpRequest::getHeaderParam<std::string_view>(const std::string_view & key) const { \
-		return getHeaderParam(key); }
-	template<> std::string IHttpRequest::getURLParam<std::string>(unsigned int idx) const {
-		return getURLParam(idx); }
-	template<> std::optional<std::string> IHttpRequest::getQueryStringParam<std::string>(const std::string_view & key) const { \
-		return !getQueryStringParam(key); }
-	template<> std::optional<std::string> IHttpRequest::getCookieParam<std::string>(const std::string_view & key) const { \
-		return !getCookieParam(key); }
-	template<> std::optional<std::string> IHttpRequest::getHeaderParam<std::string>(const std::string_view & key) const { \
-		return !getHeaderParam(key); }
-
-	getParams(bool);
-	getParams(Ice::Short);
-	getParams(Ice::Int);
-	getParams(Ice::Long);
-	getParams(Ice::Float);
-	getParams(Ice::Double);
+	static_assert(std::is_convertible<OptionalString::value_type, std::string_view>::value);
+	static_assert(!std::is_convertible<OptionalString::value_type, std::string>::value);
+	static_assert(std::is_constructible<OptionalString::value_type, std::string>::value);
 }
+
 
