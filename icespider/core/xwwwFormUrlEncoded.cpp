@@ -166,7 +166,7 @@ namespace IceSpider {
 	void
 	XWwwFormUrlEncoded::DeserializeSimple(Slicer::ModelPartPtr mp)
 	{
-		iterateVars([mp](auto, auto v) {
+		iterateVars([mp](auto &&, const auto && v) {
 			mp->SetValue(SetFromString(v));
 		});
 	}
@@ -175,7 +175,7 @@ namespace IceSpider {
 	XWwwFormUrlEncoded::DeserializeComplex(Slicer::ModelPartPtr mp)
 	{
 		mp->Create();
-		iterateVars([mp](auto k, auto v) {
+		iterateVars([mp](auto && k, const auto && v) {
 			if (auto m = mp->GetChild(k)) {
 				m->SetValue(SetFromString(v));
 			}
@@ -186,7 +186,7 @@ namespace IceSpider {
 	void
 	XWwwFormUrlEncoded::DeserializeDictionary(Slicer::ModelPartPtr mp)
 	{
-		iterateVars([mp](auto k, auto v) {
+		iterateVars([mp](auto && k, const auto && v) {
 			auto p = mp->GetAnonChild();
 			p->GetChild(KEY)->SetValue(SetFromString(k));
 			p->GetChild(VALUE)->SetValue(SetFromString(v));

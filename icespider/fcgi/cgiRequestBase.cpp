@@ -46,8 +46,8 @@ namespace IceSpider {
 	mapVars(const std::string_view & vn, const in & envmap, out & map, const std::string_view & sp) {
 		auto qs = envmap.find(vn);
 		if (qs != envmap.end()) {
-			XWwwFormUrlEncoded::iterateVars(qs->second, [&map](const auto & k, const auto & v) {
-				map.insert({ k, v });
+			XWwwFormUrlEncoded::iterateVars(qs->second, [&map](const auto && k, const auto && v) {
+				map.emplace(std::move(k), std::move(v));
 			}, sp);
 		}
 	}

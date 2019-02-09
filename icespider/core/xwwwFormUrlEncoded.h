@@ -8,7 +8,7 @@
 namespace IceSpider {
 	class XWwwFormUrlEncoded : public Slicer::Deserializer {
 		public:
-			typedef std::function<void(const std::string &, const std::string &)> KVh;
+			typedef std::function<void(const std::string &&, const std::string &&)> KVh;
 
 			XWwwFormUrlEncoded(std::istream & in);
 
