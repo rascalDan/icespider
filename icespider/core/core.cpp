@@ -55,7 +55,9 @@ namespace IceSpider {
 			pluginAdapter->destroy();
 		}
 
-		if (communicator) communicator->destroy();
+		if (communicator) {
+			communicator->destroy();
+		}
 	}
 
 	void
@@ -103,24 +105,29 @@ namespace IceSpider {
 		defaultErrorReport(request, exception);
 	}
 
+	auto demangle(const char * const name)
+	{
+		return std::unique_ptr<char, decltype(&std::free)>(
+				__cxxabiv1::__cxa_demangle(name, nullptr, nullptr, nullptr), std::free);
+	}
+
 	AdHocFormatter(LogExp, "Exception type: %?\nDetail: %?\n");
 	void
 	Core::defaultErrorReport(IHttpRequest * request, const std::exception & exception) const
 	{
-		char * buf = __cxxabiv1::__cxa_demangle(typeid(exception).name(), NULL, NULL, NULL);
+		auto buf = demangle(typeid(exception).name());
 		request->setHeader(H::CONTENT_TYPE, MIME::TEXT_PLAIN);
-		request->response(500, buf);
-		LogExp::write(request->getOutputStream(), buf, exception.what());
+		request->response(500, buf.get());
+		LogExp::write(request->getOutputStream(), buf.get(), exception.what());
 		request->dump(std::cerr);
-		LogExp::write(std::cerr, buf, exception.what());
-		free(buf);
+		LogExp::write(std::cerr, buf.get(), exception.what());
 	}
 
 	Ice::ObjectPrxPtr
 	Core::getProxy(const char * type) const
 	{
-		char * buf = __cxxabiv1::__cxa_demangle(type, NULL, NULL, NULL);
-		char * c = buf;
+		auto buf = demangle(type);
+		char * c = buf.get();
 		int off = 0;
 		while (*c) {
 			if (*(c + 1) == ':' && *c == ':') {
@@ -132,8 +139,7 @@ namespace IceSpider {
 			}
 			c += 1;
 		}
-		auto i = communicator->propertyToProxy(buf);
-		free(buf);
+		auto i = communicator->propertyToProxy(buf.get());
 		return i;
 	}
 
@@ -143,7 +149,9 @@ namespace IceSpider {
 	{
 		auto rpi = r->parts.begin();
 		for (auto ppi = pathparts.begin(); ppi != pathparts.end(); ++ppi, ++rpi) {
-			if (!(*rpi)->matches(*ppi)) return false;
+			if (!(*rpi)->matches(*ppi)) {
+				return false;
+			}
 		}
 		return true;
 	}

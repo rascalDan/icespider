@@ -4,8 +4,8 @@
 #include "exceptions.h"
 #include "xwwwFormUrlEncoded.h"
 #include <boost/lexical_cast.hpp>
-#include <time.h>
-#include <stdio.h>
+#include <ctime>
+#include <cstdio>
 #include <formatters.h>
 
 namespace IceSpider {
@@ -50,6 +50,7 @@ namespace IceSpider {
 		};
 
 		for (auto off = reset();
+				// NOLINTNEXTLINE(hicpp-vararg)
 				fscanf(accept.get(), " %n%*[^ /]%n / %n%*[^ ;,]%n", &grpstart, &grpend, &typestart, &typeend) == 0;
 				off = reset()) {
 			if (grpend <= grpstart || typestart <= grpend || typeend <= typestart) {
@@ -65,12 +66,14 @@ namespace IceSpider {
 			else if (a->type) {
 				throw Http400_BadRequest();
 			}
+			// NOLINTNEXTLINE(hicpp-vararg)
 			if (fscanf(accept.get(), " ; q = %f ", &a->q) == 1) {
-				if (a->q <= 0.0f || a->q > 1.0f) {
+				if (a->q <= 0.0F || a->q > 1.0F) {
 					throw Http400_BadRequest();
 				}
 			}
 			accepts.push_back(a);
+			// NOLINTNEXTLINE(hicpp-vararg)
 			if (fscanf(accept.get(), " ,") != 0) {
 				break;
 			}
@@ -135,23 +138,30 @@ namespace IceSpider {
 		o << '=';
 		XWwwFormUrlEncoded::urlencodeto(o, value.begin(), value.end());
 		if (e) {
-			char buf[45];
-			struct tm tm;
-			memset(&tm, 0, sizeof(tm));
+			std::string buf(45, 0);
+			struct tm tm { };
 			gmtime_r(&*e, &tm);
-			auto l = strftime(buf, sizeof(buf), "; expires=%a, %d %b %Y %T %Z", &tm);
-			o.write(buf, l);
+			buf.resize(strftime(buf.data(), buf.length(), "; expires=%a, %d %b %Y %T %Z", &tm));
+			o << buf;
 		}
-		if (d) "; domain=%?"_fmt(o, *d);
-		if (p) "; path=%?"_fmt(o, *p);
-		if (s) "; secure"_fmt(o);
+		if (d) {
+			"; domain=%?"_fmt(o, *d);
+		}
+		if (p) {
+			"; path=%?"_fmt(o, *p);
+		}
+		if (s){
+			"; secure"_fmt(o);
+		}
 		setHeader(H::SET_COOKIE, o.str());
 	}
 
 	template <typename T>
 	inline std::optional<T> optionalLexicalCast(const OptionalString & p)
 	{
-		if (p) return wrapLexicalCast<T>(*p);
+		if (p) {
+			return wrapLexicalCast<T>(*p);
+		}
 		return {};
 	}
 

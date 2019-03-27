@@ -26,13 +26,11 @@ lib stdc++fs ;
 lib dl ;
 path-constant me : . ;
 
-alias testCommon : :
-	<define>ROOT=\"$(me)\"
-	<library>..//Ice
-	: :
+alias testCommon : : : :
 	<library>..//Ice
 	<library>boost_utf
 	<define>ROOT=\"$(me)\"
+	<toolset>tidy:<xcheckxx>hicpp-vararg
 	;
 
 run

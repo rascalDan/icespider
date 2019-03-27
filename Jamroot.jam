@@ -15,6 +15,13 @@ project
 			<variant>debug:<cxxflags>"-W -Wall -Wextra -Werror -Wwrite-strings"
 			<variant>coverage:<cxxflags>"--coverage"
 			<variant>coverage:<linkflags>"--coverage"
+			<toolset>tidy:<checkxx>boost-*
+			<toolset>tidy:<checkxx>bugprone-*
+			<toolset>tidy:<checkxx>clang-*
+			<toolset>tidy:<checkxx>misc-*
+			<toolset>tidy:<checkxx>modernize-*
+			<toolset>tidy:<checkxx>hicpp-*
+			<toolset>tidy:<checkxx>performance-*
 	;
 
 build-project icespider ;

@@ -11,7 +11,9 @@ using namespace std::literals;
 namespace std {
 	template<typename T>
 	ostream & operator<<(ostream & s, const std::optional<T> & o) {
-		if (o) s << *o;
+		if (o) {
+			s << *o;
+		}
 		return s;
 	}
 }
@@ -42,6 +44,8 @@ class TestRequest : public IceSpider::CgiRequestBase {
 			return std::cin;
 		}
 		// LCOV_EXCL_STOP
+
+		// NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
 		mutable std::stringstream out;
 };
 
@@ -63,28 +67,31 @@ class TestPayloadRequest : public TestRequest {
 		std::istream & in;
 };
 
+// NOLINTNEXTLINE(hicpp-special-member-functions)
 class CharPtrPtrArray : public std::vector<char *> {
 	public:
 		CharPtrPtrArray()
 		{
-			push_back(NULL);
+			push_back(nullptr);
 		}
 
-		CharPtrPtrArray(const std::vector<std::string> & a)
+		explicit CharPtrPtrArray(const std::vector<std::string> & a)
 		{
 			for (const auto & e : a) {
 				push_back(strdup(e.c_str()));
 			}
-			push_back(NULL);
+			push_back(nullptr);
 		}
 
 		~CharPtrPtrArray()
 		{
 			for (const auto & e : *this) {
+				// NOLINTNEXTLINE(hicpp-no-malloc)
 				free(e);
 			}
 		}
 
+		// NOLINTNEXTLINE(hicpp-explicit-conversions)
 		operator char **()
 		{
 			return &front();
@@ -281,7 +288,7 @@ BOOST_AUTO_TEST_CASE( postxwwwformurlencoded_complex )
 BOOST_AUTO_TEST_CASE( postjson_complex )
 {
 	CharPtrPtrArray env ({ "SCRIPT_NAME=/", "REQUEST_METHOD=No", "CONTENT_TYPE=application/json" });
-	std::stringstream f("{\"alpha\":\"abcde\",\"number\":3.14,\"boolean\":true,\"empty\":\"\",\"spaces\":\"This is a string.\"}");
+	std::stringstream f(R"J({"alpha":"abcde","number":3.14,"boolean":true,"empty":"","spaces":"This is a string."})J");
 	TestPayloadRequest r(this, env, f);
 	auto n = *r.getBody<TestFcgi::ComplexPtr>();
 	BOOST_REQUIRE_EQUAL("abcde", n->alpha);
@@ -294,7 +301,7 @@ BOOST_AUTO_TEST_CASE( postjson_complex )
 BOOST_AUTO_TEST_CASE( postjson_dictionary )
 {
 	CharPtrPtrArray env ({ "SCRIPT_NAME=/", "REQUEST_METHOD=No", "CONTENT_TYPE=application/json" });
-	std::stringstream f("{\"alpha\":\"abcde\",\"number\":\"3.14\",\"boolean\":\"true\",\"empty\":\"\",\"spaces\":\"This is a string.\"}");
+	std::stringstream f(R"J({"alpha":"abcde","number":"3.14","boolean":"true","empty":"","spaces":"This is a string."})J");
 	TestPayloadRequest r(this, env, f);
 	auto n = *r.getBody<IceSpider::StringMap>();
 	BOOST_REQUIRE_EQUAL(5, n.size());

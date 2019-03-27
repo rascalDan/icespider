@@ -176,10 +176,11 @@ class TestSerice : public TestIceSpider::TestApi {
 
 		std::string simplei(Ice::Int n, const Ice::Current &) override
 		{
-			return boost::lexical_cast<std::string>(n);
+			return std::to_string(n);
 		}
 };
 
+// NOLINTNEXTLINE(hicpp-special-member-functions)
 class TestApp : public CoreWithDefaultRouter {
 	public:
 		TestApp() :
@@ -189,18 +190,19 @@ class TestApp : public CoreWithDefaultRouter {
 			adp->add(std::make_shared<TestSerice>(), Ice::stringToIdentity("Test"));
 		}
 
-		~TestApp()
+		~TestApp() override
 		{
 			adp->deactivate();
 			adp->destroy();
 		}
 
+	private:
 		Ice::ObjectAdapterPtr adp;
 };
 
 class Dummy : public IceSpider::Plugin, TestIceSpider::DummyPlugin {
 	public:
-		Dummy(Ice::CommunicatorPtr, Ice::PropertiesPtr) { }
+		Dummy(const Ice::CommunicatorPtr &, const Ice::PropertiesPtr &) { }
 };
 NAMEDFACTORY("DummyPlugin", Dummy, IceSpider::PluginFactory);
 
@@ -295,7 +297,7 @@ BOOST_AUTO_TEST_CASE( testCallPost1234 )
 {
 	TestRequest requestUpdateItem(this, HttpMethod::POST, "/1234");
 	requestUpdateItem.env["CONTENT_TYPE"] = "application/json";
-	requestUpdateItem.input << "{\"value\": \"some value\"}";
+	requestUpdateItem.input << R"({"value": "some value"})";
 	process(&requestUpdateItem);
 	auto h = requestUpdateItem.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
@@ -306,7 +308,7 @@ BOOST_AUTO_TEST_CASE( testCallPost1234 )
 BOOST_AUTO_TEST_CASE( testCallPost1234NoContentType )
 {
 	TestRequest requestUpdateItem(this, HttpMethod::POST, "/1234");
-	requestUpdateItem.input << "{\"value\": \"some value\"}";
+	requestUpdateItem.input << R"({"value": "some value"})";
 	process(&requestUpdateItem);
 	auto h = requestUpdateItem.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "400 Bad Request");
@@ -318,7 +320,7 @@ BOOST_AUTO_TEST_CASE( testCallPost1234UnsupportedMediaType )
 {
 	TestRequest requestUpdateItem(this, HttpMethod::POST, "/1234");
 	requestUpdateItem.env["CONTENT_TYPE"] = "application/notathing";
-	requestUpdateItem.input << "value=\"some value\"";
+	requestUpdateItem.input << R"(value="some value")";
 	process(&requestUpdateItem);
 	auto h = requestUpdateItem.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "415 Unsupported Media Type");
@@ -498,7 +500,7 @@ BOOST_AUTO_TEST_CASE( testCookies )
 class DummyErrorHandler : public IceSpider::ErrorHandler {
 	public:
 		IceSpider::ErrorHandlerResult
-		handleError(IceSpider::IHttpRequest * request, const std::exception & ex) const
+		handleError(IceSpider::IHttpRequest * request, const std::exception & ex) const override
 		{
 			if (const auto * tex = dynamic_cast<const TestIceSpider::Ex *>(&ex)) {
 				if (tex->message == "404") {

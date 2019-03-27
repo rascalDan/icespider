@@ -25,9 +25,9 @@ namespace IceSpider {
 
 			void iterateVars(const KVh & h);
 
-			void DeserializeSimple(Slicer::ModelPartPtr mp);
-			void DeserializeComplex(Slicer::ModelPartPtr mp);
-			void DeserializeDictionary(Slicer::ModelPartPtr mp);
+			void DeserializeSimple(const Slicer::ModelPartPtr & mp);
+			void DeserializeComplex(const Slicer::ModelPartPtr & mp);
+			void DeserializeDictionary(const Slicer::ModelPartPtr & mp);
 
 			const std::string input;
 	};

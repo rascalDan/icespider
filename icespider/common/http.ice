@@ -6,7 +6,7 @@
 module IceSpider {
 	["slicer:ignore"]
 	local exception HttpException {
-		int code;
+		short code;
 		string message;
 	};
 

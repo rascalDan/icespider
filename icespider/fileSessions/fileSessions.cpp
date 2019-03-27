@@ -17,20 +17,31 @@
 namespace IceSpider {
 	class FileSessions : public Plugin, public SessionManager {
 		public:
-			FileSessions(Ice::CommunicatorPtr c, Ice::PropertiesPtr p) :
-				ic(c),
+			FileSessions(Ice::CommunicatorPtr c, const Ice::PropertiesPtr & p) :
+				ic(std::move(c)),
 				root(p->getProperty("IceSpider.FileSessions.Path")),
 				duration(p->getPropertyAsIntWithDefault("IceSpider.FileSessions.Duration", 3600))
 			{
-				if (!root.empty())
-					if (!std::filesystem::exists(root))
-						std::filesystem::create_directories(root);
+				if (!root.empty() && !std::filesystem::exists(root)) {
+					std::filesystem::create_directories(root);
+				}
 			}
 
-			~FileSessions()
+			FileSessions(const FileSessions &) = delete;
+			FileSessions(FileSessions &&) = delete;
+
+			~FileSessions() override
 			{
-				removeExpired();
+				try {
+					removeExpired();
+				}
+				catch (...) {
+					// Meh :)
+				}
 			}
+
+			void operator=(const FileSessions &) = delete;
+			void operator=(FileSessions &&) = delete;
 
 			SessionPtr createSession(const ::Ice::Current &) override
 			{
@@ -47,7 +58,7 @@ namespace IceSpider {
 				auto s = load(id);
 				if (s && isExpired(s)) {
 					destroySession(id, current);
-					return NULL;
+					return nullptr;
 				}
 				return s;
 			}
@@ -68,12 +79,13 @@ namespace IceSpider {
 			}
 
 		private:
-			void save(SessionPtr s)
+			void save(const SessionPtr & s)
 			{
-				s->lastUsed = time(NULL);
+				s->lastUsed = time(nullptr);
 				Ice::OutputStream buf(ic);
 				buf.write(s);
 				auto range = buf.finished();
+				// NOLINTNEXTLINE(hicpp-signed-bitwise)
 				AdHoc::FileUtils::FileHandle f(root / s->id, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
 				sysassert(flock(f.fh, LOCK_EX), -1);
 				sysassert(pwrite(f.fh, range.first, range.second - range.first, 0), -1);
@@ -84,7 +96,9 @@ namespace IceSpider {
 			SessionPtr load(const std::string & id)
 			{
 				auto path = root / id;
-				if (!std::filesystem::exists(path)) return NULL;
+				if (!std::filesystem::exists(path)) {
+					return nullptr;
+				}
 				try {
 					AdHoc::FileUtils::MemMap f(path);
 					sysassert(flock(f.fh, LOCK_SH), -1);
@@ -97,7 +111,7 @@ namespace IceSpider {
 				}
 				catch (const AdHoc::SystemException & e) {
 					if (e.errNo == ENOENT) {
-						return NULL;
+						return nullptr;
 					}
 					throw;
 				}
@@ -105,7 +119,9 @@ namespace IceSpider {
 
 			void removeExpired()
 			{
-				if (root.empty() || !std::filesystem::exists(root)) return;
+				if (root.empty() || !std::filesystem::exists(root)) {
+					return;
+				}
 				std::filesystem::directory_iterator di(root);
 				while (di != std::filesystem::directory_iterator()) {
 					auto s = load(di->path());
@@ -116,16 +132,15 @@ namespace IceSpider {
 				}
 			}
 
-			bool isExpired(SessionPtr s)
+			bool isExpired(const SessionPtr & s)
 			{
-				return (s->lastUsed + s->duration < time(NULL));
+				return (s->lastUsed + s->duration < time(nullptr));
 			}
 
 			template<typename R, typename ER>
 			R sysassert(R rtn, ER ertn)
 			{
 				if (rtn == ertn) {
-					fprintf(stderr, "%s\n", strerror(errno));
 					throw SessionError(strerror(errno));
 				}
 				return rtn;

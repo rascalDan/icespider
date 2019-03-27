@@ -20,6 +20,7 @@ class TestCore : public IceSpider::CoreWithDefaultRouter {
 			root(communicator->getProperties()->getProperty("IceSpider.FileSessions.Path"))
 		{
 		}
+		// NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
 		const std::filesystem::path root;
 };
 
@@ -46,7 +47,7 @@ BOOST_AUTO_TEST_CASE( createAndDestroy )
 	auto s = prx->createSession();
 	BOOST_REQUIRE(std::filesystem::exists(root / s->id));
 	BOOST_REQUIRE_EQUAL(0, s->duration);
-	BOOST_REQUIRE_EQUAL(time(NULL), s->lastUsed);
+	BOOST_REQUIRE_EQUAL(time(nullptr), s->lastUsed);
 	prx->destroySession(s->id);
 	BOOST_REQUIRE(!std::filesystem::exists(root / s->id));
 }
@@ -71,7 +72,7 @@ BOOST_AUTO_TEST_CASE( createAndExpire )
 	auto s = prx->createSession();
 	BOOST_REQUIRE(std::filesystem::exists(root / s->id));
 	BOOST_REQUIRE_EQUAL(0, s->duration);
-	BOOST_REQUIRE_EQUAL(time(NULL), s->lastUsed);
+	BOOST_REQUIRE_EQUAL(time(nullptr), s->lastUsed);
 	usleep(1001000);
 	BOOST_REQUIRE(std::filesystem::exists(root / s->id));
 	BOOST_REQUIRE(!prx->getSession(s->id));

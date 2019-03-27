@@ -96,10 +96,12 @@ namespace IceSpider {
 	void
 	TestRequest::set(const std::string_view & key, const OptionalString & val, MapVars & vars)
 	{
-		if (val)
+		if (val) {
 			vars[std::string(key)] = *val;
-		else
+		}
+		else {
 			vars.erase(vars.find(key));
+		}
 	}
 
 	std::istream &
@@ -137,12 +139,13 @@ namespace IceSpider {
 	{
 		if (responseHeaders.empty()) {
 			while (true) {
-				char buf[BUFSIZ], n[BUFSIZ], v[BUFSIZ];
-				output.getline(buf, BUFSIZ);
-				if (sscanf(buf, "%[^:]: %[^\r]", n, v) != 2) {
+				std::array<char, BUFSIZ> buf {}, n {}, v {};
+				output.getline(buf.data(), BUFSIZ);
+				// NOLINTNEXTLINE(hicpp-vararg)
+				if (sscanf(buf.data(), "%[^:]: %[^\r]", n.data(), v.data()) != 2) {
 					break;
 				}
-				responseHeaders[n] = v;
+				responseHeaders[n.data()] = v.data();
 			}
 		}
 		return responseHeaders;

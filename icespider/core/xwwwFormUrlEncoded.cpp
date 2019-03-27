@@ -2,11 +2,36 @@
 #include "exceptions.h"
 #include <boost/lexical_cast.hpp>
 #include <Ice/BuiltinSequences.h>
+#include <array>
 
 namespace ba = boost::algorithm;
 using namespace std::literals;
 
-extern long hextable[];
+constexpr std::array<char, 255> hextable = []()
+{
+    std::array<char, 255> hextable{};
+    for (int n = 0; n < 255; n++) {
+        hextable[n] = -1;
+    }
+    for (int n = '0'; n <= '9'; n++) {
+        hextable[n] = n - '0';
+    }
+    for (int n = 'a'; n <= 'f'; n++) {
+        hextable[n] = hextable[n - 32] = n - 'a' + 10;
+    }
+    return hextable;
+}();
+
+static_assert(hextable['~'] == -1);
+static_assert(hextable[' '] == -1);
+static_assert(hextable['0'] == 0);
+static_assert(hextable['9'] == 9);
+static_assert(hextable['a'] == 10);
+static_assert(hextable['A'] == 10);
+static_assert(hextable['f'] == 15);
+static_assert(hextable['F'] == 15);
+static_assert(hextable['g'] == -1);
+static_assert(hextable['G'] == -1);
 
 namespace IceSpider {
 	static const std::string AMP = "&";
@@ -45,15 +70,21 @@ namespace IceSpider {
 
 	class SetFromString : public Slicer::ValueSource {
 		public:
-			SetFromString(const std::string & v) : s(v)
+			explicit SetFromString(const std::string & v) : s(v)
 			{
 			}
 
 			void set(bool & t) const override
 			{
-				if (s == TRUE) t = true;
-				else if (s == FALSE) t = false;
-				else throw Http400_BadRequest();
+				if (s == TRUE) {
+					t = true;
+				}
+				else if (s == FALSE) {
+					t = false;
+				}
+				else {
+					throw Http400_BadRequest();
+				}
 			}
 
 			void set(std::string & t) const override
@@ -62,6 +93,7 @@ namespace IceSpider {
 			}
 
 #define SET(T) \
+			/* NOLINTNEXTLINE(bugprone-macro-parentheses) */ \
 			void set(T & t) const override \
 			{ \
 				t = boost::lexical_cast<T>(s); \
@@ -74,6 +106,8 @@ namespace IceSpider {
 			SET(Ice::Float);
 			// NOLINTNEXTLINE(clang-analyzer-optin.cplusplus.VirtualCall)
 			SET(Ice::Double);
+
+		private:
 			const std::string & s;
 	};
 
@@ -83,7 +117,7 @@ namespace IceSpider {
 		return urlencode(s.begin(), s.end());
 	}
 
-	inline char hexchar(char c) { return c < 10 ? '0' + c : 'a' - 10 + c; }
+	inline auto hexchar(int c) { return c < 10 ? '0' + c : 'a' - 10 + c; }
 	template<typename T>
 	inline char hexlookup(const T & i) { return hextable[(int)*i]; }
 
@@ -104,8 +138,8 @@ namespace IceSpider {
 			}
 			else if (!isalnum(*i)) {
 				o.put('%');
-				o.put(hexchar(*i >> 4));
-				o.put(hexchar(*i & 0xf));
+				o.put(hexchar(*i >> 4)); // NOLINT(hicpp-signed-bitwise)
+				o.put(hexchar(*i & 0xf)); // NOLINT(hicpp-signed-bitwise)
 			}
 			else {
 				o.put(*i);
@@ -125,7 +159,7 @@ namespace IceSpider {
 					t += ' ';
 					break;
 				case '%':
-					t += (16 * hexlookup(i + 1)) + hexlookup(i + 2);
+					t += static_cast<char>((16 * hexlookup(i + 1)) + hexlookup(i + 2));
 					i += 2;
 					break;
 				default:
@@ -165,7 +199,7 @@ namespace IceSpider {
 	}
 
 	void
-	XWwwFormUrlEncoded::DeserializeSimple(Slicer::ModelPartPtr mp)
+	XWwwFormUrlEncoded::DeserializeSimple(const Slicer::ModelPartPtr & mp)
 	{
 		iterateVars([mp](auto &&, const auto && v) {
 			mp->SetValue(SetFromString(v));
@@ -173,7 +207,7 @@ namespace IceSpider {
 	}
 
 	void
-	XWwwFormUrlEncoded::DeserializeComplex(Slicer::ModelPartPtr mp)
+	XWwwFormUrlEncoded::DeserializeComplex(const Slicer::ModelPartPtr & mp)
 	{
 		mp->Create();
 		iterateVars([mp](auto && k, const auto && v) {
@@ -185,7 +219,7 @@ namespace IceSpider {
 	}
 
 	void
-	XWwwFormUrlEncoded::DeserializeDictionary(Slicer::ModelPartPtr mp)
+	XWwwFormUrlEncoded::DeserializeDictionary(const Slicer::ModelPartPtr & mp)
 	{
 		iterateVars([mp](auto && k, const auto && v) {
 			auto p = mp->GetAnonChild();

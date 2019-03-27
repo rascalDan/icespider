@@ -23,7 +23,8 @@ class CoreFixture {
 			modeDir(binDir.lexically_relative(rootDir / "bin" / "testCompile.test"))
 		{
 		}
-		std::filesystem::path modeDir;
+		// NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
+		const std::filesystem::path modeDir;
 };
 
 namespace std {

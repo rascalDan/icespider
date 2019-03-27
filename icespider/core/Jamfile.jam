@@ -4,7 +4,7 @@ lib stdc++fs ;
 
 obj routeOptions : routeOptions.ice : <toolset>tidy:<checker>none ;
 lib icespider-core :
-	[ glob *.c *.cpp ]
+	[ glob *.cpp ]
 	routeOptions
 	:
 	<library>../common//icespider-common

@@ -9,7 +9,9 @@ namespace IceSpider {
 		path(p)
 	{
 		auto relp = p.substr(1);
-		if (relp.empty()) return;
+		if (relp.empty()) {
+			return;
+		}
 		for (auto pi = ba::make_split_iterator(relp, ba::first_finder("/", ba::is_equal())); pi != decltype(pi)(); ++pi) {
 			std::string_view pp(pi->begin(), pi->end() - pi->begin());
 			if (pp.front() == '{' && pp.back() == '}') {

@@ -67,7 +67,7 @@ namespace IceSpider {
 		if (!result) {
 			throw xmlpp::exception("Failed to apply XSL transform");
 		}
-		xmlOutputBufferPtr buf = xmlOutputBufferCreateIO(xmlstrmwritecallback, xmlstrmclosecallback, &strm, NULL);
+		xmlOutputBufferPtr buf = xmlOutputBufferCreateIO(xmlstrmwritecallback, xmlstrmclosecallback, &strm, nullptr);
 		if (xmlStrcmp(stylesheet->method, BAD_CAST "html") == 0) {
 			htmlDocContentDumpFormatOutput(buf, result, (const char *) stylesheet->encoding, 0);
 		}

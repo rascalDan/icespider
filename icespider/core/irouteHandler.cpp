@@ -30,10 +30,6 @@ namespace IceSpider {
 		}
 	}
 
-	IRouteHandler::~IRouteHandler()
-	{
-	}
-
 	ContentTypeSerializer
 	IRouteHandler::getSerializer(const AcceptPtr & a, std::ostream & strm) const
 	{
@@ -61,7 +57,7 @@ namespace IceSpider {
 	}
 
 	void
-	IRouteHandler::addRouteSerializer(const MimeType & ct, StreamSerializerFactoryPtr ssfp)
+	IRouteHandler::addRouteSerializer(const MimeType & ct, const StreamSerializerFactoryPtr & ssfp)
 	{
 		routeSerializers.erase(ct);
 		routeSerializers.insert({ ct, ssfp });

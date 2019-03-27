@@ -18,7 +18,7 @@ namespace IceSpider {
 
 			IRouteHandler(HttpMethod, const std::string_view & path);
 			IRouteHandler(HttpMethod, const std::string_view & path, const RouteOptions &);
-			virtual ~IRouteHandler();
+			virtual ~IRouteHandler() = default;
 
 			virtual void execute(IHttpRequest * request) const = 0;
 			virtual ContentTypeSerializer getSerializer(const AcceptPtr &, std::ostream &) const;
@@ -42,7 +42,7 @@ namespace IceSpider {
 				// LCOV_EXCL_STOP
 			}
 
-			void addRouteSerializer(const MimeType &, StreamSerializerFactoryPtr);
+			void addRouteSerializer(const MimeType &, const StreamSerializerFactoryPtr &);
 	};
 	typedef std::shared_ptr<IRouteHandler> IRouteHandlerPtr;
 	typedef std::shared_ptr<const IRouteHandler> IRouteHandlerCPtr;
