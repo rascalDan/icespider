@@ -1,23 +1,26 @@
 lib adhocutil : : : : <include>/usr/include/adhocutil ;
 lib slicer : : : : <include>/usr/include/slicer ;
 
-cpp http-slicer :
-	http.ice
-	:
-	<slicer>pure
-	;
+obj http : http.ice : <toolset>tidy:<checker>none ;
+obj session : session.ice : <toolset>tidy:<checker>none ;
 
 lib icespider-common :
-	[ glob-tree *.ice *.cpp : bin ]
-	http-slicer
+	[ glob *.cpp ]
+	http session
+	http.ice
 	:
 	<library>adhocutil
 	<library>..//pthread
 	<library>..//Ice
 	<library>slicer
+	<slicer>pure
+	<implicit-dependency>http
+	<implicit-dependency>session
 	: :
 	<library>..//pthread
 	<library>..//Ice
+	<implicit-dependency>http
+	<implicit-dependency>session
 	<include>.
 	;
 

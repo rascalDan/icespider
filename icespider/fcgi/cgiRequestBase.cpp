@@ -80,6 +80,7 @@ namespace IceSpider {
 	{
 		namespace ba = boost::algorithm;
 		if (auto path = findFirstOrElse<Http400_BadRequest>(envmap, REDIRECT_URL, SCRIPT_NAME).substr(1);
+				// NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
 				!path.empty()) {
 			ba::split(pathElements, path, ba::is_any_of("/"), ba::token_compress_off);
 		}

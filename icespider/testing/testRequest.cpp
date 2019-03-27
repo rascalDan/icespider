@@ -10,7 +10,9 @@ namespace IceSpider {
 	{
 		namespace ba = boost::algorithm;
 		auto path = p.substr(1);
+		// NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
 		if (!path.empty()) {
+			// NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
 			ba::split(url, path, ba::is_any_of("/"), ba::token_compress_off);
 		}
 	}

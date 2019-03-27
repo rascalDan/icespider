@@ -13,6 +13,7 @@ lib Slice :
 	$(ice)/cpp/src/Slice/FileTracker.cpp
 	$(ice)/cpp/src/Slice/Scanner.cpp
 	:
+	<toolset>tidy:<checker>none
 	<cxxflags>-fPIC
 	<include>$(ice)/cpp/src
 	<link>static

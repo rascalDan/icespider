@@ -69,12 +69,7 @@
 		"itemWithDefault":{
 			"path": "/item/{s}/{i}",
 			"method": "GET",
-			"operation": "TestIceSpider.TestApi.withParams",
-			"params": {
-				"i": {
-					"default": "1234"
-				}
-			}
+			"operation": "TestIceSpider.TestApi.withParams"
 		},
 		"mashStruct": {
 			"path": "/mashS/{s}/{t}/{i}",

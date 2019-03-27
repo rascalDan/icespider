@@ -5,11 +5,13 @@ lib boost_program_options ;
 lib stdc++fs ;
 lib mcpp ;
 
+obj routes : routes.ice : <use>../common//icespider-common <toolset>tidy:<checker>none ;
 lib icespider-compile :
 	routeCompiler.cpp
 	routes.ice
+	routes
 	:
-	<slicer>yes
+	<slicer>pure
 # Need to disable LTO here cos of a GCC bug, this isn't
 # performance critical anyway
 	<linkflags>-fno-lto
@@ -21,6 +23,7 @@ lib icespider-compile :
 	<library>slice//Slice
 	<library>../common//icespider-common
 	<implicit-dependency>../common//icespider-common
+	<implicit-dependency>routes
 	<library>..//Ice
 	<library>..//pthread
 	<library>mcpp

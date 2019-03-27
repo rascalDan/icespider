@@ -74,10 +74,12 @@ namespace IceSpider {
 				auto fqon = boost::algorithm::join(ns + cls->name(), ".");
 				if (fqon == tn) return { NULL, cls->declaration() };
 				auto t = findType(tn, cls, ns + cls->name());
+				// NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDelete)
 				if (t.first || t.second) return t;
 			}
 			for (const auto & m : c->modules()) {
 				auto t = findType(tn, m, ns + m->name());
+				// NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDelete)
 				if (t.first || t.second) return t;
 			}
 			return { NULL, NULL };
@@ -87,6 +89,7 @@ namespace IceSpider {
 		RouteCompiler::findType(const std::string & tn, const Units & us)
 		{
 			for (const auto & u : us) {
+				// NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDelete)
 				auto t = findType(tn, u.second);
 				if (t.first || t.second) return t;
 			}
@@ -439,6 +442,8 @@ namespace IceSpider {
 					auto ip = ps.find(p.first)->second;
 					const auto paramType = "std::remove_cvref<%?>::type"_fmt(
 						Slice::inputTypeToString(ip->type(), false, "", ip->getMetaData()));
+					// This shouldn't be needed... the warning is ignored elsewhere to no effect
+					fprintbf(4, output, "// NOLINTNEXTLINE(clang-analyzer-optin.cplusplus.VirtualCall)\n");
 					if (p.second->source == ParameterSource::Body) {
 						if (p.second->key) {
 							if (!doneBody) {

@@ -35,6 +35,7 @@ namespace IceSpider {
 			SessionPtr createSession(const ::Ice::Current &) override
 			{
 				auto s = std::make_shared<Session>();
+				// NOLINTNEXTLINE(clang-analyzer-optin.cplusplus.VirtualCall)
 				s->id = boost::lexical_cast<std::string>(boost::uuids::random_generator()());
 				s->duration = duration;
 				save(s);
@@ -109,7 +110,7 @@ namespace IceSpider {
 				while (di != std::filesystem::directory_iterator()) {
 					auto s = load(di->path());
 					if (s && isExpired(s)) {
-						destroySession(s->id, Ice::Current());
+						FileSessions::destroySession(s->id, Ice::Current());
 					}
 					di++;
 				}

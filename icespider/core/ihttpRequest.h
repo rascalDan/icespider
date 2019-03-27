@@ -53,8 +53,12 @@ namespace IceSpider {
 					else if constexpr (std::is_constructible<std::string_view, T>::value) {
 						return T(*v);
 					}
+					else if constexpr (std::is_same<std::string, T>::value) {
+						return std::to_string(*v);
+					}
 					else {
 						try {
+							// NOLINTNEXTLINE(clang-analyzer-optin.cplusplus.VirtualCall)
 							return boost::lexical_cast<T>(*v);
 						}
 						catch (const boost::bad_lexical_cast & e) {
@@ -62,13 +66,14 @@ namespace IceSpider {
 						}
 					}
 				}
-				else {	
+				else {
 					return std::nullopt;
 				}
 			}
 			template<typename T>
 			T getURLParam(unsigned int n) const
 			{
+				// NOLINTNEXTLINE(clang-analyzer-optin.cplusplus.VirtualCall)
 				return *getFrom<T, unsigned int>(n, &IHttpRequest::getURLParam);
 			}
 			template<typename T>

@@ -43,7 +43,7 @@ run
 	:
 	<define>BOOST_TEST_DYN_LINK
 	<library>testCommon
-	<library>test-api
+	<library>test-api-lib
 	<library>dl
 	<library>adhocutil
 	<library>slicer-xml
@@ -53,7 +53,7 @@ run
 	<library>../compile//icespider-compile
 	<implicit-dependency>../compile//icespider-compile
 	<include>.
-	<implicit-dependency>test-api
+	<implicit-dependency>test-api-lib
 	: testCompile :
 	;
 
@@ -79,9 +79,11 @@ run
 	xslt/transform.xslt
 	:
 	<define>BOOST_TEST_DYN_LINK
-	<icespider>../compile//icespider
+	<toolset>gcc:<icespider>../compile//icespider/<toolset>gcc
+	<toolset>clang:<icespider>../compile//icespider/<toolset>clang
+	<toolset>tidy:<icespider>../compile//icespider/<toolset>gcc
 	<library>testCommon
-	<library>test-api
+	<library>test-api-lib
 	<library>adhocutil
 	<library>slicer
 	<library>slicer-json
@@ -92,22 +94,27 @@ run
 	<library>../xslt//icespider-xslt
 	<library>../testing//icespider-testing
 	<implicit-dependency>../common//icespider-common
-	<implicit-dependency>test-api
-	<dependency>../compile
+	<implicit-dependency>test-api-lib
+	<toolset>gcc:<dependency>../compile//icespider/<toolset>gcc
+	<toolset>clang:<dependency>../compile//icespider/<toolset>clang
+	<toolset>tidy:<dependency>../compile//icespider/<toolset>gcc
 	<include>.
 	: testApp ;
 
+obj test-fcgi : test-fcgi.ice : <toolset>tidy:<checker>none ;
 run
 	testFcgi.cpp
 	test-fcgi.ice
+	test-fcgi
 	../fcgi/cgiRequestBase.cpp
 	: : :
-	<slicer>yes
+	<slicer>pure
 	<define>BOOST_TEST_DYN_LINK
 	<library>testCommon
 	<library>../common//icespider-common
 	<library>../core//icespider-core
 	<implicit-dependency>../core//icespider-core
+	<implicit-dependency>test-fcgi
 	<library>stdc++fs
 	<library>slicer
 	<library>slicer-json
@@ -129,15 +136,18 @@ run
 	<implicit-dependency>../core//icespider-core
 	;
 
-lib test-api :
+obj test-api : test-api.ice : <include>. <toolset>tidy:<checker>none ;
+lib test-api-lib :
 	test-api.ice
 	test-api-impl.cpp
+	test-api
 	:
-	<slicer>yes
+	<slicer>pure
 	<library>slicer
 	<library>adhocutil
 	<library>..//pthread
 	<library>..//Ice
+	<implicit-dependency>test-api
 	<include>.
 	;
 

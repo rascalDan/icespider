@@ -2,16 +2,20 @@ lib adhocutil : : : : <include>/usr/include/adhocutil ;
 lib slicer : : : : <include>/usr/include/slicer ;
 lib stdc++fs ;
 
+obj routeOptions : routeOptions.ice : <toolset>tidy:<checker>none ;
 lib icespider-core :
-	[ glob-tree *.c *.cpp *.ice : bin ]
+	[ glob *.c *.cpp ]
+	routeOptions
 	:
 	<library>../common//icespider-common
 	<library>adhocutil
 	<library>slicer
 	<library>stdc++fs
 	<implicit-dependency>../common
+	<implicit-dependency>routeOptions
 	: :
 	<include>.
 	<library>../common//icespider-common
 	<implicit-dependency>../common
+	<implicit-dependency>routeOptions
 	;

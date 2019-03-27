@@ -72,6 +72,7 @@ namespace IceSpider {
 			SET(Ice::Int);
 			SET(Ice::Long);
 			SET(Ice::Float);
+			// NOLINTNEXTLINE(clang-analyzer-optin.cplusplus.VirtualCall)
 			SET(Ice::Double);
 			const std::string & s;
 	};
