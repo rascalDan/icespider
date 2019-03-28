@@ -12,10 +12,6 @@ lib icespider-compile :
 	routes
 	:
 	<slicer>pure
-# Need to disable LTO here cos of a GCC bug, this isn't
-# performance critical anyway
-	<linkflags>-fno-lto
-	<cxxflags>-fno-lto
 	<library>slicer
 	<library>adhocutil
 	<library>slicer-json
