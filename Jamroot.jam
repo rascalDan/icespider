@@ -10,18 +10,20 @@ variant coverage : debug ;
 project
   : requirements
 			<define>ICE_CPP11_MAPPING
-			<cxxflags>"-std=c++17 -fvisibility-inlines-hidden -fvisibility=hidden"
+			<cxxstd>17
+			<visibility>hidden
 			<linkflags>"-Wl,-z,defs,--warn-once,--gc-sections"
 			<variant>release:<cxxflags>"-flto=2"
 			<variant>release:<linkflags>"-flto=2"
-			<variant>debug:<cxxflags>"-W -Wall -Wextra -Werror -Wwrite-strings"
-			<variant>coverage:<cxxflags>"--coverage"
-			<variant>coverage:<linkflags>"--coverage"
+			<variant>debug:<warnings>extra
+			<variant>debug:<warnings-as-errors>on
+			<variant>coverage:<coverage>on
 			<toolset>tidy:<checkxx>boost-*
 			<toolset>tidy:<checkxx>bugprone-*
 			<toolset>tidy:<checkxx>clang-*
 			<toolset>tidy:<checkxx>misc-*
 			<toolset>tidy:<checkxx>modernize-*
+			<toolset>tidy:<xcheckxx>modernize-use-trailing-return-type
 			<toolset>tidy:<checkxx>hicpp-*
 			<toolset>tidy:<checkxx>performance-*
 	;
