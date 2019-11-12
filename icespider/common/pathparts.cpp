@@ -5,6 +5,7 @@
 namespace ba = boost::algorithm;
 
 namespace IceSpider {
+	const auto slash = ba::first_finder("/", ba::is_equal());
 	Path::Path(const std::string_view & p) :
 		path(p)
 	{
@@ -12,7 +13,7 @@ namespace IceSpider {
 		if (relp.empty()) {
 			return;
 		}
-		for (auto pi = ba::make_split_iterator(relp, ba::first_finder("/", ba::is_equal())); pi != decltype(pi)(); ++pi) {
+		for (auto pi = ba::make_split_iterator(relp, slash); pi != decltype(pi)(); ++pi) {
 			std::string_view pp(pi->begin(), pi->end() - pi->begin());
 			if (pp.front() == '{' && pp.back() == '}') {
 				parts.push_back(std::make_unique<PathParameter>(pp));

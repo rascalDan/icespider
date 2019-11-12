@@ -14,11 +14,8 @@ namespace IceSpider {
 			void initialize();
 
 		public:
-			struct ciLess {
-				bool operator()(const std::string_view & s1, const std::string_view & s2) const;
-			};
 			typedef std::map<std::string_view, const std::string_view> VarMap;
-			typedef std::map<std::string_view, const std::string_view, ciLess> HdrMap;
+			typedef std::map<std::string_view, const std::string_view, Slicer::case_less> HdrMap;
 
 			const PathElements & getRequestPath() const override;
 			PathElements & getRequestPath() override;

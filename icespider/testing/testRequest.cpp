@@ -4,6 +4,7 @@
 #include <formatters.h>
 
 namespace IceSpider {
+	constexpr std::string_view slash("/");
 	TestRequest::TestRequest(const Core * c, HttpMethod m, const std::string_view & p) :
 		IHttpRequest(c),
 		method(m)
@@ -13,7 +14,7 @@ namespace IceSpider {
 		// NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
 		if (!path.empty()) {
 			// NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-			ba::split(url, path, ba::is_any_of("/"), ba::token_compress_off);
+			ba::split(url, path, ba::is_any_of(slash), ba::token_compress_off);
 		}
 	}
 

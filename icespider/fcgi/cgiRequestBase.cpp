@@ -15,9 +15,10 @@ using namespace std::literals;
 #define CGI_CONST(NAME) static const std::string_view NAME(#NAME)
 
 namespace IceSpider {
-	static const std::string_view amp("&");
-	static const std::string_view semi("; ");
-	static const std::string_view HEADER_PREFIX("HTTP_");
+	static const auto slash_pred = boost::algorithm::is_any_of("/");
+	constexpr std::string_view amp("&");
+	constexpr std::string_view semi("; ");
+	constexpr std::string_view HEADER_PREFIX("HTTP_");
 	CGI_CONST(REDIRECT_URL);
 	CGI_CONST(SCRIPT_NAME);
 	CGI_CONST(QUERY_STRING);
@@ -46,43 +47,32 @@ namespace IceSpider {
 	mapVars(const std::string_view & vn, const in & envmap, out & map, const std::string_view & sp) {
 		auto qs = envmap.find(vn);
 		if (qs != envmap.end()) {
-			XWwwFormUrlEncoded::iterateVars(qs->second, [&map](const auto && k, const auto && v) {
+			XWwwFormUrlEncoded::iterateVars(qs->second, [&map](auto && k, auto && v) {
 				map.emplace(std::move(k), std::move(v));
 			}, sp);
 		}
-	}
-
-	template<typename Ex, typename Map>
-	const std::string_view &
-	findFirstOrElse(const Map &)
-	{
-		throw Ex();
 	}
 
 	template<typename Ex, typename Map, typename ... Ks>
 	const std::string_view &
 	findFirstOrElse(const Map & map, const std::string_view & k, const Ks & ... ks)
 	{
-		auto i = map.find(k);
-		if (i == map.end()) {
+		if (const auto i = map.find(k); i != map.end()) {
+			return i->second;
+		}
+		if constexpr (sizeof...(ks)) {
 			return findFirstOrElse<Ex>(map, ks...);
 		}
-		return i->second;
-	}
-
-	bool CgiRequestBase::ciLess::operator() (const std::string_view & s1, const std::string_view & s2) const
-	{
-		return lexicographical_compare(s1, s2, ba::is_iless());
+		throw Ex();
 	}
 
 	void
 	CgiRequestBase::initialize()
 	{
-		namespace ba = boost::algorithm;
 		if (auto path = findFirstOrElse<Http400_BadRequest>(envmap, REDIRECT_URL, SCRIPT_NAME).substr(1);
 				// NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
 				!path.empty()) {
-			ba::split(pathElements, path, ba::is_any_of("/"), ba::token_compress_off);
+			ba::split(pathElements, path, slash_pred, ba::token_compress_off);
 		}
 
 		mapVars(QUERY_STRING, envmap, qsmap, amp);

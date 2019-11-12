@@ -258,6 +258,54 @@ BOOST_AUTO_TEST_CASE( postxwwwformurlencoded_simple )
 	BOOST_REQUIRE_EQUAL(314, n);
 }
 
+BOOST_AUTO_TEST_CASE( reqParsePerf )
+{
+	CharPtrPtrArray env ({
+		"CONTEXT_DOCUMENT_ROOT=/var/www/shared/vhosts/sys.randomdan.homeip.net",
+		"CONTEXT_PREFIX=",
+		"DOCUMENT_ROOT=/var/www/shared/vhosts/sys.randomdan.homeip.net",
+		"GATEWAY_INTERFACE=CGI/1.1",
+		"H2PUSH=on",
+		"H2_PUSH=on",
+		"H2_PUSHED=",
+		"H2_PUSHED_ON=",
+		"H2_STREAM_ID=1",
+		"H2_STREAM_TAG=137-1",
+		"HTTP2=on",
+		"HTTPS=on",
+		"HTTP_ACCEPT=text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
+		"HTTP_ACCEPT_ENCODING=gzip, deflate, br",
+		"HTTP_ACCEPT_LANGUAGE=en,en-GB;q=0.9",
+		"HTTP_HOST=sys.randomdan.homeip.net",
+		"HTTP_SEC_FETCH_SITE=none",
+		"HTTP_UPGRADE_INSECURE_REQUESTS=1",
+		"HTTP_USER_AGENT=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36",
+		"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+		"PWD=/var/www/shared/files/localhost",
+		"QUERY_STRING=",
+		"REMOTE_ADDR=10.10.0.189",
+		"REMOTE_PORT=44030",
+		"REQUEST_METHOD=GET",
+		"REQUEST_SCHEME=https",
+		"REQUEST_URI=/env.cgi",
+		"SCRIPT_FILENAME=/var/www/shared/vhosts/sys.randomdan.homeip.net/env.cgi",
+		"SCRIPT_NAME=/env.cgi",
+		"SERVER_ADDR=fdc7:602:e9c5:b8f0::3",
+		"SERVER_ADMIN=dan.goodliffe@randomdan.homeip.net",
+		"SERVER_NAME=sys.randomdan.homeip.net",
+		"SERVER_PORT=443",
+		"SERVER_PROTOCOL=HTTP/2.0",
+		"SERVER_SIGNATURE=<address>Apache/2.4.41 (Gentoo) mod_fcgid/2.3.9 PHP/7.2.23 OpenSSL/1.1.1d mod_perl/2.0.10 Perl/v5.30.0 Server at sys.randomdan.homeip.net Port 443</address>",
+		"SERVER_SOFTWARE=Apache/2.4.41 (Gentoo) mod_fcgid/2.3.9 PHP/7.2.23 OpenSSL/1.1.1d mod_perl/2.0.10 Perl/v5.30.0",
+		"SHLVL=0",
+		"SSL_TLS_SNI=sys.randomdan.homeip.net",
+	});
+	for (int x = 0; x < 10000; x +=1) {
+		TestRequest req(this, env);
+	}
+}
+
+
 BOOST_AUTO_TEST_CASE( postxwwwformurlencoded_dictionary )
 {
 	CharPtrPtrArray env ({ "SCRIPT_NAME=/", "REQUEST_METHOD=No", "CONTENT_TYPE=application/x-www-form-urlencoded" });
