@@ -377,7 +377,7 @@ BOOST_AUTO_TEST_CASE( cookies )
 	BOOST_REQUIRE_EQUAL("Something with spaces.", *r.IceSpider::IHttpRequest::getCookieParam<std::string>("value B"));
 	BOOST_REQUIRE(!r.IceSpider::IHttpRequest::getCookieParam<Ice::Int>("notAThing"));
 	r.setCookie("some int.", 1234, "www.com"s, "/dir"s, true, 1476142378);
-	BOOST_REQUIRE_EQUAL("Set-Cookie: some+int%2e=1234; expires=Mon, 10 Oct 2016 23:32:58 GMT; domain=www.com; path=/dir; secure\r\n", r.out.str());
+	BOOST_REQUIRE_EQUAL("Set-Cookie: some+int%2e=1234; expires=Mon, 10 Oct 2016 23:32:58 GMT; domain=www.com; path=/dir; secure; samesite=strict\r\n", r.out.str());
 }
 
 BOOST_AUTO_TEST_CASE( response )

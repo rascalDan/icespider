@@ -153,6 +153,7 @@ namespace IceSpider {
 		if (s){
 			"; secure"_fmt(o);
 		}
+		"; samesite=strict"_fmt(o);
 		setHeader(H::SET_COOKIE, o.str());
 	}
 
