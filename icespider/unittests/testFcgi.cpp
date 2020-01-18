@@ -127,6 +127,15 @@ BOOST_AUTO_TEST_CASE( script_name_root )
 	CharPtrPtrArray env ({ "SCRIPT_NAME=/" });
 	TestRequest r(this, env);
 	BOOST_REQUIRE(r.getRequestPath().empty());
+	BOOST_CHECK(!r.isSecure());
+}
+
+BOOST_AUTO_TEST_CASE( script_name_root_https )
+{
+	CharPtrPtrArray env ({ "SCRIPT_NAME=/", "HTTPS=on" });
+	TestRequest r(this, env);
+	BOOST_REQUIRE(r.getRequestPath().empty());
+	BOOST_CHECK(r.isSecure());
 }
 
 BOOST_AUTO_TEST_CASE( redirect_uri_root )

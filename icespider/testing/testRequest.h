@@ -18,6 +18,7 @@ namespace IceSpider {
 			OptionalString getQueryStringParam(const std::string_view & key) const override;
 			OptionalString getCookieParam(const std::string_view & key) const override;
 			OptionalString getHeaderParam(const std::string_view & key) const override;
+			bool isSecure() const override;
 			void setQueryStringParam(const std::string_view &, const OptionalString &);
 			void setHeaderParam(const std::string_view &, const OptionalString &);
 			void setCookieParam(const std::string_view &, const OptionalString &);

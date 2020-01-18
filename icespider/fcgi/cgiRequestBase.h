@@ -24,6 +24,7 @@ namespace IceSpider {
 			OptionalString getHeaderParam(const std::string_view & key) const override;
 			OptionalString getCookieParam(const std::string_view & key) const override;
 			OptionalString getEnv(const std::string_view & key) const override;
+			bool isSecure() const override;
 
 			void response(short, const std::string_view &) const override;
 			void setHeader(const std::string_view &, const std::string_view &) const override;

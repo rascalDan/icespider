@@ -42,6 +42,12 @@ namespace IceSpider {
 		return get(key, env);
 	}
 
+	bool
+	TestRequest::isSecure() const
+	{
+		return env.find("HTTPS") != env.end();
+	}
+
 	OptionalString
 	TestRequest::getQueryStringParam(const std::string_view & key) const
 	{

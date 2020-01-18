@@ -19,6 +19,7 @@ namespace IceSpider {
 	constexpr std::string_view amp("&");
 	constexpr std::string_view semi("; ");
 	constexpr std::string_view HEADER_PREFIX("HTTP_");
+	constexpr std::string_view HTTPS("HTTPS");
 	CGI_CONST(REDIRECT_URL);
 	CGI_CONST(SCRIPT_NAME);
 	CGI_CONST(QUERY_STRING);
@@ -163,6 +164,12 @@ namespace IceSpider {
 	CgiRequestBase::getEnv(const std::string_view & key) const
 	{
 		return optionalLookup(key, envmap);
+	}
+
+	bool
+	CgiRequestBase::isSecure() const
+	{
+		return envmap.find(HTTPS) != envmap.end();
 	}
 
 	OptionalString
