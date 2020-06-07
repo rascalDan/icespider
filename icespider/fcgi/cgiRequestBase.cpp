@@ -1,13 +1,13 @@
 #include "cgiRequestBase.h"
 #include "xwwwFormUrlEncoded.h"
 #include <boost/algorithm/string/case_conv.hpp>
-#include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
-#include <util.h>
-#include <slicer/modelPartsTypes.h>
-#include <slicer/common.h>
+#include <boost/algorithm/string/split.hpp>
 #include <formatters.h>
+#include <slicer/common.h>
+#include <slicer/modelPartsTypes.h>
+#include <util.h>
 
 namespace ba = boost::algorithm;
 using namespace std::literals;
@@ -26,10 +26,9 @@ namespace IceSpider {
 	CGI_CONST(HTTP_COOKIE);
 	CGI_CONST(REQUEST_METHOD);
 
-	CgiRequestBase::CgiRequestBase(Core * c, const char * const * const env) :
-		IHttpRequest(c)
+	CgiRequestBase::CgiRequestBase(Core * c, const char * const * const env) : IHttpRequest(c)
 	{
-		for(const char * const * e = env; *e; ++e) {
+		for (const char * const * e = env; *e; ++e) {
 			addenv(*e);
 		}
 	}
@@ -38,25 +37,28 @@ namespace IceSpider {
 	CgiRequestBase::addenv(const char * const e)
 	{
 		if (auto eq = strchr(e, '=')) {
-			envmap.insert({ std::string_view(e, eq - e), eq + 1 });
+			envmap.insert({std::string_view(e, eq - e), eq + 1});
 		}
 	}
 
 	template<typename in, typename out>
-	inline
-	void
-	mapVars(const std::string_view & vn, const in & envmap, out & map, const std::string_view & sp) {
+	inline void
+	mapVars(const std::string_view & vn, const in & envmap, out & map, const std::string_view & sp)
+	{
 		auto qs = envmap.find(vn);
 		if (qs != envmap.end()) {
-			XWwwFormUrlEncoded::iterateVars(qs->second, [&map](auto && k, auto && v) {
-				map.emplace(std::move(k), std::move(v));
-			}, sp);
+			XWwwFormUrlEncoded::iterateVars(
+					qs->second,
+					[&map](auto && k, auto && v) {
+						map.emplace(std::forward<decltype(k)>(k), std::forward<decltype(v)>(v));
+					},
+					sp);
 		}
 	}
 
-	template<typename Ex, typename Map, typename ... Ks>
+	template<typename Ex, typename Map, typename... Ks>
 	const std::string_view &
-	findFirstOrElse(const Map & map, const std::string_view & k, const Ks & ... ks)
+	findFirstOrElse(const Map & map, const std::string_view & k, const Ks &... ks)
 	{
 		if (const auto i = map.find(k); i != map.end()) {
 			return i->second;
@@ -79,9 +81,8 @@ namespace IceSpider {
 		mapVars(QUERY_STRING, envmap, qsmap, amp);
 		mapVars(HTTP_COOKIE, envmap, cookiemap, semi);
 		for (auto header = envmap.lower_bound(HEADER_PREFIX);
-				header != envmap.end() && ba::starts_with(header->first, HEADER_PREFIX);
-				header++) {
-			hdrmap.insert({ header->first.substr(HEADER_PREFIX.length()), header->second });
+				header != envmap.end() && ba::starts_with(header->first, HEADER_PREFIX); header++) {
+			hdrmap.insert({header->first.substr(HEADER_PREFIX.length()), header->second});
 		}
 	}
 
@@ -178,7 +179,8 @@ namespace IceSpider {
 		return optionalLookup(key, hdrmap);
 	}
 
-	void CgiRequestBase::response(short statusCode, const std::string_view & statusMsg) const
+	void
+	CgiRequestBase::response(short statusCode, const std::string_view & statusMsg) const
 	{
 		StatusFmt::write(getOutputStream(), statusCode, statusMsg);
 	}
@@ -189,4 +191,3 @@ namespace IceSpider {
 		HdrFmt::write(getOutputStream(), header, value);
 	}
 }
-

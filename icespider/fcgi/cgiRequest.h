@@ -5,13 +5,12 @@
 
 namespace IceSpider {
 	class CgiRequest : public CgiRequestBase {
-		public:
-			CgiRequest(Core * c, int argc, char ** argv, char ** env);
+	public:
+		CgiRequest(Core * c, int argc, char ** argv, char ** env);
 
-			std::istream & getInputStream() const override;
-			std::ostream & getOutputStream() const override;
+		std::istream & getInputStream() const override;
+		std::ostream & getOutputStream() const override;
 	};
 }
 
 #endif
-

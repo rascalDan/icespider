@@ -2,10 +2,10 @@
 #include "exceptions.h"
 #include <Ice/Initialize.h>
 #include <Ice/ObjectAdapter.h>
-#include <filesystem>
+#include <compileTimeFormatter.h>
 #include <cxxabi.h>
 #include <factory.impl.h>
-#include <compileTimeFormatter.h>
+#include <filesystem>
 
 INSTANTIATEFACTORY(IceSpider::Plugin, Ice::CommunicatorPtr, Ice::PropertiesPtr);
 INSTANTIATEPLUGINOF(IceSpider::ErrorHandler);
@@ -105,7 +105,8 @@ namespace IceSpider {
 		defaultErrorReport(request, exception);
 	}
 
-	auto demangle(const char * const name)
+	auto
+	demangle(const char * const name)
 	{
 		return std::unique_ptr<char, decltype(&std::free)>(
 				__cxxabiv1::__cxa_demangle(name, nullptr, nullptr, nullptr), std::free);
@@ -143,8 +144,7 @@ namespace IceSpider {
 		return i;
 	}
 
-	static
-	bool
+	static bool
 	operator/=(const PathElements & pathparts, const IRouteHandler * r)
 	{
 		auto rpi = r->parts.begin();
@@ -156,8 +156,7 @@ namespace IceSpider {
 		return true;
 	}
 
-	CoreWithDefaultRouter::CoreWithDefaultRouter(const Ice::StringSeq & opts) :
-		Core(opts)
+	CoreWithDefaultRouter::CoreWithDefaultRouter(const Ice::StringSeq & opts) : Core(opts)
 	{
 		for (const auto & r : allRoutes) {
 			if (routes.size() <= r->pathElementCount()) {
@@ -193,4 +192,3 @@ namespace IceSpider {
 	}
 
 }
-

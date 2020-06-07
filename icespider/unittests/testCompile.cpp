@@ -1,34 +1,34 @@
 #define BOOST_TEST_MODULE TestCompile
 #include <boost/test/unit_test.hpp>
 
-#include <definedDirs.h>
-#include <plugins.h>
-#include <dlfcn.h>
 #include "../compile/routeCompiler.h"
 #include "../core/irouteHandler.h"
 #include <boost/algorithm/string/join.hpp>
+#include <definedDirs.h>
+#include <dlfcn.h>
+#include <plugins.h>
 #include <slicer/modelPartsTypes.h>
 
 using namespace IceSpider;
 
 static void forceEarlyChangeDir() __attribute__((constructor(101)));
-void forceEarlyChangeDir()
+void
+forceEarlyChangeDir()
 {
 	std::filesystem::current_path(XSTR(ROOT));
 }
 
 class CoreFixture {
-	protected:
-		CoreFixture() :
-			modeDir(binDir.lexically_relative(rootDir / "bin" / "testCompile.test"))
-		{
-		}
-		// NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-		const std::filesystem::path modeDir;
+protected:
+	CoreFixture() : modeDir(binDir.lexically_relative(rootDir / "bin" / "testCompile.test")) { }
+	// NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
+	const std::filesystem::path modeDir;
 };
 
 namespace std {
-	ostream & operator<<(ostream & s, const IceSpider::HttpMethod & m) {
+	ostream &
+	operator<<(ostream & s, const IceSpider::HttpMethod & m)
+	{
 		s << Slicer::ModelPartForEnum<IceSpider::HttpMethod>::lookup(m);
 		return s;
 	}
@@ -36,7 +36,7 @@ namespace std {
 
 BOOST_FIXTURE_TEST_SUITE(cf, CoreFixture)
 
-BOOST_AUTO_TEST_CASE( testLoadConfiguration )
+BOOST_AUTO_TEST_CASE(testLoadConfiguration)
 {
 	Compile::RouteCompiler rc;
 	rc.searchPath.push_back(rootDir);
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE( testLoadConfiguration )
 	BOOST_REQUIRE_EQUAL("test-api.ice", cfg->slices[0]);
 }
 
-BOOST_AUTO_TEST_CASE( testRouteCompile )
+BOOST_AUTO_TEST_CASE(testRouteCompile)
 {
 	auto input = rootDir / "testRoutes.json";
 	auto outputc = binDir / "testRoutes.cpp";
@@ -82,4 +82,3 @@ BOOST_AUTO_TEST_CASE( testRouteCompile )
 }
 
 BOOST_AUTO_TEST_SUITE_END();
-

@@ -1,25 +1,24 @@
-#include "xwwwFormUrlEncoded.h"
 #include "exceptions.h"
-#include <boost/lexical_cast.hpp>
+#include "xwwwFormUrlEncoded.h"
 #include <Ice/BuiltinSequences.h>
 #include <array>
+#include <boost/lexical_cast.hpp>
 
 namespace ba = boost::algorithm;
 using namespace std::literals;
 
-constexpr std::array<char, 255> hextable = []()
-{
-    std::array<char, 255> hextable{};
-    for (int n = 0; n < 255; n++) {
-        hextable[n] = -1;
-    }
-    for (int n = '0'; n <= '9'; n++) {
-        hextable[n] = n - '0';
-    }
-    for (int n = 'a'; n <= 'f'; n++) {
-        hextable[n] = hextable[n - 32] = n - 'a' + 10;
-    }
-    return hextable;
+constexpr std::array<char, 255> hextable = []() {
+	std::array<char, 255> hextable {};
+	for (int n = 0; n < 255; n++) {
+		hextable[n] = -1;
+	}
+	for (int n = '0'; n <= '9'; n++) {
+		hextable[n] = n - '0';
+	}
+	for (int n = 'a'; n <= 'f'; n++) {
+		hextable[n] = hextable[n - 32] = n - 'a' + 10;
+	}
+	return hextable;
 }();
 
 static_assert(hextable['~'] == -1);
@@ -69,46 +68,45 @@ namespace IceSpider {
 	}
 
 	class SetFromString : public Slicer::ValueSource {
-		public:
-			explicit SetFromString(const std::string & v) : s(v)
-			{
-			}
+	public:
+		explicit SetFromString(const std::string & v) : s(v) { }
 
-			void set(bool & t) const override
-			{
-				if (s == TRUE) {
-					t = true;
-				}
-				else if (s == FALSE) {
-					t = false;
-				}
-				else {
-					throw Http400_BadRequest();
-				}
+		void
+		set(bool & t) const override
+		{
+			if (s == TRUE) {
+				t = true;
 			}
+			else if (s == FALSE) {
+				t = false;
+			}
+			else {
+				throw Http400_BadRequest();
+			}
+		}
 
-			void set(std::string & t) const override
-			{
-				t = s;
-			}
+		void
+		set(std::string & t) const override
+		{
+			t = s;
+		}
 
 #define SET(T) \
-			/* NOLINTNEXTLINE(bugprone-macro-parentheses) */ \
-			void set(T & t) const override \
-			{ \
-				t = boost::lexical_cast<T>(s); \
-			}
+	/* NOLINTNEXTLINE(bugprone-macro-parentheses) */ \
+	void set(T & t) const override \
+	{ \
+		t = boost::lexical_cast<T>(s); \
+	}
 
-			SET(Ice::Byte);
-			SET(Ice::Short);
-			SET(Ice::Int);
-			SET(Ice::Long);
-			SET(Ice::Float);
-			// NOLINTNEXTLINE(clang-analyzer-optin.cplusplus.VirtualCall)
-			SET(Ice::Double);
+		SET(Ice::Byte);
+		SET(Ice::Short);
+		SET(Ice::Int);
+		SET(Ice::Long);
+		SET(Ice::Float);
+		SET(Ice::Double);
 
-		private:
-			const std::string & s;
+	private:
+		const std::string & s;
 	};
 
 	std::string
@@ -117,9 +115,17 @@ namespace IceSpider {
 		return urlencode(s.begin(), s.end());
 	}
 
-	inline auto hexchar(int c) { return c < 10 ? '0' + c : 'a' - 10 + c; }
+	inline auto
+	hexchar(int c)
+	{
+		return c < 10 ? '0' + c : 'a' - 10 + c;
+	}
 	template<typename T>
-	inline char hexlookup(const T & i) { return hextable[(int)*i]; }
+	inline char
+	hexlookup(const T & i)
+	{
+		return hextable[(int)*i];
+	}
 
 	std::string
 	XWwwFormUrlEncoded::urlencode(std::string_view::const_iterator i, std::string_view::const_iterator e)
@@ -130,7 +136,8 @@ namespace IceSpider {
 	}
 
 	void
-	XWwwFormUrlEncoded::urlencodeto(std::ostream & o, std::string_view::const_iterator i, std::string_view::const_iterator e)
+	XWwwFormUrlEncoded::urlencodeto(
+			std::ostream & o, std::string_view::const_iterator i, std::string_view::const_iterator e)
 	{
 		while (i != e) {
 			if (*i == ' ') {
@@ -231,4 +238,3 @@ namespace IceSpider {
 }
 
 NAMEDFACTORY("application/x-www-form-urlencoded", IceSpider::XWwwFormUrlEncoded, Slicer::StreamDeserializerFactory);
-

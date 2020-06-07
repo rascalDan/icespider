@@ -1,26 +1,26 @@
 #include "xsltStreamSerializer.h"
-#include <libxslt/xsltInternals.h>
-#include <libxml/HTMLtree.h>
 #include <factory.impl.h>
 #include <filesystem>
+#include <libxml/HTMLtree.h>
+#include <libxslt/xsltInternals.h>
 
 namespace IceSpider {
-	static int xmlstrmclosecallback(void * context)
+	static int
+	xmlstrmclosecallback(void * context)
 	{
-		((std::ostream*)context)->flush();
+		((std::ostream *)context)->flush();
 		return 0;
 	}
 
-	static int xmlstrmwritecallback(void * context, const char * buffer, int len)
+	static int
+	xmlstrmwritecallback(void * context, const char * buffer, int len)
 	{
-		((std::ostream*)context)->write(buffer, len);
+		((std::ostream *)context)->write(buffer, len);
 		return len;
 	}
 
 	XsltStreamSerializer::IceSpiderFactory::IceSpiderFactory(const char * path) :
-		stylesheetPath(path),
-		stylesheetWriteTime(std::filesystem::file_time_type::min()),
-		stylesheet(nullptr)
+		stylesheetPath(path), stylesheetWriteTime(std::filesystem::file_time_type::min()), stylesheet(nullptr)
 	{
 	}
 
@@ -47,10 +47,7 @@ namespace IceSpider {
 	}
 
 	XsltStreamSerializer::XsltStreamSerializer(std::ostream & os, xsltStylesheet * ss) :
-		Slicer::XmlDocumentSerializer(doc),
-		strm(os),
-		doc(nullptr),
-		stylesheet(ss)
+		Slicer::XmlDocumentSerializer(doc), strm(os), doc(nullptr), stylesheet(ss)
 	{
 	}
 
@@ -69,13 +66,12 @@ namespace IceSpider {
 		}
 		xmlOutputBufferPtr buf = xmlOutputBufferCreateIO(xmlstrmwritecallback, xmlstrmclosecallback, &strm, nullptr);
 		if (xmlStrcmp(stylesheet->method, BAD_CAST "html") == 0) {
-			htmlDocContentDumpFormatOutput(buf, result, (const char *) stylesheet->encoding, 0);
+			htmlDocContentDumpFormatOutput(buf, result, (const char *)stylesheet->encoding, 0);
 		}
 		else {
-			xmlNodeDumpOutput(buf, result, result->children, 0, 0, (const char *) stylesheet->encoding);
+			xmlNodeDumpOutput(buf, result, result->children, 0, 0, (const char *)stylesheet->encoding);
 		}
 		xmlOutputBufferClose(buf);
 		xmlFreeDoc(result);
 	}
 }
-

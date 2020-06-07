@@ -1,20 +1,17 @@
 #include "ihttpRequest.h"
+#include "exceptions.h"
 #include "irouteHandler.h"
 #include "util.h"
-#include "exceptions.h"
 #include "xwwwFormUrlEncoded.h"
 #include <boost/lexical_cast.hpp>
-#include <ctime>
 #include <cstdio>
+#include <ctime>
 #include <formatters.h>
 
 namespace IceSpider {
 	using namespace AdHoc::literals;
 
-	IHttpRequest::IHttpRequest(const Core * c) :
-		core(c)
-	{
-	}
+	IHttpRequest::IHttpRequest(const Core * c) : core(c) { }
 
 	Ice::Context
 	IHttpRequest::getContext() const
@@ -27,9 +24,10 @@ namespace IceSpider {
 	{
 		try {
 			return Slicer::StreamDeserializerFactory::createNew(
-				getEnv(E::CONTENT_TYPE) / []() -> std::string_view {
-					throw Http400_BadRequest();
-				}, getInputStream());
+					getEnv(E::CONTENT_TYPE) / []() -> std::string_view {
+						throw Http400_BadRequest();
+					},
+					getInputStream());
 		}
 		catch (const AdHoc::NoSuchPluginException &) {
 			throw Http415_UnsupportedMediaType();
@@ -82,7 +80,9 @@ namespace IceSpider {
 		if (accepts.empty()) {
 			throw Http400_BadRequest();
 		}
-		std::stable_sort(accepts.begin(), accepts.end(), [](const auto & a, const auto & b) { return a->q > b->q; });
+		std::stable_sort(accepts.begin(), accepts.end(), [](const auto & a, const auto & b) {
+			return a->q > b->q;
+		});
 		return accepts;
 	}
 
@@ -93,7 +93,7 @@ namespace IceSpider {
 		if (acceptHdr) {
 			auto accepts = parseAccept(*acceptHdr);
 			auto & strm = getOutputStream();
-			for(auto & a : accepts) {
+			for (auto & a : accepts) {
 				ContentTypeSerializer serializer = handler->getSerializer(a, strm);
 				if (serializer.second) {
 					return serializer;
@@ -116,8 +116,9 @@ namespace IceSpider {
 		return url[idx];
 	}
 
-	template <typename T, typename Y>
-	inline T wrapLexicalCast(const Y & y)
+	template<typename T, typename Y>
+	inline T
+	wrapLexicalCast(const Y & y)
 	{
 		try {
 			return boost::lexical_cast<T>(y);
@@ -129,9 +130,9 @@ namespace IceSpider {
 
 	// Set-Cookie: value[; expires=date][; domain=domain][; path=path][; secure]
 	// Sat, 02 May 2009 23:38:25 GMT
-	void IHttpRequest::setCookie(const std::string_view & name, const std::string_view & value,
-			const OptionalString & d, const OptionalString & p, bool s,
-			std::optional<time_t> e)
+	void
+	IHttpRequest::setCookie(const std::string_view & name, const std::string_view & value, const OptionalString & d,
+			const OptionalString & p, bool s, std::optional<time_t> e)
 	{
 		std::stringstream o;
 		XWwwFormUrlEncoded::urlencodeto(o, name.begin(), name.end());
@@ -139,7 +140,8 @@ namespace IceSpider {
 		XWwwFormUrlEncoded::urlencodeto(o, value.begin(), value.end());
 		if (e) {
 			std::string buf(45, 0);
-			struct tm tm { };
+			struct tm tm {
+			};
 			gmtime_r(&*e, &tm);
 			buf.resize(strftime(buf.data(), buf.length(), "; expires=%a, %d %b %Y %T %Z", &tm));
 			o << buf;
@@ -150,15 +152,16 @@ namespace IceSpider {
 		if (p) {
 			"; path=%?"_fmt(o, *p);
 		}
-		if (s){
+		if (s) {
 			"; secure"_fmt(o);
 		}
 		"; samesite=strict"_fmt(o);
 		setHeader(H::SET_COOKIE, o.str());
 	}
 
-	template <typename T>
-	inline std::optional<T> optionalLexicalCast(const OptionalString & p)
+	template<typename T>
+	inline std::optional<T>
+	optionalLexicalCast(const OptionalString & p)
 	{
 		if (p) {
 			return wrapLexicalCast<T>(*p);
@@ -166,7 +169,8 @@ namespace IceSpider {
 		return {};
 	}
 
-	void IHttpRequest::responseRedirect(const std::string_view & url, const OptionalString & statusMsg) const
+	void
+	IHttpRequest::responseRedirect(const std::string_view & url, const OptionalString & statusMsg) const
 	{
 		setHeader(H::LOCATION, url);
 		response(303, (statusMsg ? *statusMsg : S::MOVED));
@@ -185,5 +189,3 @@ namespace IceSpider {
 	static_assert(!std::is_convertible<OptionalString::value_type, std::string>::value);
 	static_assert(std::is_constructible<OptionalString::value_type, std::string>::value);
 }
-
-

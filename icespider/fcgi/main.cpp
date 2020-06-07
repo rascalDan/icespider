@@ -1,7 +1,7 @@
-#include <visibility.h>
-#include "fcgiRequest.h"
 #include "cgiRequest.h"
 #include "core.h"
+#include "fcgiRequest.h"
+#include <visibility.h>
 
 using namespace IceSpider;
 
@@ -28,4 +28,3 @@ main(int argc, char ** argv, char ** env)
 	}
 	return 0;
 }
-

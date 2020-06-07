@@ -1,8 +1,7 @@
 #include "cgiRequest.h"
 
 namespace IceSpider {
-	CgiRequest::CgiRequest(Core * c, int argc, char ** argv, char ** env) :
-		CgiRequestBase(c, env)
+	CgiRequest::CgiRequest(Core * c, int argc, char ** argv, char ** env) : CgiRequestBase(c, env)
 	{
 		for (; argc > 0;) {
 			addenv(argv[--argc]);
@@ -22,4 +21,3 @@ namespace IceSpider {
 		return std::cout;
 	}
 }
-

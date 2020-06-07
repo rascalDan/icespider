@@ -5,4 +5,3 @@ TestIceSpider::Ex::ice_print(std::ostream & s) const
 {
 	s << message;
 }
-

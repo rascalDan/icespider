@@ -2,11 +2,7 @@
 
 namespace IceSpider {
 	FcgiRequest::FcgiRequest(Core * c, FCGX_Request * r) :
-		CgiRequestBase(c, r->envp),
-		inputbuf(r->in),
-		input(&inputbuf),
-		outputbuf(r->out),
-		output(&outputbuf)
+		CgiRequestBase(c, r->envp), inputbuf(r->in), input(&inputbuf), outputbuf(r->out), output(&outputbuf)
 	{
 		initialize();
 	}
@@ -23,4 +19,3 @@ namespace IceSpider {
 		return output;
 	}
 }
-

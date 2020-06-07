@@ -7,4 +7,3 @@ namespace IceSpider {
 	DefineHttpEx(Http406_NotAcceptable, 406, "Not Acceptable");
 	DefineHttpEx(Http415_UnsupportedMediaType, 415, "Unsupported Media Type");
 }
-

@@ -1,51 +1,53 @@
 #ifndef ICESPIDER_CORE_PATHS_H
 #define ICESPIDER_CORE_PATHS_H
 
-#include <vector>
-#include <string_view>
+#include <c++11Helpers.h>
 #include <memory>
+#include <string_view>
+#include <vector>
 #include <visibility.h>
 
 namespace IceSpider {
 	class DLL_PUBLIC PathPart {
-		public:
-			virtual ~PathPart() = default;
+	public:
+		PathPart() = default;
+		virtual ~PathPart() = default;
+		SPECIAL_MEMBERS_DEFAULT(PathPart);
 
-			virtual bool matches(const std::string_view &) const = 0;
+		[[nodiscard]] virtual bool matches(const std::string_view &) const = 0;
 	};
-	typedef std::unique_ptr<PathPart> PathPartPtr;
+	using PathPartPtr = std::unique_ptr<PathPart>;
 
 	class DLL_PUBLIC PathLiteral : public PathPart {
-		public:
-			PathLiteral(const std::string_view & v);
+	public:
+		explicit PathLiteral(const std::string_view & v);
 
-			bool matches(const std::string_view &) const;
+		[[nodiscard]] bool matches(const std::string_view &) const override;
 
-			const std::string_view value;
+		const std::string_view value;
 	};
 
 	class DLL_PUBLIC PathParameter : public PathPart {
-		public:
-			PathParameter(const std::string_view &);
+	public:
+		explicit PathParameter(const std::string_view &);
 
-			bool matches(const std::string_view &) const;
+		[[nodiscard]] bool matches(const std::string_view &) const override;
 
-			const std::string_view name;
+		const std::string_view name;
 	};
 
 	class DLL_PUBLIC Path {
-		public:
-			typedef std::vector<PathPartPtr> PathParts;
+	public:
+		using PathParts = std::vector<PathPartPtr>;
 
-			Path(const std::string_view &);
+		explicit Path(const std::string_view &);
 
-			const std::string_view path;
+		std::string_view path;
 
-			unsigned int pathElementCount() const;
+		[[nodiscard]] unsigned int pathElementCount() const;
 
-			PathParts parts;
+		PathParts parts;
 	};
 }
 
 #endif
-

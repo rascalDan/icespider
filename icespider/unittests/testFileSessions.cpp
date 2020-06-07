@@ -3,28 +3,26 @@
 
 #include <Ice/Initialize.h>
 #include <Ice/Properties.h>
-#include <session.h>
 #include <core.h>
 #include <definedDirs.h>
+#include <session.h>
 
 BOOST_TEST_DONT_PRINT_LOG_VALUE(IceSpider::Variables);
 
 class TestCore : public IceSpider::CoreWithDefaultRouter {
-	public:
-		TestCore() :
-			IceSpider::CoreWithDefaultRouter({
-				"--IceSpider.SessionManager=IceSpider-FileSessions",
+public:
+	TestCore() :
+		IceSpider::CoreWithDefaultRouter({"--IceSpider.SessionManager=IceSpider-FileSessions",
 				"--IceSpider.FileSessions.Path=" + (binDir / "test-sessions").string(),
-				"--IceSpider.FileSessions.Duration=0"
-			}),
-			root(communicator->getProperties()->getProperty("IceSpider.FileSessions.Path"))
-		{
-		}
-		// NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-		const std::filesystem::path root;
+				"--IceSpider.FileSessions.Duration=0"}),
+		root(communicator->getProperties()->getProperty("IceSpider.FileSessions.Path"))
+	{
+	}
+	// NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
+	const std::filesystem::path root;
 };
 
-BOOST_AUTO_TEST_CASE( clear )
+BOOST_AUTO_TEST_CASE(clear)
 {
 	TestCore tc;
 	if (std::filesystem::exists(tc.root)) {
@@ -34,14 +32,14 @@ BOOST_AUTO_TEST_CASE( clear )
 
 BOOST_FIXTURE_TEST_SUITE(Core, TestCore);
 
-BOOST_AUTO_TEST_CASE( ping )
+BOOST_AUTO_TEST_CASE(ping)
 {
 	auto prx = this->getProxy<IceSpider::SessionManager>();
 	BOOST_REQUIRE(prx);
 	prx->ice_ping();
 }
 
-BOOST_AUTO_TEST_CASE( createAndDestroy )
+BOOST_AUTO_TEST_CASE(createAndDestroy)
 {
 	auto prx = this->getProxy<IceSpider::SessionManager>();
 	auto s = prx->createSession();
@@ -52,7 +50,7 @@ BOOST_AUTO_TEST_CASE( createAndDestroy )
 	BOOST_REQUIRE(!std::filesystem::exists(root / s->id));
 }
 
-BOOST_AUTO_TEST_CASE( createAndChangeRestore )
+BOOST_AUTO_TEST_CASE(createAndChangeRestore)
 {
 	auto prx = this->getProxy<IceSpider::SessionManager>();
 	auto s = prx->createSession();
@@ -66,7 +64,7 @@ BOOST_AUTO_TEST_CASE( createAndChangeRestore )
 	prx->destroySession(s->id);
 }
 
-BOOST_AUTO_TEST_CASE( createAndExpire )
+BOOST_AUTO_TEST_CASE(createAndExpire)
 {
 	auto prx = this->getProxy<IceSpider::SessionManager>();
 	auto s = prx->createSession();
@@ -79,35 +77,34 @@ BOOST_AUTO_TEST_CASE( createAndExpire )
 	BOOST_REQUIRE(!std::filesystem::exists(root / s->id));
 }
 
-BOOST_AUTO_TEST_CASE( missing )
+BOOST_AUTO_TEST_CASE(missing)
 {
 	auto prx = this->getProxy<IceSpider::SessionManager>();
 	BOOST_REQUIRE(!prx->getSession("missing"));
 	BOOST_REQUIRE(!std::filesystem::exists(root / "missing"));
 }
 
-BOOST_AUTO_TEST_CASE( createAndLeave )
+BOOST_AUTO_TEST_CASE(createAndLeave)
 {
 	auto prx = this->getProxy<IceSpider::SessionManager>();
 	auto s = prx->createSession();
 	BOOST_REQUIRE(std::filesystem::exists(root / s->id));
 }
 
-BOOST_AUTO_TEST_CASE( left )
+BOOST_AUTO_TEST_CASE(left)
 {
 	BOOST_REQUIRE(!std::filesystem::is_empty(root));
 }
 
-BOOST_AUTO_TEST_CASE( expire )
+BOOST_AUTO_TEST_CASE(expire)
 {
 	usleep(1001000);
 }
 
 BOOST_AUTO_TEST_SUITE_END();
 
-BOOST_AUTO_TEST_CASE( empty )
+BOOST_AUTO_TEST_CASE(empty)
 {
 	TestCore tc;
 	BOOST_REQUIRE(std::filesystem::is_empty(tc.root));
 }
-

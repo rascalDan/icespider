@@ -22,10 +22,17 @@ project
 			<toolset>tidy:<checkxx>bugprone-*
 			<toolset>tidy:<checkxx>clang-*
 			<toolset>tidy:<checkxx>misc-*
+			<toolset>tidy:<xcheckxx>misc-non-private-member-variables-in-classes
 			<toolset>tidy:<checkxx>modernize-*
 			<toolset>tidy:<xcheckxx>modernize-use-trailing-return-type
 			<toolset>tidy:<checkxx>hicpp-*
 			<toolset>tidy:<checkxx>performance-*
+			<toolset>tidy:<exclude>common/bin/http.h
+			<toolset>tidy:<exclude>common/bin/session.h
+			<toolset>tidy:<exclude>compile/bin/tidy/debug/cxxstd-17-iso/routes.h
+			<toolset>tidy:<exclude>core/bin/routeOptions.h
+			<toolset>tidy:<exclude>unittests/bin/test-api.h
+			<toolset>tidy:<exclude>unittests/bin/test-fcgi.h
 	;
 
 build-project icespider ;

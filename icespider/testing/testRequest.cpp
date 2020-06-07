@@ -1,13 +1,11 @@
 #include "testRequest.h"
-#include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <formatters.h>
 
 namespace IceSpider {
 	constexpr std::string_view slash("/");
-	TestRequest::TestRequest(const Core * c, HttpMethod m, const std::string_view & p) :
-		IHttpRequest(c),
-		method(m)
+	TestRequest::TestRequest(const Core * c, HttpMethod m, const std::string_view & p) : IHttpRequest(c), method(m)
 	{
 		namespace ba = boost::algorithm;
 		auto path = p.substr(1);
@@ -158,4 +156,3 @@ namespace IceSpider {
 		return responseHeaders;
 	}
 }
-

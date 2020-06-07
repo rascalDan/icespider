@@ -6,10 +6,10 @@
 
 #define DeclareHttpEx(Name) \
 	class DLL_PUBLIC Name : public ::IceSpider::HttpException { \
-		public: \
-			Name(); \
-			static const short code; \
-			static const std::string message; \
+	public: \
+		Name(); \
+		static const short code; \
+		static const std::string message; \
 	}
 #define DefineHttpEx(Name, Code, Message) \
 	Name::Name() : ::IceSpider::HttpException(__FILE__, __LINE__, code, message) { } \
@@ -25,4 +25,3 @@ namespace IceSpider {
 }
 
 #endif
-

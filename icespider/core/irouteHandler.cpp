@@ -10,22 +10,18 @@ namespace IceSpider {
 	static const std::string JSON = "json";
 	static const std::string APPLICATION_JSON = MimeTypeFmt::get(APPLICATION, JSON);
 
-	const RouteOptions IRouteHandler::defaultRouteOptions {
-	};
+	const RouteOptions IRouteHandler::defaultRouteOptions {};
 	IRouteHandler::IRouteHandler(HttpMethod m, const std::string_view & p) :
-		IRouteHandler(m, p, defaultRouteOptions)
-	{
-	}
+		IRouteHandler(m, p, defaultRouteOptions) { }
 
-	IRouteHandler::IRouteHandler(HttpMethod m, const std::string_view & p, const RouteOptions & ro) :
-		Path(p),
-		method(m)
+	IRouteHandler::IRouteHandler(HttpMethod m, const std::string_view & p, const RouteOptions & ro) : Path(p), method(m)
 	{
 		if (ro.addDefaultSerializers) {
 			auto globalSerializers = AdHoc::PluginManager::getDefault()->getAll<Slicer::StreamSerializerFactory>();
 			for (const auto & gs : globalSerializers) {
 				auto slash = gs->name.find('/');
-				routeSerializers.insert({ { gs->name.substr(0, slash), gs->name.substr(slash + 1) }, gs->implementation() });
+				routeSerializers.insert(
+						{{gs->name.substr(0, slash), gs->name.substr(slash + 1)}, gs->implementation()});
 			}
 		}
 	}
@@ -35,7 +31,7 @@ namespace IceSpider {
 	{
 		for (const auto & rs : routeSerializers) {
 			if ((!a->group || rs.first.group == a->group) && (!a->type || rs.first.type == a->type)) {
-				return { rs.first, rs.second->create(strm) };
+				return {rs.first, rs.second->create(strm)};
 			}
 		}
 		return ContentTypeSerializer();
@@ -44,10 +40,7 @@ namespace IceSpider {
 	ContentTypeSerializer
 	IRouteHandler::defaultSerializer(std::ostream & strm) const
 	{
-		return {
-			{ APPLICATION, JSON },
-			Slicer::StreamSerializerFactory::createNew(APPLICATION_JSON, strm)
-		};
+		return {{APPLICATION, JSON}, Slicer::StreamSerializerFactory::createNew(APPLICATION_JSON, strm)};
 	}
 
 	void
@@ -60,7 +53,6 @@ namespace IceSpider {
 	IRouteHandler::addRouteSerializer(const MimeType & ct, const StreamSerializerFactoryPtr & ssfp)
 	{
 		routeSerializers.erase(ct);
-		routeSerializers.insert({ ct, ssfp });
+		routeSerializers.insert({ct, ssfp});
 	}
 }
-

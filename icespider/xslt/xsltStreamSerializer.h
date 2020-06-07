@@ -1,38 +1,40 @@
 #ifndef ICESPIDER_CORE_XSLTSTREAMSERIALIZER_H
 #define ICESPIDER_CORE_XSLTSTREAMSERIALIZER_H
 
+#include <c++11Helpers.h>
+#include <filesystem>
+#include <libxslt/transform.h>
 #include <slicer/xml/serializer.h>
 #include <visibility.h>
-#include <libxslt/transform.h>
-#include <filesystem>
 
 namespace IceSpider {
 	class DLL_PUBLIC XsltStreamSerializer : public Slicer::XmlDocumentSerializer {
+	public:
+		class IceSpiderFactory : public Slicer::StreamSerializerFactory {
 		public:
-			class IceSpiderFactory : public Slicer::StreamSerializerFactory {
-				public:
-					IceSpiderFactory(const char *);
-					~IceSpiderFactory();
+			explicit IceSpiderFactory(const char *);
+			SPECIAL_MEMBERS_MOVE_RO(IceSpiderFactory);
+			~IceSpiderFactory() override;
 
-					Slicer::SerializerPtr create(std::ostream &) const override;
+			Slicer::SerializerPtr create(std::ostream &) const override;
 
-				private:
-					const std::filesystem::path stylesheetPath;
-					mutable std::filesystem::file_time_type stylesheetWriteTime;
-					mutable xsltStylesheet * stylesheet;
-			};
+		private:
+			const std::filesystem::path stylesheetPath;
+			mutable std::filesystem::file_time_type stylesheetWriteTime;
+			mutable xsltStylesheet * stylesheet;
+		};
 
-			XsltStreamSerializer(std::ostream &, xsltStylesheet *);
-			~XsltStreamSerializer();
+		XsltStreamSerializer(std::ostream &, xsltStylesheet *);
+		SPECIAL_MEMBERS_DELETE(XsltStreamSerializer);
+		~XsltStreamSerializer() override;
 
-			void Serialize(Slicer::ModelPartForRootPtr mp) override;
+		void Serialize(Slicer::ModelPartForRootPtr mp) override;
 
-		protected:
-			std::ostream & strm;
-			xmlpp::Document * doc;
-			xsltStylesheet * stylesheet;
+	protected:
+		std::ostream & strm;
+		xmlpp::Document * doc;
+		xsltStylesheet * stylesheet;
 	};
 }
 
 #endif
-

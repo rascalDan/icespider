@@ -1,16 +1,15 @@
 #include "routeCompiler.h"
-#include <pathparts.h>
-#include <slicer/slicer.h>
-#include <slicer/modelPartsTypes.h>
-#include <Slice/Preprocessor.h>
-#include <scopeExit.h>
-#include <fprintbf.h>
-#include <filesystem>
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/algorithm/string/join.hpp>
 #include <Slice/CPlusPlusUtil.h>
+#include <Slice/Preprocessor.h>
+#include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <compileTimeFormatter.h>
-
+#include <filesystem>
+#include <fprintbf.h>
+#include <pathparts.h>
+#include <scopeExit.h>
+#include <slicer/modelPartsTypes.h>
+#include <slicer/slicer.h>
 
 namespace IceSpider {
 	using namespace AdHoc::literals;
@@ -23,11 +22,13 @@ namespace IceSpider {
 		RouteConfigurationPtr
 		RouteCompiler::loadConfiguration(const std::filesystem::path & input) const
 		{
-			auto deserializer = Slicer::DeserializerPtr(Slicer::FileDeserializerFactory::createNew(input.extension().string(), input));
+			auto deserializer = Slicer::DeserializerPtr(
+					Slicer::FileDeserializerFactory::createNew(input.extension().string(), input));
 			return Slicer::DeserializeAnyWith<RouteConfigurationPtr>(deserializer);
 		}
 
-		Ice::StringSeq operator+(Ice::StringSeq ss, const std::string & s)
+		Ice::StringSeq
+		operator+(Ice::StringSeq ss, const std::string & s)
 		{
 			ss.push_back(s);
 			return ss;
@@ -66,45 +67,39 @@ namespace IceSpider {
 			throw std::runtime_error("Find operation " + on + " failed.");
 		}
 
-		RouteCompiler::Type
+		std::optional<RouteCompiler::Type>
 		RouteCompiler::findType(const std::string & tn, const Slice::ContainerPtr & c, const Ice::StringSeq & ns)
 		{
 			for (const auto & strct : c->structs()) {
 				auto fqon = boost::algorithm::join(ns + strct->name(), ".");
 				if (fqon == tn) {
-					return { strct, nullptr };	
+					return {{Slice::typeToString(strct), {}, strct->dataMembers()}};
 				}
 				auto t = findType(tn, strct, ns + strct->name());
 			}
 			for (const auto & cls : c->classes()) {
 				auto fqon = boost::algorithm::join(ns + cls->name(), ".");
 				if (fqon == tn) {
-					return { nullptr, cls->declaration() };
+					return {{Slice::typeToString(cls->declaration()), cls->scoped(), cls->dataMembers()}};
 				}
-				auto t = findType(tn, cls, ns + cls->name());
-				// NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDelete)
-				if (t.first || t.second) {
+				if (auto t = findType(tn, cls, ns + cls->name())) {
 					return t;
 				}
 			}
 			for (const auto & m : c->modules()) {
-				auto t = findType(tn, m, ns + m->name());
-				// NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDelete)
-				if (t.first || t.second) {
+				if (auto t = findType(tn, m, ns + m->name())) {
 					return t;
 				}
 			}
-			return { nullptr, nullptr };
+			return {};
 		}
 
 		RouteCompiler::Type
 		RouteCompiler::findType(const std::string & tn, const Units & us)
 		{
 			for (const auto & u : us) {
-				// NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDelete)
-				auto t = findType(tn, u.second);
-				if (t.first || t.second) {
-					return t;
+				if (auto t = findType(tn, u.second)) {
+					return *t;
 				}
 			}
 			throw std::runtime_error("Find type " + tn + " failed.");
@@ -137,7 +132,8 @@ namespace IceSpider {
 		{
 			for (const auto & r : c->routes) {
 				if (r.second->operation) {
-					r.second->operations[std::string()] = std::make_shared<Operation>(*r.second->operation, StringMap());
+					r.second->operations[std::string()]
+							= std::make_shared<Operation>(*r.second->operation, StringMap());
 				}
 				auto ps = findParameters(r.second, u);
 				for (const auto & p : ps) {
@@ -148,7 +144,12 @@ namespace IceSpider {
 						}
 					}
 					else {
-						defined = r.second->params.insert({ p.first, std::make_shared<Parameter>(ParameterSource::URL, p.first, false, Ice::optional<std::string>(), Ice::optional<std::string>(), false) }).first;
+						defined = r.second->params
+										  .insert({p.first,
+												  std::make_shared<Parameter>(ParameterSource::URL, p.first, false,
+														  Ice::optional<std::string>(), Ice::optional<std::string>(),
+														  false)})
+										  .first;
 					}
 					auto d = defined->second;
 					if (d->source == ParameterSource::URL) {
@@ -184,15 +185,15 @@ namespace IceSpider {
 				throw std::runtime_error("Failed to open output files");
 			}
 			AdHoc::ScopeExit outClose(
-				[out,outh]() {
-					fclose(out);
-					fclose(outh);
-				},
-				nullptr,
-				[&output,&outputh]() {
-					std::filesystem::remove(output);
-					std::filesystem::remove(outputh);
-				});
+					[out, outh]() {
+						fclose(out);
+						fclose(outh);
+					},
+					nullptr,
+					[&output, &outputh]() {
+						std::filesystem::remove(output);
+						std::filesystem::remove(outputh);
+					});
 			processConfiguration(out, outh, output.stem().string(), configuration, units);
 		}
 
@@ -225,7 +226,9 @@ namespace IceSpider {
 				}
 
 				Slice::UnitPtr u = Slice::Unit::createUnit(false, false, false, false);
-				uDestroy.onFailure.emplace_back([u]() { u->destroy(); });
+				uDestroy.onFailure.emplace_back([u]() {
+					u->destroy();
+				});
 
 				int parseStatus = u->parse(realSlice.string(), cppHandle, false);
 
@@ -242,9 +245,9 @@ namespace IceSpider {
 			return units;
 		}
 
-		template<typename ... X>
+		template<typename... X>
 		void
-		fprintbf(unsigned int indent, FILE * output, const X & ... x)
+		fprintbf(unsigned int indent, FILE * output, const X &... x)
 		{
 			for (; indent > 0; --indent) {
 				fputc('\t', output);
@@ -254,36 +257,32 @@ namespace IceSpider {
 		}
 
 		template<typename Enum>
-		std::string getEnumString(Enum & e)
+		std::string
+		getEnumString(Enum & e)
 		{
 			return Slicer::ModelPartForEnum<Enum>::lookup(e);
 		}
 
-		static
-		std::string
+		static std::string
 		outputSerializerClass(const IceSpider::OutputSerializers::value_type & os)
 		{
 			return boost::algorithm::replace_all_copy(os.second->serializer, ".", "::");
 		}
 
 		AdHocFormatter(MimePair, R"C({ "%?", "%?" })C");
-		static
-		std::string
+		static std::string
 		outputSerializerMime(const IceSpider::OutputSerializers::value_type & os)
 		{
 			auto slash = os.first.find('/');
-			return MimePair::get(
-					os.first.substr(0, slash), os.first.substr(slash + 1));
+			return MimePair::get(os.first.substr(0, slash), os.first.substr(slash + 1));
 		}
 
 		void
 		RouteCompiler::registerOutputSerializers(FILE * output, const RoutePtr & r) const
 		{
 			for (const auto & os : r->outputSerializers) {
-				fprintbf(4, output, "addRouteSerializer(%s,\n",
-						outputSerializerMime(os));
-				fprintbf(6, output, "std::make_shared<%s::IceSpiderFactory>(",
-						outputSerializerClass(os));
+				fprintbf(4, output, "addRouteSerializer(%s,\n", outputSerializerMime(os));
+				fprintbf(6, output, "std::make_shared<%s::IceSpiderFactory>(", outputSerializerClass(os));
 				for (auto p = os.second->params.begin(); p != os.second->params.end(); ++p) {
 					if (p != os.second->params.begin()) {
 						fputs(", ", output);
@@ -295,7 +294,8 @@ namespace IceSpider {
 		}
 
 		void
-		RouteCompiler::processConfiguration(FILE * output, FILE * outputh, const std::string & name, const RouteConfigurationPtr & c, const Units & units) const
+		RouteCompiler::processConfiguration(FILE * output, FILE * outputh, const std::string & name,
+				const RouteConfigurationPtr & c, const Units & units) const
 		{
 			fputs("// This source files was generated by IceSpider.\n", output);
 			fprintbf(output, "// Configuration name: %s\n\n", c->name);
@@ -332,7 +332,8 @@ namespace IceSpider {
 		}
 
 		void
-		RouteCompiler::processBases(FILE * output, FILE * outputh, const RouteConfigurationPtr & c, const Units & u) const
+		RouteCompiler::processBases(
+				FILE * output, FILE * outputh, const RouteConfigurationPtr & c, const Units & u) const
 		{
 			fputs("\n", outputh);
 			fprintbf(outputh, "namespace %s {\n", c->name);
@@ -353,7 +354,7 @@ namespace IceSpider {
 			fprintbf(1, outputh, "class %s {\n", b.first);
 			fprintbf(2, outputh, "protected:\n");
 			fprintbf(3, outputh, "explicit %s(const IceSpider::Core * core);\n\n", b.first);
-			for (const auto & f: b.second->functions) {
+			for (const auto & f : b.second->functions) {
 				fprintbf(3, outputh, "%s;\n", f);
 			}
 			fprintbf(1, output, "%s::%s(const IceSpider::Core * core)", b.first, b.first);
@@ -363,10 +364,9 @@ namespace IceSpider {
 			fputs("\n", output);
 			unsigned int pn = 0;
 			for (const auto & p : b.second->proxies) {
-				fprintbf(3, outputh, "const %sPrxPtr prx%u;\n",
-						boost::algorithm::replace_all_copy(p, ".", "::"), pn);
-				fprintbf(3, output, "prx%u(core->getProxy<%s>())",
-						pn, boost::algorithm::replace_all_copy(p, ".", "::"));
+				fprintbf(3, outputh, "const %sPrxPtr prx%u;\n", boost::algorithm::replace_all_copy(p, ".", "::"), pn);
+				fprintbf(
+						3, output, "prx%u(core->getProxy<%s>())", pn, boost::algorithm::replace_all_copy(p, ".", "::"));
 				if (++pn < b.second->proxies.size()) {
 					fputs(",", output);
 				}
@@ -407,7 +407,8 @@ namespace IceSpider {
 			fputs(" {\n", output);
 			fprintbf(2, output, "public:\n");
 			fprintbf(3, output, "explicit %s(const IceSpider::Core * core) :\n", r.first);
-			fprintbf(4, output, "IceSpider::IRouteHandler(IceSpider::HttpMethod::%s, \"%s\")", methodName, r.second->path);
+			fprintbf(4, output, "IceSpider::IRouteHandler(IceSpider::HttpMethod::%s, \"%s\")", methodName,
+					r.second->path);
 			for (const auto & b : r.second->bases) {
 				fputs(",\n", output);
 				fprintbf(4, output, "%s(core)", b);
@@ -437,8 +438,7 @@ namespace IceSpider {
 				}
 				if (p.second->defaultExpr) {
 					fputs(",\n", output);
-					fprintbf(4, output, "_pd_%s(%s)",
-							p.first, *p.second->defaultExpr);
+					fprintbf(4, output, "_pd_%s(%s)", p.first, *p.second->defaultExpr);
 				}
 			}
 			fputs("\n", output);
@@ -453,24 +453,23 @@ namespace IceSpider {
 				if (p.second->hasUserSource) {
 					auto ip = ps.find(p.first)->second;
 					const auto paramType = "std::remove_cvref<%?>::type"_fmt(
-						Slice::inputTypeToString(ip->type(), false, "", ip->getMetaData()));
+							Slice::inputTypeToString(ip->type(), false, "", ip->getMetaData()));
 					// This shouldn't be needed... the warning is ignored elsewhere to no effect
-					fprintbf(4, output, "// NOLINTNEXTLINE(clang-analyzer-optin.cplusplus.VirtualCall)\n");
 					if (p.second->source == ParameterSource::Body) {
 						if (p.second->key) {
 							if (!doneBody) {
 								if (p.second->type) {
-									fprintbf(4, output, "const auto _pbody(request->getBody<%s>());\n",
-											*p.second->type);
+									fprintbf(
+											4, output, "const auto _pbody(request->getBody<%s>());\n", *p.second->type);
 								}
 								else {
-									fprintbf(4, output, "const auto _pbody(request->getBody<IceSpider::StringMap>());\n");
+									fprintbf(4, output,
+											"const auto _pbody(request->getBody<IceSpider::StringMap>());\n");
 								}
 								doneBody = true;
 							}
 							if (p.second->type) {
-								fprintbf(4, output, "const auto _p_%s(_pbody->%s",
-										p.first, p.first);
+								fprintbf(4, output, "const auto _p_%s(_pbody->%s", p.first, p.first);
 							}
 							else {
 								fprintbf(4, output, "const auto _p_%s(request->getBodyParam<%s>(_pbody, _pn_%s)",
@@ -478,25 +477,25 @@ namespace IceSpider {
 							}
 						}
 						else {
-							fprintbf(4, output, "const auto _p_%s(request->getBody<%s>()",
-									p.first, paramType);
+							fprintbf(4, output, "const auto _p_%s(request->getBody<%s>()", p.first, paramType);
 						}
 					}
 					else {
-						fprintbf(4, output, "const auto _p_%s(request->get%sParam<%s>(_p%c_%s)",
-								p.first, getEnumString(p.second->source), paramType,
-								p.second->source == ParameterSource::URL ? 'i' : 'n',
-								p.first);
+						fprintbf(4, output, "const auto _p_%s(request->get%sParam<%s>(_p%c_%s)", p.first,
+								getEnumString(p.second->source), paramType,
+								p.second->source == ParameterSource::URL ? 'i' : 'n', p.first);
 					}
 					if (!p.second->isOptional && p.second->source != ParameterSource::URL) {
 						fprintbf(0, output, " /\n");
 						if (p.second->defaultExpr) {
-							fprintbf(5, output, " [this]() { return _pd_%s; }",
-									p.first);
+							fprintbf(5, output, " [this]() { return _pd_%s; }", p.first);
 						}
 						else {
-							fprintbf(5, output, " [this]() { return requiredParameterNotFound<std::remove_reference<%s>::type>(\"%s\", _pn_%s); }",
-									Slice::inputTypeToString(ip->type(), false, "", ip->getMetaData()), getEnumString(p.second->source), p.first);
+							fprintbf(5, output,
+									" [this]() { return "
+									"requiredParameterNotFound<std::remove_reference<%s>::type>(\"%s\", _pn_%s); }",
+									Slice::inputTypeToString(ip->type(), false, "", ip->getMetaData()),
+									getEnumString(p.second->source), p.first);
 						}
 					}
 					fprintbf(0, output, ");\n");
@@ -522,9 +521,7 @@ namespace IceSpider {
 				}
 				if (p.second->defaultExpr) {
 					auto ip = ps.find(p.first)->second;
-					fprintbf(3, output, "const %s _pd_%s;\n",
-							Slice::typeToString(ip->type()), p.first);
-
+					fprintbf(3, output, "const %s _pd_%s;\n", Slice::typeToString(ip->type()), p.first);
 				}
 			}
 			fprintbf(1, output, "};\n\n");
@@ -540,7 +537,8 @@ namespace IceSpider {
 				if (proxies.find(proxyName) == proxies.end()) {
 					proxies[proxyName] = n;
 					fputs(",\n", output);
-					fprintbf(4, output, "prx%d(core->getProxy<%s>())", n, boost::algorithm::replace_all_copy(proxyName, ".", "::"));
+					fprintbf(4, output, "prx%d(core->getProxy<%s>())", n,
+							boost::algorithm::replace_all_copy(proxyName, ".", "::"));
 					n += 1;
 				}
 			}
@@ -551,7 +549,8 @@ namespace IceSpider {
 		RouteCompiler::declareProxies(FILE * output, const Proxies & proxies) const
 		{
 			for (const auto & p : proxies) {
-				fprintbf(3, output, "const %sPrxPtr prx%d;\n", boost::algorithm::replace_all_copy(p.first, ".", "::"), p.second);
+				fprintbf(3, output, "const %sPrxPtr prx%d;\n", boost::algorithm::replace_all_copy(p.first, ".", "::"),
+						p.second);
 			}
 		}
 
@@ -575,7 +574,7 @@ namespace IceSpider {
 				}
 			}
 			fprintbf(output, "request->getContext());\n");
-			for(const auto & mutator : r->mutators) {
+			for (const auto & mutator : r->mutators) {
 				fprintbf(4, output, "%s(request, _responseModel);\n", mutator);
 			}
 			if (o->returnType()) {
@@ -587,12 +586,14 @@ namespace IceSpider {
 		}
 
 		void
-		RouteCompiler::addMashupOperations(FILE * output, const RoutePtr & r, const Proxies & proxies, const Units & us) const
+		RouteCompiler::addMashupOperations(
+				FILE * output, const RoutePtr & r, const Proxies & proxies, const Units & us) const
 		{
 			for (const auto & o : r->operations) {
 				auto proxyName = o.second->operation.substr(0, o.second->operation.find_last_of('.'));
 				auto operation = o.second->operation.substr(o.second->operation.find_last_of('.') + 1);
-				fprintbf(4, output, "auto _ar_%s = prx%s->%sAsync(", o.first, proxies.find(proxyName)->second, operation);
+				fprintbf(4, output, "auto _ar_%s = prx%s->%sAsync(", o.first, proxies.find(proxyName)->second,
+						operation);
 				auto so = findOperation(o.second->operation, us);
 				for (const auto & p : so->parameters()) {
 					auto po = o.second->paramOverrides.find(p->name());
@@ -607,23 +608,14 @@ namespace IceSpider {
 				fprintbf(output, "request->getContext());\n");
 			}
 			auto t = findType(r->type, us);
-			Slice::DataMemberList members;
-			if (t.second) {
-				fprintbf(4, output, "%s _responseModel = std::make_shared<%s>();\n",
-						Slice::typeToString(t.second),
-						t.second->scoped());
-				members = t.second->definition()->dataMembers();
+			fprintbf(4, output, "%s _responseModel", t.type);
+			if (t.scoped) {
+				fprintbf(4, output, " = std::make_shared<%s>()", *t.scoped);
 			}
-			else {
-				fprintbf(4, output, "%s _responseModel;\n",
-						Slice::typeToString(t.first));
-				members = t.first->dataMembers();
-			}
-			for (const auto & mi : members) {
+			fprintbf(4, output, ";\n");
+			for (const auto & mi : t.members) {
 				bool isOp = false;
-				fprintbf(4, output, "_responseModel%s%s = ",
-						t.second ? "->" : ".",
-						mi->name());
+				fprintbf(4, output, "_responseModel%s%s = ", t.scoped ? "->" : ".", mi->name());
 				for (const auto & o : r->operations) {
 					auto proxyName = o.second->operation.substr(0, o.second->operation.find_last_of('.'));
 					auto operation = o.second->operation.substr(o.second->operation.find_last_of('.') + 1);
@@ -645,4 +637,3 @@ namespace IceSpider {
 		}
 	}
 }
-
