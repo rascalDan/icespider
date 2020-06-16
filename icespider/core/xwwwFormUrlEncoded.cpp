@@ -50,13 +50,13 @@ namespace IceSpider {
 		mp->Create();
 		mp->OnEachChild([this](auto, auto mp, auto) {
 			switch (mp->GetType()) {
-				case Slicer::mpt_Simple:
+				case Slicer::ModelPartType::Simple:
 					this->DeserializeSimple(mp);
 					break;
-				case Slicer::mpt_Complex:
+				case Slicer::ModelPartType::Complex:
 					this->DeserializeComplex(mp);
 					break;
-				case Slicer::mpt_Dictionary:
+				case Slicer::ModelPartType::Dictionary:
 					this->DeserializeDictionary(mp);
 					break;
 				default:
