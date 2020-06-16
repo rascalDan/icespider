@@ -1,5 +1,5 @@
-#include "exceptions.h"
 #include "xwwwFormUrlEncoded.h"
+#include "exceptions.h"
 #include <Ice/BuiltinSequences.h>
 #include <array>
 #include <boost/lexical_cast.hpp>
@@ -7,30 +7,100 @@
 namespace ba = boost::algorithm;
 using namespace std::literals;
 
-constexpr std::array<char, 255> hextable = []() {
-	std::array<char, 255> hextable {};
-	for (int n = 0; n < 255; n++) {
-		hextable[n] = -1;
+constexpr auto CHARMAX = std::numeric_limits<unsigned char>::max();
+
+using HexPair = std::pair<char, char>;
+using HexOut = std::array<HexPair, CHARMAX>;
+constexpr auto hexout = []() {
+	auto hexchar = [](auto c) {
+		return c < 10 ? '0' + c : 'a' - 10 + c;
+	};
+	HexOut out {};
+	for (unsigned int n = 0; n < CHARMAX; n++) {
+		switch (n) {
+			case ' ':
+				out[n].first = '+';
+				break;
+			case 'a' ... 'z':
+			case 'A' ... 'Z':
+			case '0' ... '9':
+			case '-':
+			case '.':
+			case '_':
+			case '~':
+				// No special encoding
+				break;
+			default:
+				out[n].first = hexchar(n >> 4U);
+				out[n].second = hexchar(n & 0xfU);
+				break;
+		}
 	}
+	return out;
+}();
+
+static_assert(hexout['a'].first == 0);
+static_assert(hexout['a'].second == 0);
+static_assert(hexout['z'].first == 0);
+static_assert(hexout['z'].second == 0);
+static_assert(hexout['A'].first == 0);
+static_assert(hexout['A'].second == 0);
+static_assert(hexout['Z'].first == 0);
+static_assert(hexout['Z'].second == 0);
+static_assert(hexout['0'].first == 0);
+static_assert(hexout['9'].second == 0);
+static_assert(hexout['~'].first == 0);
+static_assert(hexout['~'].second == 0);
+static_assert(hexout[' '].first == '+');
+static_assert(hexout[' '].second == 0);
+static_assert(hexout['?'].first == '3');
+static_assert(hexout['?'].second == 'f');
+
+constexpr std::array<std::optional<unsigned char>, CHARMAX> hextable = []() {
+	std::array<std::optional<unsigned char>, CHARMAX> hextable {};
 	for (int n = '0'; n <= '9'; n++) {
-		hextable[n] = n - '0';
+		hextable[n] = {n - '0'};
 	}
 	for (int n = 'a'; n <= 'f'; n++) {
-		hextable[n] = hextable[n - 32] = n - 'a' + 10;
+		hextable[n] = hextable[n - 32] = {n - 'a' + 10};
 	}
 	return hextable;
 }();
 
-static_assert(hextable['~'] == -1);
-static_assert(hextable[' '] == -1);
+static_assert(!hextable['~'].has_value());
+static_assert(!hextable[' '].has_value());
 static_assert(hextable['0'] == 0);
 static_assert(hextable['9'] == 9);
 static_assert(hextable['a'] == 10);
 static_assert(hextable['A'] == 10);
 static_assert(hextable['f'] == 15);
 static_assert(hextable['F'] == 15);
-static_assert(hextable['g'] == -1);
-static_assert(hextable['G'] == -1);
+static_assert(!hextable['g'].has_value());
+static_assert(!hextable['G'].has_value());
+
+using HexIn = std::array<std::array<char, CHARMAX>, CHARMAX>;
+constexpr HexIn hexin = []() {
+	HexIn hexin {};
+	auto firstHex = std::min({'0', 'a', 'A'});
+	auto lastHex = std::max({'9', 'f', 'F'});
+	for (auto first = firstHex; first <= lastHex; first++) {
+		if (const auto ch1 = hextable[first]) {
+			for (auto second = firstHex; second <= lastHex; second++) {
+				if (const auto ch2 = hextable[second]) {
+					hexin[first][second] = (*ch1 << 4U) + *ch2;
+				}
+			}
+		}
+	}
+	hexin['+'][0] = ' ';
+	return hexin;
+}();
+
+static_assert(hexin[' '][' '] == 0);
+static_assert(hexin['0']['a'] == '\n');
+static_assert(hexin['+'][0] == ' ');
+static_assert(hexin['3']['f'] == '?');
+static_assert(hexin['3']['F'] == '?');
 
 namespace IceSpider {
 	static const std::string AMP = "&";
@@ -115,44 +185,38 @@ namespace IceSpider {
 		return urlencode(s.begin(), s.end());
 	}
 
-	inline auto
-	hexchar(int c)
-	{
-		return c < 10 ? '0' + c : 'a' - 10 + c;
-	}
-	template<typename T>
-	inline char
-	hexlookup(const T & i)
-	{
-		return hextable[(int)*i];
-	}
+	constexpr auto urlencoderange = [](auto && o, auto i, auto e) {
+		while (i != e) {
+			const auto & out = hexout[*i];
+			if (out.second) {
+				o = '%';
+				o = out.first;
+				o = out.second;
+			}
+			else if (out.first) {
+				o = (out.first);
+			}
+			else {
+				o = (*i);
+			}
+			++i;
+		}
+	};
 
 	std::string
 	XWwwFormUrlEncoded::urlencode(std::string_view::const_iterator i, std::string_view::const_iterator e)
 	{
-		std::stringstream o;
-		urlencodeto(o, i, e);
-		return o.str();
+		std::string o;
+		o.reserve(std::distance(i, e));
+		urlencoderange(std::back_inserter(o), i, e);
+		return o;
 	}
 
 	void
 	XWwwFormUrlEncoded::urlencodeto(
 			std::ostream & o, std::string_view::const_iterator i, std::string_view::const_iterator e)
 	{
-		while (i != e) {
-			if (*i == ' ') {
-				o.put('+');
-			}
-			else if (!isalnum(*i)) {
-				o.put('%');
-				o.put(hexchar(*i >> 4)); // NOLINT(hicpp-signed-bitwise)
-				o.put(hexchar(*i & 0xf)); // NOLINT(hicpp-signed-bitwise)
-			}
-			else {
-				o.put(*i);
-			}
-			++i;
-		}
+		urlencoderange(std::ostream_iterator<decltype(*i)>(o), i, e);
 	}
 
 	std::string
@@ -166,7 +230,12 @@ namespace IceSpider {
 					t += ' ';
 					break;
 				case '%':
-					t += static_cast<char>((16 * hexlookup(i + 1)) + hexlookup(i + 2));
+					if (const auto ch = hexin[*(i + 1)][*(i + 2)]) {
+						t += ch;
+					}
+					else {
+						throw Http400_BadRequest();
+					}
 					i += 2;
 					break;
 				default:
@@ -209,7 +278,7 @@ namespace IceSpider {
 	XWwwFormUrlEncoded::DeserializeSimple(const Slicer::ModelPartPtr & mp)
 	{
 		iterateVars([mp](auto &&, const auto && v) {
-			mp->SetValue(SetFromString(v));
+			mp->SetValue(SetFromString(std::forward<decltype(v)>(v)));
 		});
 	}
 
@@ -219,7 +288,7 @@ namespace IceSpider {
 		mp->Create();
 		iterateVars([mp](auto && k, const auto && v) {
 			if (auto m = mp->GetChild(k)) {
-				m->SetValue(SetFromString(v));
+				m->SetValue(SetFromString(std::forward<decltype(v)>(v)));
 			}
 		});
 		mp->Complete();
@@ -230,8 +299,8 @@ namespace IceSpider {
 	{
 		iterateVars([mp](auto && k, const auto && v) {
 			auto p = mp->GetAnonChild();
-			p->GetChild(KEY)->SetValue(SetFromString(k));
-			p->GetChild(VALUE)->SetValue(SetFromString(v));
+			p->GetChild(KEY)->SetValue(SetFromString(std::forward<decltype(k)>(k)));
+			p->GetChild(VALUE)->SetValue(SetFromString(std::forward<decltype(v)>(v)));
 			p->Complete();
 		});
 	}
