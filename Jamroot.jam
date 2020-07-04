@@ -29,10 +29,11 @@ project
 			<toolset>tidy:<checkxx>performance-*
 			<toolset>tidy:<exclude>common/bin/http.h
 			<toolset>tidy:<exclude>common/bin/session.h
-			<toolset>tidy:<exclude>compile/bin/tidy/debug/cxxstd-17-iso/routes.h
+			<toolset>tidy:<exclude>cxxstd-17-iso/routes.h
 			<toolset>tidy:<exclude>core/bin/routeOptions.h
 			<toolset>tidy:<exclude>unittests/bin/test-api.h
 			<toolset>tidy:<exclude>unittests/bin/test-fcgi.h
+			<toolset>tidy:<exclude>ice/cpp/*
 	;
 
 build-project icespider ;
