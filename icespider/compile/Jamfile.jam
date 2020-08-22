@@ -3,7 +3,7 @@ lib slicer : : : : <include>/usr/include/slicer <include>/usr/include/adhocutil 
 lib slicer-json ;
 lib boost_program_options ;
 lib stdc++fs ;
-lib mcpp ;
+lib slice-parser ;
 
 obj routes : routes.ice : <use>../common//icespider-common <toolset>tidy:<checker>none ;
 lib icespider-compile :
@@ -16,13 +16,12 @@ lib icespider-compile :
 	<library>adhocutil
 	<library>slicer-json
 	<library>stdc++fs
-	<library>slice//Slice
+	<library>slice-parser
 	<library>../common//icespider-common
 	<implicit-dependency>../common//icespider-common
 	<implicit-dependency>routes
 	<library>..//Ice
 	<library>..//pthread
-	<library>mcpp
 	: :
 	<library>stdc++fs
 	<library>../common//icespider-common
