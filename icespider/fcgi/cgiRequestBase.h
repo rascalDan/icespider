@@ -1,6 +1,7 @@
 #ifndef ICESPIDER_CGI_CGIREQUESTBASE_H
 #define ICESPIDER_CGI_CGIREQUESTBASE_H
 
+#include <case_less.h>
 #include <core.h>
 #include <ihttpRequest.h>
 #include <map>
@@ -15,7 +16,7 @@ namespace IceSpider {
 
 	public:
 		using VarMap = std::map<std::string_view, const std::string_view>;
-		using HdrMap = std::map<std::string_view, const std::string_view, Slicer::case_less>;
+		using HdrMap = std::map<std::string_view, const std::string_view, AdHoc::case_less>;
 
 		[[nodiscard]] const PathElements & getRequestPath() const override;
 		[[nodiscard]] PathElements & getRequestPath() override;
