@@ -26,6 +26,7 @@ project
 			<toolset>tidy:<checkxx>modernize-*
 			<toolset>tidy:<xcheckxx>modernize-use-trailing-return-type
 			<toolset>tidy:<checkxx>hicpp-*
+			<toolset>tidy:<xcheckxx>hicpp-named-parameter
 			<toolset>tidy:<checkxx>performance-*
 			<toolset>tidy:<exclude>common/bin/http.h
 			<toolset>tidy:<exclude>common/bin/session.h
