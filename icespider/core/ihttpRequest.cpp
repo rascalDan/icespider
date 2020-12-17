@@ -37,6 +37,10 @@ namespace IceSpider {
 	Accepted
 	IHttpRequest::parseAccept(const std::string_view & acceptHdr)
 	{
+		if (acceptHdr.empty()
+				|| std::find_if_not(acceptHdr.begin(), acceptHdr.end(), std::iswspace) == acceptHdr.end()) {
+			throw Http400_BadRequest();
+		}
 		auto accept = std::unique_ptr<FILE, decltype(&fclose)>(
 				fmemopen(const_cast<char *>(acceptHdr.data()), acceptHdr.length(), "r"), &fclose);
 		Accepted accepts;
