@@ -1,6 +1,6 @@
 #define BOOST_TEST_MODULE TestAccept
 #include <boost/test/data/test_case.hpp>
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <exceptions.h>
 #include <ihttpRequest.h>
