@@ -25,6 +25,7 @@ lib icespider-compile :
 	: :
 	<library>stdc++fs
 	<library>../common//icespider-common
+	<library>slice-parser
 	;
 
 exe icespider :
