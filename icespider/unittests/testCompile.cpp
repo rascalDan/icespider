@@ -41,8 +41,10 @@ BOOST_AUTO_TEST_CASE(testLoadConfiguration)
 	Compile::RouteCompiler rc;
 	rc.searchPath.push_back(rootDir);
 	auto cfg = rc.loadConfiguration(rootDir / "testRoutes.json");
-	auto u = rc.loadUnits(cfg);
-	rc.applyDefaults(cfg, u);
+	BOOST_REQUIRE(cfg);
+	auto units = rc.loadUnits(cfg);
+	BOOST_REQUIRE(!units.empty());
+	rc.applyDefaults(cfg, units);
 
 	BOOST_REQUIRE_EQUAL("common", cfg->name);
 	BOOST_REQUIRE_EQUAL(13, cfg->routes.size());
@@ -69,6 +71,10 @@ BOOST_AUTO_TEST_CASE(testLoadConfiguration)
 
 	BOOST_REQUIRE_EQUAL(1, cfg->slices.size());
 	BOOST_REQUIRE_EQUAL("test-api.ice", cfg->slices[0]);
+
+	for (auto & u : units) {
+		u.second->destroy();
+	}
 }
 
 BOOST_AUTO_TEST_CASE(testRouteCompile)
