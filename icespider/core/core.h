@@ -2,6 +2,7 @@
 #define ICESPIDER_CORE_CORE_H
 
 #include "irouteHandler.h"
+#include "util.h"
 #include <Ice/Communicator.h>
 #include <c++11Helpers.h>
 #include <filesystem>
@@ -22,13 +23,13 @@ namespace IceSpider {
 		void process(IHttpRequest *, const IRouteHandler * = nullptr) const;
 		void handleError(IHttpRequest *, const std::exception &) const;
 
-		[[nodiscard]] Ice::ObjectPrxPtr getProxy(const char * type) const;
+		[[nodiscard]] Ice::ObjectPrxPtr getProxy(std::string_view type) const;
 
 		template<typename Interface>
 		[[nodiscard]] auto
 		getProxy() const
 		{
-			return Ice::uncheckedCast<typename Interface::ProxyType>(getProxy(typeid(Interface).name()));
+			return Ice::uncheckedCast<typename Interface::ProxyType>(getProxy(TypeName<Interface>::str()));
 		}
 
 		AllRoutes allRoutes;

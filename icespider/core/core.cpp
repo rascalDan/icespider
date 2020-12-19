@@ -125,23 +125,9 @@ namespace IceSpider {
 	}
 
 	Ice::ObjectPrxPtr
-	Core::getProxy(const char * type) const
+	Core::getProxy(const std::string_view type) const
 	{
-		auto buf = demangle(type);
-		char * c = buf.get();
-		int off = 0;
-		while (*c) {
-			if (*(c + 1) == ':' && *c == ':') {
-				*c = '.';
-				off += 1;
-			}
-			else if (off) {
-				*c = *(c + off);
-			}
-			c += 1;
-		}
-		auto i = communicator->propertyToProxy(buf.get());
-		return i;
+		return communicator->propertyToProxy(std::string {type});
 	}
 
 	static bool
