@@ -49,10 +49,12 @@ template<typename T> struct type_names {
 	static constexpr auto
 	name()
 	{
-		const std::string_view with_T {"T = "};
-		const auto start {pf().find(with_T) + with_T.length()};
-		const auto end {pf().find(']', start)};
-		return pf().substr(start, end - start);
+		constexpr std::string_view with_T {"T = "};
+		constexpr auto start {pf().find(with_T) + with_T.length()};
+		constexpr auto end {pf().find(']', start)};
+		constexpr auto name {pf().substr(start, end - start)};
+		static_assert(name.find('<') == std::string_view::npos, "Templates not supported");
+		return name;
 	}
 
 	static constexpr auto
