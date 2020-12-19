@@ -2,9 +2,11 @@ lib adhocutil : : : : <include>/usr/include/adhocutil ;
 lib slicer : : : : <include>/usr/include/slicer ;
 lib stdc++fs ;
 
+obj util-test : util-test.cpp ;
+
 obj routeOptions : routeOptions.ice : <toolset>tidy:<checker>none ;
 lib icespider-core :
-	[ glob *.cpp ]
+	[ glob *.cpp : *-test.cpp ]
 	routeOptions
 	:
 	<library>../common//icespider-common
