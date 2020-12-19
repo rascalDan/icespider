@@ -1,8 +1,7 @@
 #ifndef ICESPIDER_CORE_UTIL_H
 #define ICESPIDER_CORE_UTIL_H
 
-#include <IceUtil/Exception.h>
-#include <IceUtil/Optional.h>
+#include <Ice/Optional.h>
 
 namespace std::experimental::Ice {
 	template<typename T, typename TF>
