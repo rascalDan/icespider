@@ -35,20 +35,19 @@ namespace IceSpider {
 		}
 
 		Slice::OperationPtr
+		// NOLINTNEXTLINE(misc-no-recursion)
 		RouteCompiler::findOperation(const std::string & on, const Slice::ContainerPtr & c, const Ice::StringSeq & ns)
 		{
 			for (const auto & cls : c->classes()) {
 				auto fqcn = ns + cls->name();
 				for (const auto & op : cls->allOperations()) {
-					auto fqon = boost::algorithm::join(fqcn + op->name(), ".");
-					if (fqon == on) {
+					if (boost::algorithm::join(fqcn + op->name(), ".") == on) {
 						return op;
 					}
 				}
 			}
 			for (const auto & m : c->modules()) {
-				auto op = findOperation(on, m, ns + m->name());
-				if (op) {
+				if (auto op = findOperation(on, m, ns + m->name())) {
 					return op;
 				}
 			}
@@ -56,11 +55,11 @@ namespace IceSpider {
 		}
 
 		Slice::OperationPtr
+		// NOLINTNEXTLINE(misc-no-recursion)
 		RouteCompiler::findOperation(const std::string & on, const Units & us)
 		{
 			for (const auto & u : us) {
-				auto op = findOperation(on, u.second);
-				if (op) {
+				if (auto op = findOperation(on, u.second)) {
 					return op;
 				}
 			}
@@ -68,6 +67,7 @@ namespace IceSpider {
 		}
 
 		std::optional<RouteCompiler::Type>
+		// NOLINTNEXTLINE(misc-no-recursion)
 		RouteCompiler::findType(const std::string & tn, const Slice::ContainerPtr & c, const Ice::StringSeq & ns)
 		{
 			for (const auto & strct : c->structs()) {
