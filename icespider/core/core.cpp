@@ -61,6 +61,7 @@ namespace IceSpider {
 	}
 
 	void
+	// NOLINTNEXTLINE(misc-no-recursion)
 	Core::process(IHttpRequest * request, const IRouteHandler * route) const
 	{
 		try {
@@ -79,6 +80,7 @@ namespace IceSpider {
 	}
 
 	void
+	// NOLINTNEXTLINE(misc-no-recursion)
 	Core::handleError(IHttpRequest * request, const std::exception & exception) const
 	{
 		auto errorHandlers = AdHoc::PluginManager::getDefault()->getAll<ErrorHandler>();
