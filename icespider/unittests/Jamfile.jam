@@ -36,7 +36,7 @@ alias testCommon : : : :
 run
 	testCompile.cpp
 	base2.cpp
-	: :
+	: -- :
 	testRoutes.json
 	:
 	<define>BOOST_TEST_DYN_LINK
@@ -72,7 +72,7 @@ run
 	testApp.cpp
 	base2.cpp
 	testRoutes.json
-	: :
+	: -- :
 	config/ice.properties
 	xslt/transform.xslt
 	:
@@ -122,7 +122,7 @@ run
 
 run
 	testFileSessions.cpp
-	: :
+	: -- :
 	config/ice.properties
 	:
 	<define>BOOST_TEST_DYN_LINK
