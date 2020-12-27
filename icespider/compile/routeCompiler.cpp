@@ -452,8 +452,7 @@ namespace IceSpider {
 			for (const auto & p : r.second->params) {
 				if (p.second->hasUserSource) {
 					auto ip = ps.find(p.first)->second;
-					const auto paramType = "std::remove_cvref<%?>::type"_fmt(
-							Slice::inputTypeToString(ip->type(), false, "", ip->getMetaData()));
+					const auto paramType = Slice::typeToString(ip->type(), false, "", ip->getMetaData());
 					// This shouldn't be needed... the warning is ignored elsewhere to no effect
 					if (p.second->source == ParameterSource::Body) {
 						if (p.second->key) {
