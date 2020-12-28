@@ -13,8 +13,7 @@ project
 			<cxxstd>17
 			<visibility>hidden
 			<linkflags>"-Wl,-z,defs,--warn-once,--gc-sections"
-			<variant>release:<cxxflags>"-flto=2"
-			<variant>release:<linkflags>"-flto=2"
+			<variant>release:<lto>on
 			<variant>debug:<warnings>extra
 			<variant>debug:<warnings-as-errors>on
 			<variant>coverage:<coverage>on
