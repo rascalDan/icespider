@@ -490,11 +490,8 @@ namespace IceSpider {
 							fprintbf(5, output, " [this]() { return _pd_%s; }", p.first);
 						}
 						else {
-							fprintbf(5, output,
-									" [this]() { return "
-									"requiredParameterNotFound<std::remove_reference<%s>::type>(\"%s\", _pn_%s); }",
-									Slice::inputTypeToString(ip->type(), false, "", ip->getMetaData()),
-									getEnumString(p.second->source), p.first);
+							fprintbf(5, output, " [this]() { return requiredParameterNotFound<%s>(\"%s\", _pn_%s); }",
+									paramType, getEnumString(p.second->source), p.first);
 						}
 					}
 					fprintbf(0, output, ");\n");

@@ -7,8 +7,8 @@
 
 namespace std::experimental::Ice {
 	template<typename T, typename TF>
-	auto
-	operator/(const Ice::optional<T> & o, const TF & tf) -> decltype(tf())
+	inline const T &
+	operator/(const Ice::optional<T> & o, const TF & tf)
 	{
 		if (o) {
 			return *o;
@@ -17,8 +17,8 @@ namespace std::experimental::Ice {
 	}
 
 	template<typename T, typename TF>
-	auto
-	operator/(Ice::optional<T> && o, const TF & tf) -> decltype(tf())
+	inline T
+	operator/(Ice::optional<T> && o, const TF & tf)
 	{
 		if (o) {
 			return std::move(*o);
@@ -29,8 +29,8 @@ namespace std::experimental::Ice {
 
 namespace std {
 	template<typename T, typename TF>
-	auto
-	operator/(const std::optional<T> & o, const TF & tf) -> decltype(tf())
+	inline const T &
+	operator/(const std::optional<T> & o, const TF & tf)
 	{
 		if (o) {
 			return *o;
@@ -39,8 +39,8 @@ namespace std {
 	}
 
 	template<typename T, typename TF>
-	auto
-	operator/(std::optional<T> && o, const TF & tf) -> decltype(tf())
+	inline T
+	operator/(std::optional<T> && o, const TF & tf)
 	{
 		if (o) {
 			return std::move(*o);
