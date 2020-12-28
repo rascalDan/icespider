@@ -49,16 +49,6 @@ namespace std {
 	}
 }
 
-template<typename T>
-T
-orelse(const T & a, const T & b)
-{
-	if (a) {
-		return a;
-	}
-	return b;
-}
-
 template<typename T> struct type_names {
 	static constexpr auto
 	pf()
