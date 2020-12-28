@@ -15,6 +15,16 @@ namespace std::experimental::Ice {
 		}
 		return tf();
 	}
+
+	template<typename T, typename TF>
+	auto
+	operator/(Ice::optional<T> && o, const TF & tf) -> decltype(tf())
+	{
+		if (o) {
+			return std::move(*o);
+		}
+		return tf();
+	}
 }
 
 namespace std {
@@ -24,6 +34,16 @@ namespace std {
 	{
 		if (o) {
 			return *o;
+		}
+		return tf();
+	}
+
+	template<typename T, typename TF>
+	auto
+	operator/(std::optional<T> && o, const TF & tf) -> decltype(tf())
+	{
+		if (o) {
+			return std::move(*o);
 		}
 		return tf();
 	}
