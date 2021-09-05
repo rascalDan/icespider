@@ -29,6 +29,7 @@ BOOST_DATA_TEST_CASE(bad_requests,
 				" * / plain ",
 				" text / plain ; q = 0.0 ",
 				" text / plain ; q = 1.1 ",
+				" text / plain ; f = 0.1 ",
 		}),
 		a)
 {
