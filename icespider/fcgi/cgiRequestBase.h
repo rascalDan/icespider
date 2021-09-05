@@ -3,8 +3,8 @@
 
 #include <case_less.h>
 #include <core.h>
+#include <flatMap.h>
 #include <ihttpRequest.h>
-#include <map>
 #include <string_view>
 
 namespace IceSpider {
@@ -15,8 +15,8 @@ namespace IceSpider {
 		void initialize();
 
 	public:
-		using VarMap = std::map<std::string_view, const std::string_view>;
-		using HdrMap = std::map<std::string_view, const std::string_view, AdHoc::case_less>;
+		using VarMap = flatmap<std::string_view, const std::string_view>;
+		using HdrMap = flatmap<std::string_view, const std::string_view, AdHoc::case_less>;
 
 		[[nodiscard]] const PathElements & getRequestPath() const override;
 		[[nodiscard]] PathElements & getRequestPath() override;
@@ -35,10 +35,10 @@ namespace IceSpider {
 	private:
 		template<typename MapType> static OptionalString optionalLookup(const std::string_view & key, const MapType &);
 
-		VarMap envmap;
+		VarMap envmap {40};
 		StringMap qsmap;
 		StringMap cookiemap;
-		HdrMap hdrmap;
+		HdrMap hdrmap {15};
 		PathElements pathElements;
 	};
 }

@@ -149,3 +149,8 @@ lib test-api-lib :
 	<include>.
 	;
 
+run testFlatMap.cpp : : :
+	<library>boost_utf 
+	<define>BOOST_TEST_DYN_LINK
+	<use>../core//icespider-core
+	;
