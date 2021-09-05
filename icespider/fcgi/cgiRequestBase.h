@@ -15,8 +15,8 @@ namespace IceSpider {
 		void initialize();
 
 	public:
-		using VarMap = flatmap<std::string_view, const std::string_view>;
-		using HdrMap = flatmap<std::string_view, const std::string_view, AdHoc::case_less>;
+		using VarMap = flatmap<std::string_view, std::string_view>;
+		using HdrMap = flatmap<std::string_view, std::string_view, AdHoc::case_less>;
 
 		[[nodiscard]] const PathElements & getRequestPath() const override;
 		[[nodiscard]] PathElements & getRequestPath() override;

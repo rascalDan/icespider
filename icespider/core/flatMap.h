@@ -5,10 +5,9 @@
 #include <vector>
 
 namespace IceSpider {
-	template<typename K, typename M, typename Comp = std::less<>>
-	class flatmap : std::vector<std::pair<std::decay_t<K>, std::decay_t<M>>> {
+	template<typename K, typename M, typename Comp = std::less<>> class flatmap : std::vector<std::pair<K, M>> {
 	public:
-		using V = std::pair<std::decay_t<K>, std::decay_t<M>>;
+		using V = std::pair<K, M>;
 		using S = std::vector<V>;
 
 	private:
