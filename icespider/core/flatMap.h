@@ -67,6 +67,21 @@ namespace IceSpider {
 			return lb;
 		}
 
+		template<typename Ex = std::out_of_range, typename N>
+		const auto &
+		at(const N & n) const
+		{
+			if (const auto i = find(n); i != end()) {
+				return i->second;
+			}
+			if constexpr (std::is_constructible_v<Ex, N>) {
+				throw Ex(n);
+			}
+			else {
+				throw Ex(std::to_string(n));
+			}
+		}
+
 		using S::begin;
 		using S::empty;
 		using S::end;
