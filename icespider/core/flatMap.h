@@ -81,9 +81,20 @@ namespace IceSpider {
 			}
 		}
 
-		using S::begin;
+		auto
+		begin() const
+		{
+			return cbegin();
+		}
+		auto
+		end() const
+		{
+			return cend();
+		}
+
+		using S::cbegin;
+		using S::cend;
 		using S::empty;
-		using S::end;
 		using S::reserve;
 		using S::size;
 		using iterator = typename S::iterator;
