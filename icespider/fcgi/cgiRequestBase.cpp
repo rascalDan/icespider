@@ -12,7 +12,7 @@
 namespace ba = boost::algorithm;
 using namespace std::literals;
 
-#define CGI_CONST(NAME) static const std::string_view NAME(#NAME)
+#define CGI_CONST(NAME) static constexpr std::string_view NAME(#NAME)
 
 namespace IceSpider {
 	static const auto slash_pred = boost::algorithm::is_any_of("/");
@@ -34,10 +34,10 @@ namespace IceSpider {
 	}
 
 	void
-	CgiRequestBase::addenv(const char * const e)
+	CgiRequestBase::addenv(const std::string_view e)
 	{
-		if (auto eq = strchr(e, '=')) {
-			envmap.insert({std::string_view(e, eq - e), eq + 1});
+		if (const auto eq = e.find('='); eq != std::string_view::npos) {
+			envmap.insert({e.substr(0, eq), e.substr(eq + 1)});
 		}
 	}
 

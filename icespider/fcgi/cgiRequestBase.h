@@ -11,7 +11,7 @@ namespace IceSpider {
 	class CgiRequestBase : public IHttpRequest {
 	protected:
 		CgiRequestBase(Core * c, const char * const * const env);
-		void addenv(const char * const);
+		void addenv(const std::string_view);
 		void initialize();
 
 	public:
