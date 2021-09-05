@@ -50,7 +50,7 @@ namespace IceSpider {
 			XWwwFormUrlEncoded::iterateVars(
 					qs->second,
 					[&map](auto && k, auto && v) {
-						map.emplace(std::forward<decltype(k)>(k), std::forward<decltype(v)>(v));
+						map.insert({std::forward<decltype(k)>(k), std::forward<decltype(v)>(v)});
 					},
 					sp);
 		}

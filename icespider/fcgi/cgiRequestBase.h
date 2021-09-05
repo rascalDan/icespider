@@ -17,6 +17,7 @@ namespace IceSpider {
 	public:
 		using VarMap = flatmap<std::string_view, std::string_view>;
 		using HdrMap = flatmap<std::string_view, std::string_view, AdHoc::case_less>;
+		using StrMap = flatmap<std::string, std::string>;
 
 		[[nodiscard]] const PathElements & getRequestPath() const override;
 		[[nodiscard]] PathElements & getRequestPath() override;
@@ -36,8 +37,8 @@ namespace IceSpider {
 		template<typename MapType> static OptionalString optionalLookup(const std::string_view & key, const MapType &);
 
 		VarMap envmap {40};
-		StringMap qsmap;
-		StringMap cookiemap;
+		StrMap qsmap;
+		StrMap cookiemap;
 		HdrMap hdrmap {15};
 		PathElements pathElements;
 	};
