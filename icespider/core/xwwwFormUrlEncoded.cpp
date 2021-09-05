@@ -103,11 +103,11 @@ static_assert(hexin['3']['f'] == '?');
 static_assert(hexin['3']['F'] == '?');
 
 namespace IceSpider {
-	static const std::string AMP = "&";
-	static const std::string TRUE = "true";
-	static const std::string FALSE = "false";
-	static const std::string KEY = "key";
-	static const std::string VALUE = "value";
+	static constexpr const std::string_view AMP = "&";
+	static constexpr const std::string_view TRUE = "true";
+	static constexpr const std::string_view FALSE = "false";
+	static constexpr const std::string_view KEY = "key";
+	static constexpr const std::string_view VALUE = "value";
 
 	XWwwFormUrlEncoded::XWwwFormUrlEncoded(std::istream & in) :
 		input(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>())
