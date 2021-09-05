@@ -1,4 +1,3 @@
-import testing ;
 import type : register ;
 import generators : register-standard ;
 import type ;
