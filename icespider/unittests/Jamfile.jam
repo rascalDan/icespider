@@ -21,6 +21,7 @@ lib slicer : : : : <include>/usr/include/slicer ;
 lib slicer-json : : : : <include>/usr/include/slicer ;
 lib slicer-xml : : : : <include>/usr/include/slicer ;
 lib boost_utf : : <name>boost_unit_test_framework ;
+lib benchmark ;
 lib stdc++fs ;
 lib dl ;
 path-constant me : . ;
@@ -97,6 +98,24 @@ run
 	<toolset>tidy:<dependency>../compile//icespider/<toolset>gcc
 	<include>.
 	: testApp ;
+
+run
+	testPerf.cpp
+	../fcgi/cgiRequestBase.cpp
+	: : :
+	<slicer>pure
+	<library>benchmark
+	<define>ROOT=\"$(me)\"
+	<library>../common//icespider-common
+	<library>../core//icespider-core
+	<implicit-dependency>../core//icespider-core
+	<implicit-dependency>test-fcgi
+	<library>stdc++fs
+	<library>slicer
+	<library>slicer-json
+	<library>adhocutil
+	<include>../fcgi
+	: testPerf ;
 
 obj test-fcgi : test-fcgi.ice : <toolset>tidy:<checker>none ;
 run

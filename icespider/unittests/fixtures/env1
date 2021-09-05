@@ -1,0 +1,32 @@
+CONTEXT_DOCUMENT_ROOT=/var/www/shared/vhosts/sys.randomdan.homeip.net
+CONTEXT_PREFIX=
+DOCUMENT_ROOT=/var/www/shared/vhosts/sys.randomdan.homeip.net
+GATEWAY_INTERFACE=CGI/1.1
+HTTPS=on
+HTTP_ACCEPT=*/*
+HTTP_ACCEPT_ENCODING=identity
+HTTP_CONNECTION=Keep-Alive
+HTTP_COOKIE=s=08dc25d6-34d0-4fe9-a2eb-04c392441d06
+HTTP_HOST=sys.randomdan.homeip.net
+HTTP_PROXY_CONNECTION=Keep-Alive
+HTTP_USER_AGENT=Wget/1.21.1
+PATH=/usr/lib/ccache/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin:/usr/lib/llvm/12/bin
+PWD=/var/www/shared/files/localhost
+QUERY_STRING=q=long+search+string&m=47&utm_source=mail
+REMOTE_ADDR=10.10.0.3
+REMOTE_PORT=35448
+REQUEST_METHOD=GET
+REQUEST_SCHEME=https
+REQUEST_URI=/env.cgi
+SCRIPT_FILENAME=/var/www/shared/vhosts/sys.randomdan.homeip.net/env.cgi
+SCRIPT_NAME=/env.cgi
+SERVER_ADDR=fdc7:602:e9c5:b8f0::3
+SERVER_ADMIN=dan.goodliffe@randomdan.homeip.net
+SERVER_NAME=sys.randomdan.homeip.net
+SERVER_PORT=443
+SERVER_PROTOCOL=HTTP/1.1
+SERVER_SIGNATURE=<address>Apache/2.4.48 (Gentoo) mod_fcgid/2.3.9 OpenSSL/1.1.1l mod_perl/2.0.11 Perl/v5.34.0 Server at sys.randomdan.homeip.net Port 443</address>
+SERVER_SOFTWARE=Apache/2.4.48 (Gentoo) mod_fcgid/2.3.9 OpenSSL/1.1.1l mod_perl/2.0.11 Perl/v5.34.0
+SHLVL=0
+SSL_TLS_SNI=sys.randomdan.homeip.net
+_=/usr/bin/env
