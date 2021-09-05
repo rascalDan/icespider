@@ -16,6 +16,7 @@ BOOST_AUTO_TEST_CASE(is_empty)
 	BOOST_CHECK(empty());
 
 	BOOST_CHECK_EQUAL(find(""), end());
+	BOOST_CHECK(!contains(""));
 }
 
 BOOST_AUTO_TEST_CASE(single)
@@ -24,6 +25,9 @@ BOOST_AUTO_TEST_CASE(single)
 
 	BOOST_CHECK_EQUAL(size(), 1);
 	BOOST_CHECK(!empty());
+	BOOST_CHECK(!contains(""));
+	BOOST_CHECK(contains("a"));
+	BOOST_CHECK(!contains("b"));
 	BOOST_CHECK_EQUAL(begin()->first, "a");
 	BOOST_CHECK_EQUAL(begin()->second, 1);
 	BOOST_CHECK_EQUAL(find("a"), begin());
@@ -42,6 +46,11 @@ BOOST_AUTO_TEST_CASE(several)
 
 	BOOST_CHECK_EQUAL(size(), 3);
 	BOOST_CHECK(!empty());
+	BOOST_CHECK(!contains(""));
+	BOOST_CHECK(contains("a"));
+	BOOST_CHECK(!contains("b"));
+	BOOST_CHECK(contains("c"));
+	BOOST_CHECK(contains("f"));
 	BOOST_CHECK_EQUAL(begin()->first, "a");
 	BOOST_CHECK_EQUAL(begin()->second, 1);
 	BOOST_CHECK_EQUAL(find("a"), begin());

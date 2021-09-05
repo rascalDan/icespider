@@ -170,7 +170,7 @@ namespace IceSpider {
 	bool
 	CgiRequestBase::isSecure() const
 	{
-		return envmap.find(HTTPS) != envmap.end();
+		return envmap.contains(HTTPS);
 	}
 
 	OptionalString
