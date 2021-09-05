@@ -99,6 +99,7 @@ run
 	<include>.
 	: testApp ;
 
+explicit testPerf ;
 run
 	testPerf.cpp
 	../fcgi/cgiRequestBase.cpp
