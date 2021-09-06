@@ -121,4 +121,9 @@ private:
 	}()};
 };
 
+namespace IceSpider {
+	void remove_trailing(std::string_view & in, const char c);
+	void remove_leading(std::string_view & in, const char c);
+}
+
 #endif
