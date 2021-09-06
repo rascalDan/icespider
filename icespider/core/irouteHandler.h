@@ -23,7 +23,7 @@ namespace IceSpider {
 		virtual ~IRouteHandler() = default;
 
 		virtual void execute(IHttpRequest * request) const = 0;
-		virtual ContentTypeSerializer getSerializer(const AcceptPtr &, std::ostream &) const;
+		virtual ContentTypeSerializer getSerializer(const Accept &, std::ostream &) const;
 		virtual ContentTypeSerializer defaultSerializer(std::ostream &) const;
 
 		const HttpMethod method;

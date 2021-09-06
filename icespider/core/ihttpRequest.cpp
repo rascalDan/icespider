@@ -35,57 +35,65 @@ namespace IceSpider {
 	}
 
 	Accepted
-	IHttpRequest::parseAccept(const std::string_view & acceptHdr)
+	IHttpRequest::parseAccept(std::string_view acceptHdr)
 	{
-		if (acceptHdr.empty()
-				|| std::find_if_not(acceptHdr.begin(), acceptHdr.end(), std::iswspace) == acceptHdr.end()) {
+		remove_leading(acceptHdr, ' ');
+		if (acceptHdr.empty()) {
 			throw Http400_BadRequest();
 		}
-		auto accept = std::unique_ptr<FILE, decltype(&fclose)>(
-				fmemopen(const_cast<char *>(acceptHdr.data()), acceptHdr.length(), "r"), &fclose);
 		Accepted accepts;
-		accepts.reserve(acceptHdr.length() / 15);
-		int grpstart, grpend, typestart, typeend;
-		auto reset = [&]() {
-			grpstart = grpend = typestart = typeend = 0;
-			return ftell(accept.get());
+		accepts.reserve(std::count(acceptHdr.begin(), acceptHdr.end(), ',') + 1);
+
+		auto upto = [](std::string_view & in, const std::string_view term, bool req) {
+			remove_leading(in, ' ');
+			const auto end = in.find_first_of(term);
+			if (req && end == std::string_view::npos) {
+				throw Http400_BadRequest();
+			}
+			auto val = in.substr(0, end);
+			remove_trailing(val, ' ');
+			if (val.empty()) {
+				throw Http400_BadRequest();
+			}
+			if (end != std::string_view::npos) {
+				const auto tc = in[end];
+				in.remove_prefix(end + 1);
+				return std::make_pair(val, tc);
+			}
+			else {
+				in.remove_prefix(in.length());
+				return std::make_pair(val, '\n');
+			}
 		};
 
-		for (auto off = reset();
-				// NOLINTNEXTLINE(hicpp-vararg)
-				fscanf(accept.get(), " %n%*[^ /]%n / %n%*[^ ;,]%n", &grpstart, &grpend, &typestart, &typeend) == 0;
-				off = reset()) {
-			if (grpend <= grpstart || typestart <= grpend || typeend <= typestart) {
+		while (!acceptHdr.empty()) {
+			const auto group = upto(acceptHdr, "/", true).first;
+			const auto [type, tc] = upto(acceptHdr, ";,", false);
+			Accept a;
+			if (type != "*") {
+				a.type.emplace(type);
+			}
+			if (group != "*") {
+				a.group.emplace(group);
+			}
+			else if (a.type) {
 				throw Http400_BadRequest();
 			}
-			auto a = std::make_shared<Accept>();
-			if (auto g = acceptHdr.substr(typestart + off, typeend - typestart); g != "*") {
-				a->type.emplace(g);
-			}
-			if (auto t = acceptHdr.substr(grpstart + off, grpend - grpstart); t != "*") {
-				a->group.emplace(t);
-			}
-			else if (a->type) {
-				throw Http400_BadRequest();
-			}
-			// NOLINTNEXTLINE(hicpp-vararg)
-			if (fscanf(accept.get(), " ; q = %f ", &a->q) == 1) {
-				if (a->q <= 0.0F || a->q > 1.0F) {
+			if (tc == ';') {
+				if (upto(acceptHdr, "=", true).first != "q") {
+					throw Http400_BadRequest();
+				}
+				const auto qs = upto(acceptHdr, ",", false).first;
+				a.q = std::atof(std::string(qs).c_str());
+				if (a.q <= 0.0F || a.q > 1.0F) {
 					throw Http400_BadRequest();
 				}
 			}
-			accepts.push_back(a);
-			// NOLINTNEXTLINE(hicpp-vararg)
-			if (fscanf(accept.get(), " ,") != 0) {
-				break;
-			}
+			accepts.push_back(std::move(a));
 		}
 
-		if (accepts.empty()) {
-			throw Http400_BadRequest();
-		}
 		std::stable_sort(accepts.begin(), accepts.end(), [](const auto & a, const auto & b) {
-			return a->q > b->q;
+			return a.q > b.q;
 		});
 		return accepts;
 	}

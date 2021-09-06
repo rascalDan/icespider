@@ -46,10 +46,10 @@ BOOST_DATA_TEST_CASE(texthtml,
 		a)
 {
 	auto front = parse(a).front();
-	BOOST_REQUIRE(front->group);
-	BOOST_REQUIRE_EQUAL(*front->group, "text");
-	BOOST_REQUIRE(front->type);
-	BOOST_REQUIRE_EQUAL(*front->type, "html");
+	BOOST_REQUIRE(front.group);
+	BOOST_REQUIRE_EQUAL(*front.group, "text");
+	BOOST_REQUIRE(front.type);
+	BOOST_REQUIRE_EQUAL(*front.type, "html");
 }
 
 BOOST_DATA_TEST_CASE(textany,
@@ -62,9 +62,9 @@ BOOST_DATA_TEST_CASE(textany,
 		a)
 {
 	auto front = parse(a).front();
-	BOOST_REQUIRE(front->group);
-	BOOST_REQUIRE_EQUAL(*front->group, "text");
-	BOOST_REQUIRE(!front->type);
+	BOOST_REQUIRE(front.group);
+	BOOST_REQUIRE_EQUAL(*front.group, "text");
+	BOOST_REQUIRE(!front.type);
 }
 
 BOOST_DATA_TEST_CASE(anyhtml,
@@ -78,9 +78,9 @@ BOOST_DATA_TEST_CASE(anyhtml,
 		a)
 {
 	auto front = parse(a).front();
-	BOOST_REQUIRE(front->group);
-	BOOST_REQUIRE(front->type);
-	BOOST_REQUIRE_EQUAL(*front->type, "html");
+	BOOST_REQUIRE(front.group);
+	BOOST_REQUIRE(front.type);
+	BOOST_REQUIRE_EQUAL(*front.type, "html");
 }
 
 BOOST_DATA_TEST_CASE(anyany,
@@ -93,8 +93,8 @@ BOOST_DATA_TEST_CASE(anyany,
 		a)
 {
 	auto front = parse(a).front();
-	BOOST_REQUIRE(!front->group);
-	BOOST_REQUIRE(!front->type);
+	BOOST_REQUIRE(!front.group);
+	BOOST_REQUIRE(!front.type);
 }
 
 BOOST_DATA_TEST_CASE(q1,
@@ -107,8 +107,8 @@ BOOST_DATA_TEST_CASE(q1,
 {
 	auto all = parse(a);
 	for (const auto & accept : all) {
-		BOOST_TEST_CONTEXT(*accept) {
-			BOOST_CHECK_CLOSE(accept->q, 1.0, 0.1);
+		BOOST_TEST_CONTEXT(accept) {
+			BOOST_CHECK_CLOSE(accept.q, 1.0, 0.1);
 		}
 	}
 }

@@ -4,6 +4,8 @@
 #include <definedDirs.h>
 #include <fstream>
 
+#define BENCHMARK_CAPTURE_LITERAL(Name, Value) BENCHMARK_CAPTURE(Name, Value, Value);
+
 class TestRequest : public IceSpider::CgiRequestBase {
 public:
 	TestRequest(IceSpider::Core * c, char ** env) : IceSpider::CgiRequestBase(c, env)
@@ -108,5 +110,22 @@ BENCHMARK_F(CoreFixture, get_cookie_param)(benchmark::State & state)
 		benchmark::DoNotOptimize(r.getQueryStringParam("utm_source"));
 	}
 }
+
+static void
+AcceptParse(benchmark::State & state, const std::string_view accept)
+{
+	for (auto _ : state) {
+		benchmark::DoNotOptimize(IceSpider::IHttpRequest::parseAccept(accept));
+	}
+}
+BENCHMARK_CAPTURE_LITERAL(AcceptParse, "*/*");
+BENCHMARK_CAPTURE_LITERAL(AcceptParse, "any/html");
+BENCHMARK_CAPTURE_LITERAL(AcceptParse, "image/png, */*");
+BENCHMARK_CAPTURE_LITERAL(AcceptParse, "image/png;q=0.1, */*");
+BENCHMARK_CAPTURE_LITERAL(AcceptParse, "image/png;q=0.1, any/html");
+BENCHMARK_CAPTURE_LITERAL(AcceptParse, "image/png;q=0.9, any/html;q=1.0, something/else;q=1.0");
+BENCHMARK_CAPTURE_LITERAL(AcceptParse, "image/png;q=0.9, */*;q=1.0");
+BENCHMARK_CAPTURE_LITERAL(AcceptParse, "text/*");
+BENCHMARK_CAPTURE_LITERAL(AcceptParse, "text/html");
 
 BENCHMARK_MAIN();

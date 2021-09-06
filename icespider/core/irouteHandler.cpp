@@ -27,10 +27,10 @@ namespace IceSpider {
 	}
 
 	ContentTypeSerializer
-	IRouteHandler::getSerializer(const AcceptPtr & a, std::ostream & strm) const
+	IRouteHandler::getSerializer(const Accept & a, std::ostream & strm) const
 	{
 		for (const auto & rs : routeSerializers) {
-			if ((!a->group || rs.first.group == a->group) && (!a->type || rs.first.type == a->type)) {
+			if ((!a.group || rs.first.group == a.group) && (!a.type || rs.first.type == a.type)) {
 				return {rs.first, rs.second->create(strm)};
 			}
 		}

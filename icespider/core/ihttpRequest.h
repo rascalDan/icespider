@@ -15,6 +15,11 @@ namespace IceSpider {
 	class Core;
 	class IRouteHandler;
 
+	struct Accept {
+		std::optional<std::string_view> group, type;
+		float q {1.0F};
+	};
+	using Accepted = std::vector<Accept>;
 	using PathElements = std::vector<std::string>;
 	using OptionalString = std::optional<std::string_view>;
 	using ContentTypeSerializer = std::pair<MimeType, Slicer::SerializerPtr>;
@@ -34,7 +39,7 @@ namespace IceSpider {
 		[[nodiscard]] virtual OptionalString getCookieParam(const std::string_view &) const = 0;
 		[[nodiscard]] virtual OptionalString getEnv(const std::string_view &) const = 0;
 		[[nodiscard]] virtual bool isSecure() const = 0;
-		[[nodiscard]] static Accepted parseAccept(const std::string_view &);
+		[[nodiscard]] static Accepted parseAccept(std::string_view);
 		[[nodiscard]] virtual Slicer::DeserializerPtr getDeserializer() const;
 		[[nodiscard]] virtual ContentTypeSerializer getSerializer(const IRouteHandler *) const;
 		[[nodiscard]] virtual std::istream & getInputStream() const = 0;

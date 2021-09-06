@@ -24,15 +24,6 @@ module IceSpider {
 		string type;
 	};
 
-	["slicer:ignore"]
-	local class Accept {
-		optional(0) string group;
-		optional(1) string type;
-		float q = 1.0;
-	};
-	["slicer:ignore"]
-	local sequence<Accept> Accepted;
-
 	["slicer:json:object",
 		"cpp:type:std::map<std::string, std::string, std::less<>>"]
 	local dictionary<string, string> StringMap;
