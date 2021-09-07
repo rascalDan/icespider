@@ -11,7 +11,7 @@ variant coverage : debug ;
 project
   : requirements
 			<define>ICE_CPP11_MAPPING
-			<cxxstd>17
+			<cxxstd>20
 			<visibility>hidden
 			<linkflags>"-Wl,-z,defs,--warn-once,--gc-sections"
 			<variant>release:<lto>on
