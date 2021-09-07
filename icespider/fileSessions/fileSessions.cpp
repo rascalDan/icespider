@@ -107,8 +107,8 @@ namespace IceSpider {
 			try {
 				AdHoc::FileUtils::MemMap f(path);
 				sysassert(flock(f.fh, LOCK_SH), -1);
-				auto fbuf = (Ice::Byte *)f.data;
-				Ice::InputStream buf(ic, std::make_pair(fbuf, fbuf + f.getStat().st_size));
+				auto fbuf = f.sv<Ice::Byte>();
+				Ice::InputStream buf(ic, std::make_pair(fbuf.begin(), fbuf.end()));
 				SessionPtr s;
 				buf.read(s);
 				sysassert(flock(f.fh, LOCK_UN), -1);

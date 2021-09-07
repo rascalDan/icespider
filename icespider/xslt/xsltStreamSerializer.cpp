@@ -8,14 +8,14 @@ namespace IceSpider {
 	static int
 	xmlstrmclosecallback(void * context)
 	{
-		((std::ostream *)context)->flush();
+		static_cast<std::ostream *>(context)->flush();
 		return 0;
 	}
 
 	static int
 	xmlstrmwritecallback(void * context, const char * buffer, int len)
 	{
-		((std::ostream *)context)->write(buffer, len);
+		static_cast<std::ostream *>(context)->write(buffer, len);
 		return len;
 	}
 
@@ -37,7 +37,7 @@ namespace IceSpider {
 			if (stylesheet) {
 				xsltFreeStylesheet(stylesheet);
 			}
-			stylesheet = xsltParseStylesheetFile(BAD_CAST stylesheetPath.c_str());
+			stylesheet = xsltParseStylesheetFile(reinterpret_cast<const unsigned char *>(stylesheetPath.c_str()));
 			if (!stylesheet) {
 				throw xmlpp::exception("Failed to load stylesheet");
 			}
@@ -65,11 +65,12 @@ namespace IceSpider {
 			throw xmlpp::exception("Failed to apply XSL transform");
 		}
 		xmlOutputBufferPtr buf = xmlOutputBufferCreateIO(xmlstrmwritecallback, xmlstrmclosecallback, &strm, nullptr);
-		if (xmlStrcmp(stylesheet->method, BAD_CAST "html") == 0) {
-			htmlDocContentDumpFormatOutput(buf, result, (const char *)stylesheet->encoding, 0);
+		if (xmlStrcmp(stylesheet->method, reinterpret_cast<const unsigned char *>("html")) == 0) {
+			htmlDocContentDumpFormatOutput(buf, result, reinterpret_cast<const char *>(stylesheet->encoding), 0);
 		}
 		else {
-			xmlNodeDumpOutput(buf, result, result->children, 0, 0, (const char *)stylesheet->encoding);
+			xmlNodeDumpOutput(
+					buf, result, result->children, 0, 0, reinterpret_cast<const char *>(stylesheet->encoding));
 		}
 		xmlOutputBufferClose(buf);
 		xmlFreeDoc(result);

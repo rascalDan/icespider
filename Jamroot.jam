@@ -18,6 +18,7 @@ project
 			<variant>debug:<warnings>extra
 			<variant>debug:<warnings-as-errors>on
 			<variant>debug:<cflags>-Wnon-virtual-dtor
+			<variant>debug:<cflags>-Wold-style-cast
 			<variant>debug:<cflags>-Wcast-align
 			<variant>debug:<cflags>-Wunused
 			<variant>debug:<cflags>-Woverloaded-virtual
