@@ -17,6 +17,14 @@ project
 			<variant>release:<lto>on
 			<variant>debug:<warnings>extra
 			<variant>debug:<warnings-as-errors>on
+			<variant>debug:<cflags>-Wcast-align
+			<variant>debug:<cflags>-Wunused
+			<variant>debug:<cflags>-Wnull-dereference
+			<variant>debug:<cflags>-Wdouble-promotion
+			<variant>debug:<cflags>-Wformat=2
+			<toolset>gcc,<variant>debug:<cflags>-Wduplicated-cond
+			<toolset>gcc,<variant>debug:<cflags>-Wduplicated-branches
+			<toolset>gcc,<variant>debug:<cflags>-Wlogical-op
 			<variant>coverage:<coverage>on
 			<toolset>tidy:<checkxx>boost-*
 			<toolset>tidy:<checkxx>bugprone-*
