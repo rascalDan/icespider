@@ -17,6 +17,7 @@ project
 			<variant>release:<lto>on
 			<variant>debug:<warnings>extra
 			<variant>debug:<warnings-as-errors>on
+			<variant>debug:<cflags>-Wnon-virtual-dtor
 			<variant>debug:<cflags>-Wcast-align
 			<variant>debug:<cflags>-Wunused
 			<variant>debug:<cflags>-Wnull-dereference

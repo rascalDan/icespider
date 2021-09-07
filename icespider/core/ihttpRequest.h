@@ -27,6 +27,7 @@ namespace IceSpider {
 	class DLL_PUBLIC IHttpRequest {
 	public:
 		explicit IHttpRequest(const Core *);
+		virtual ~IHttpRequest() = default;
 
 		[[nodiscard]] Ice::Context getContext() const;
 		[[nodiscard]] virtual const PathElements & getRequestPath() const = 0;
