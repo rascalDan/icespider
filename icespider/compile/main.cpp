@@ -58,7 +58,7 @@ main(int c, char ** v)
 	rc.compile(input, output);
 
 	if (!post.empty()) {
-		auto outputh = std::filesystem::path(output).replace_extension(".h");
+		auto outputh = std::filesystem::path {output}.replace_extension(".h");
 		return system("%? %? %?"_fmt(post, output, outputh).c_str());
 	}
 
