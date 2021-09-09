@@ -2,13 +2,14 @@
 #define ICESPIDER_CGI_XWWWFORMURLENCODED_H
 
 #include <boost/algorithm/string/split.hpp>
+#include <maybeString.h>
 #include <slicer/serializer.h>
 #include <visibility.h>
 
 namespace IceSpider {
 	class XWwwFormUrlEncoded : public Slicer::Deserializer {
 	public:
-		using KVh = std::function<void(std::string &&, std::string &&)>;
+		using KVh = std::function<void(MaybeString &&, MaybeString &&)>;
 
 		explicit XWwwFormUrlEncoded(std::istream & in);
 
@@ -16,7 +17,7 @@ namespace IceSpider {
 		DLL_PUBLIC static void iterateVars(
 				const std::string_view & input, const KVh & h, const std::string_view & split);
 
-		DLL_PUBLIC static std::string urldecode(std::string_view::const_iterator s, std::string_view::const_iterator);
+		DLL_PUBLIC static MaybeString urldecode(std::string_view::const_iterator s, std::string_view::const_iterator);
 		DLL_PUBLIC static std::string urlencode(std::string_view::const_iterator s, std::string_view::const_iterator);
 		DLL_PUBLIC static void urlencodeto(
 				std::ostream &, std::string_view::const_iterator s, std::string_view::const_iterator);

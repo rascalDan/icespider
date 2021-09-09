@@ -108,6 +108,7 @@ namespace IceSpider {
 	static constexpr const std::string_view FALSE = "false";
 	static constexpr const std::string_view KEY = "key";
 	static constexpr const std::string_view VALUE = "value";
+	static constexpr const std::string_view URL_ESCAPES = "%+";
 
 	XWwwFormUrlEncoded::XWwwFormUrlEncoded(std::istream & in) :
 		input(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>())
@@ -139,7 +140,7 @@ namespace IceSpider {
 
 	class SetFromString : public Slicer::ValueSource {
 	public:
-		explicit SetFromString(const std::string & v) : s(v) { }
+		explicit SetFromString(const MaybeString & v) : s(v) { }
 
 		void
 		set(bool & t) const override
@@ -176,7 +177,7 @@ namespace IceSpider {
 		SET(Ice::Double);
 
 	private:
-		const std::string & s;
+		const MaybeString & s;
 	};
 
 	std::string
@@ -219,9 +220,12 @@ namespace IceSpider {
 		urlencoderange(std::ostream_iterator<decltype(*i)>(o), i, e);
 	}
 
-	std::string
+	MaybeString
 	XWwwFormUrlEncoded::urldecode(std::string_view::const_iterator i, std::string_view::const_iterator e)
 	{
+		if (std::find_first_of(i, e, URL_ESCAPES.begin(), URL_ESCAPES.end()) == e) {
+			return std::string_view {i, e};
+		}
 		std::string t;
 		t.reserve(static_cast<std::string::size_type>(std::distance(i, e)));
 		while (i != e) {
@@ -252,7 +256,7 @@ namespace IceSpider {
 		for (; pi != decltype(pi)(); ++pi) {
 			auto eq = std::find(pi->begin(), pi->end(), '=');
 			if (eq == pi->end()) {
-				h(urldecode(pi->begin(), pi->end()), std::string());
+				h(urldecode(pi->begin(), pi->end()), {});
 			}
 			else {
 				h(urldecode(pi->begin(), eq), urldecode(eq + 1, pi->end()));

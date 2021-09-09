@@ -5,6 +5,7 @@
 #include <core.h>
 #include <flatMap.h>
 #include <ihttpRequest.h>
+#include <maybeString.h>
 #include <string_view>
 
 namespace IceSpider {
@@ -17,7 +18,7 @@ namespace IceSpider {
 	public:
 		using VarMap = flatmap<std::string_view, std::string_view>;
 		using HdrMap = flatmap<std::string_view, std::string_view, AdHoc::case_less>;
-		using StrMap = flatmap<std::string, std::string>;
+		using StrMap = flatmap<MaybeString, MaybeString>;
 
 		[[nodiscard]] const PathElements & getRequestPath() const override;
 		[[nodiscard]] PathElements & getRequestPath() override;
