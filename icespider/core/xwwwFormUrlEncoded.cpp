@@ -13,7 +13,7 @@ using HexPair = std::pair<char, char>;
 using HexOut = std::array<HexPair, CHARMAX>;
 constexpr auto hexout = []() {
 	auto hexchar = [](auto c) {
-		return c < 10 ? '0' + c : 'a' - 10 + c;
+		return static_cast<char>(c < 10 ? '0' + c : 'a' - 10 + c);
 	};
 	HexOut out {};
 	for (unsigned int n = 0; n < CHARMAX; n++) {
@@ -58,10 +58,10 @@ static_assert(hexout['?'].second == 'f');
 
 constexpr std::array<std::optional<unsigned char>, CHARMAX> hextable = []() {
 	std::array<std::optional<unsigned char>, CHARMAX> hextable {};
-	for (int n = '0'; n <= '9'; n++) {
+	for (size_t n = '0'; n <= '9'; n++) {
 		hextable[n] = {n - '0'};
 	}
-	for (int n = 'a'; n <= 'f'; n++) {
+	for (size_t n = 'a'; n <= 'f'; n++) {
 		hextable[n] = hextable[n - 32] = {n - 'a' + 10};
 	}
 	return hextable;
@@ -81,13 +81,13 @@ static_assert(!hextable['G'].has_value());
 using HexIn = std::array<std::array<char, CHARMAX>, CHARMAX>;
 constexpr HexIn hexin = []() {
 	HexIn hexin {};
-	auto firstHex = std::min({'0', 'a', 'A'});
-	auto lastHex = std::max({'9', 'f', 'F'});
+	size_t firstHex = std::min({'0', 'a', 'A'});
+	size_t lastHex = std::max({'9', 'f', 'F'});
 	for (auto first = firstHex; first <= lastHex; first++) {
 		if (const auto ch1 = hextable[first]) {
 			for (auto second = firstHex; second <= lastHex; second++) {
 				if (const auto ch2 = hextable[second]) {
-					hexin[first][second] = (*ch1 << 4U) + *ch2;
+					hexin[first][second] = static_cast<char>((*ch1 << 4U) + *ch2);
 				}
 			}
 		}
@@ -187,7 +187,7 @@ namespace IceSpider {
 
 	constexpr auto urlencoderange = [](auto && o, auto i, auto e) {
 		while (i != e) {
-			const auto & out = hexout[*i];
+			const auto & out = hexout[static_cast<uint8_t>(*i)];
 			if (out.second) {
 				o = '%';
 				o = out.first;
@@ -207,7 +207,7 @@ namespace IceSpider {
 	XWwwFormUrlEncoded::urlencode(std::string_view::const_iterator i, std::string_view::const_iterator e)
 	{
 		std::string o;
-		o.reserve(std::distance(i, e));
+		o.reserve(static_cast<std::string::size_type>(std::distance(i, e)));
 		urlencoderange(std::back_inserter(o), i, e);
 		return o;
 	}
@@ -223,14 +223,14 @@ namespace IceSpider {
 	XWwwFormUrlEncoded::urldecode(std::string_view::const_iterator i, std::string_view::const_iterator e)
 	{
 		std::string t;
-		t.reserve(std::distance(i, e));
+		t.reserve(static_cast<std::string::size_type>(std::distance(i, e)));
 		while (i != e) {
 			switch (*i) {
 				case '+':
 					t += ' ';
 					break;
 				case '%':
-					if (const auto ch = hexin[*(i + 1)][*(i + 2)]) {
+					if (const auto ch = hexin[static_cast<uint8_t>(*(i + 1))][static_cast<uint8_t>(*(i + 2))]) {
 						t += ch;
 					}
 					else {

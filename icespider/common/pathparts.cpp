@@ -13,7 +13,7 @@ namespace IceSpider {
 			return;
 		}
 		for (auto pi = ba::make_split_iterator(relp, slash); pi != decltype(pi)(); ++pi) {
-			std::string_view pp(pi->begin(), pi->end() - pi->begin());
+			std::string_view pp {pi->begin(), pi->end()};
 			if (pp.front() == '{' && pp.back() == '}') {
 				parts.push_back(std::make_unique<PathParameter>(pp));
 			}
@@ -23,7 +23,7 @@ namespace IceSpider {
 		}
 	}
 
-	unsigned int
+	std::size_t
 	Path::pathElementCount() const
 	{
 		return parts.size();

@@ -44,7 +44,7 @@ namespace IceSpider {
 
 		std::string_view path;
 
-		[[nodiscard]] unsigned int pathElementCount() const;
+		[[nodiscard]] std::size_t pathElementCount() const;
 
 		PathParts parts;
 	};

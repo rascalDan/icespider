@@ -419,7 +419,7 @@ namespace IceSpider {
 					if (p.second->source == ParameterSource::URL) {
 						fputs(",\n", output);
 						Path path(r.second->path);
-						unsigned int idx = -1;
+						long idx = -1;
 						for (const auto & pp : path.parts) {
 							if (auto par = dynamic_cast<PathParameter *>(pp.get())) {
 								if (par->name == *p.second->key) {

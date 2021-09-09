@@ -42,7 +42,7 @@ namespace IceSpider {
 			throw Http400_BadRequest();
 		}
 		Accepted accepts;
-		accepts.reserve(std::count(acceptHdr.begin(), acceptHdr.end(), ',') + 1);
+		accepts.reserve(static_cast<std::size_t>(std::count(acceptHdr.begin(), acceptHdr.end(), ',') + 1));
 
 		auto upto = [](std::string_view & in, const std::string_view term, bool req) {
 			remove_leading(in, ' ');
@@ -84,7 +84,7 @@ namespace IceSpider {
 					throw Http400_BadRequest();
 				}
 				const auto qs = upto(acceptHdr, ",", false).first;
-				a.q = std::atof(std::string(qs).c_str());
+				a.q = std::strtof(std::string(qs).c_str(), nullptr);
 				if (a.q <= 0.0F || a.q > 1.0F) {
 					throw Http400_BadRequest();
 				}

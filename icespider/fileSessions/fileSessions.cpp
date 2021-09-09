@@ -19,7 +19,7 @@ namespace IceSpider {
 	public:
 		FileSessions(Ice::CommunicatorPtr c, const Ice::PropertiesPtr & p) :
 			ic(std::move(c)), root(p->getProperty("IceSpider.FileSessions.Path")),
-			duration(p->getPropertyAsIntWithDefault("IceSpider.FileSessions.Duration", 3600))
+			duration(static_cast<Ice::Short>(p->getPropertyAsIntWithDefault("IceSpider.FileSessions.Duration", 3600)))
 		{
 			if (!root.empty() && !std::filesystem::exists(root)) {
 				std::filesystem::create_directories(root);
@@ -88,11 +88,11 @@ namespace IceSpider {
 			s->lastUsed = time(nullptr);
 			Ice::OutputStream buf(ic);
 			buf.write(s);
-			auto range = buf.finished();
+			const auto range = buf.finished();
 			// NOLINTNEXTLINE(hicpp-signed-bitwise)
 			AdHoc::FileUtils::FileHandle f(root / s->id, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
 			sysassert(flock(f.fh, LOCK_EX), -1);
-			sysassert(pwrite(f.fh, range.first, range.second - range.first, 0), -1);
+			sysassert(pwrite(f.fh, range.first, static_cast<size_t>(range.second - range.first), 0), -1);
 			sysassert(ftruncate(f.fh, range.second - range.first), -1);
 			sysassert(flock(f.fh, LOCK_UN), -1);
 		}
@@ -156,7 +156,7 @@ namespace IceSpider {
 
 		Ice::CommunicatorPtr ic;
 		const std::filesystem::path root;
-		const Ice::Int duration;
+		const Ice::Short duration;
 	};
 }
 NAMEDFACTORY("IceSpider-FileSessions", IceSpider::FileSessions, IceSpider::PluginFactory);
