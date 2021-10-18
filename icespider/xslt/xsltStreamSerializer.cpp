@@ -1,6 +1,7 @@
 #include "xsltStreamSerializer.h"
 #include <factory.impl.h>
 #include <filesystem>
+#include <libxml++/document.h>
 #include <libxml/HTMLtree.h>
 #include <libxslt/xsltInternals.h>
 
