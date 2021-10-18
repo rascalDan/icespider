@@ -5,7 +5,6 @@
 
 using TM = IceSpider::flatmap<std::string_view, int>;
 
-BOOST_TEST_DONT_PRINT_LOG_VALUE(TM::iterator)
 BOOST_TEST_DONT_PRINT_LOG_VALUE(TM::const_iterator)
 
 BOOST_FIXTURE_TEST_SUITE(sv2int, TM)
@@ -67,7 +66,6 @@ BOOST_AUTO_TEST_SUITE_END()
 
 using TMI = IceSpider::flatmap<int, std::string_view>;
 
-BOOST_TEST_DONT_PRINT_LOG_VALUE(TMI::iterator)
 BOOST_TEST_DONT_PRINT_LOG_VALUE(TMI::const_iterator)
 
 BOOST_FIXTURE_TEST_SUITE(int2sv, TMI)
