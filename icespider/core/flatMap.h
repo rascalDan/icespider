@@ -27,7 +27,7 @@ namespace IceSpider {
 
 	public:
 		flatmap() = default;
-		flatmap(std::size_t n)
+		explicit flatmap(std::size_t n)
 		{
 			reserve(n);
 		}
