@@ -48,6 +48,8 @@ project
 			<toolset>tidy:<exclude>unittests/bin/test-api.h
 			<toolset>tidy:<exclude>unittests/bin/test-fcgi.h
 			<toolset>tidy:<exclude>ice/cpp/*
+			<toolset>tidy:<librarydef>boost
+			<toolset>tidy:<librarydef>std
 	;
 
 build-project icespider ;
