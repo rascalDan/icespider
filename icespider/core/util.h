@@ -102,7 +102,7 @@ private:
 	constexpr static auto buf {[]() {
 		std::array<typename tn::char_type, tn::name().length() - tn::namespaces() + 1> buf {};
 		auto out {buf.begin()};
-		auto cln {false};
+		auto cln = false;
 		for (const auto & in : tn::name()) {
 			if (in == ':') {
 				if (cln) {
