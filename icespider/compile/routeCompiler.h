@@ -4,6 +4,7 @@
 #include <Ice/BuiltinSequences.h>
 #include <Slice/Parser.h>
 #include <filesystem>
+#include <optional>
 #include <routes.h>
 #include <vector>
 #include <visibility.h>

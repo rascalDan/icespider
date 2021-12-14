@@ -3,6 +3,7 @@
 
 #include <Ice/Optional.h>
 #include <array>
+#include <optional>
 #include <string_view>
 
 namespace std::experimental::Ice {
