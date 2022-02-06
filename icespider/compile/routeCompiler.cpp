@@ -193,22 +193,17 @@ namespace IceSpider {
 				}
 			});
 
-			FILE * out = fopen(output.c_str(), "w");
-			FILE * outh = fopen(outputh.c_str(), "w");
+			using FilePtr = std::unique_ptr<FILE, decltype(&fclose)>;
+			const auto out = FilePtr {fopen(output.c_str(), "w"), &fclose};
+			const auto outh = FilePtr {fopen(outputh.c_str(), "w"), &fclose};
 			if (!out || !outh) {
 				throw std::runtime_error("Failed to open output files");
 			}
-			AdHoc::ScopeExit outClose(
-					[out, outh]() {
-						fclose(out);
-						fclose(outh);
-					},
-					nullptr,
-					[&output, &outputh]() {
+			AdHoc::ScopeExit outClose(nullptr, nullptr, [&output, &outputh]() {
 						std::filesystem::remove(output);
 						std::filesystem::remove(outputh);
 					});
-			processConfiguration(out, outh, output.stem().string(), configuration, units);
+			processConfiguration(out.get(), outh.get(), output.stem().string(), configuration, units);
 		}
 
 		RouteCompiler::Units
