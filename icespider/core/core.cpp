@@ -1,11 +1,22 @@
 #include "core.h"
 #include "exceptions.h"
+#include "ihttpRequest.h"
 #include <Ice/Initialize.h>
 #include <Ice/ObjectAdapter.h>
+#include <Ice/PropertiesF.h>
+#include <algorithm>
+#include <compare>
 #include <compileTimeFormatter.h>
+#include <cstdlib>
 #include <cxxabi.h>
 #include <factory.impl.h>
 #include <filesystem>
+#include <http.h>
+#include <iostream>
+#include <pathparts.h>
+#include <set>
+#include <string>
+#include <typeinfo>
 
 INSTANTIATEFACTORY(IceSpider::Plugin, Ice::CommunicatorPtr, Ice::PropertiesPtr);
 INSTANTIATEPLUGINOF(IceSpider::ErrorHandler);

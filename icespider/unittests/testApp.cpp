@@ -1,24 +1,40 @@
 #define BOOST_TEST_MODULE TestApp
 #include <boost/test/unit_test.hpp>
 
+#include <Ice/Communicator.h>
+#include <Ice/Config.h>
 #include <Ice/Initialize.h>
 #include <Ice/ObjectAdapter.h>
-#include <boost/algorithm/string/classification.hpp>
+#include <Ice/Optional.h>
+#include <Ice/Properties.h>
+#include <Ice/PropertiesF.h>
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/algorithm/string/split.hpp>
 #include <core.h>
 #include <definedDirs.h>
+#include <exception>
 #include <exceptions.h>
 #include <factory.impl.h>
 #include <filesystem>
+#include <http.h>
+#include <ihttpRequest.h>
 #include <irouteHandler.h>
 #include <json/serializer.h>
+#include <libxml++/document.h>
+#include <libxml++/nodes/element.h>
 #include <libxml++/parsers/domparser.h>
-#include <safeMapFind.h>
+#include <map>
+#include <memory>
+#include <set>
 #include <slicer/slicer.h>
+#include <slicer/xml/serializer.h>
+#include <sstream>
+#include <string>
+#include <string_view>
 #include <test-api.h>
 #include <testRequest.h>
-#include <xml/serializer.h>
+namespace Ice {
+	struct Current;
+}
 
 using namespace IceSpider;
 

@@ -1,7 +1,14 @@
 #include "irouteHandler.h"
-#include "core.h"
+#include "exceptions.h"
+#include "routeOptions.h"
 #include <factory.impl.h>
 #include <formatters.h>
+#include <optional>
+#include <pathparts.h>
+#include <set>
+#include <sstream>
+#include <string>
+#include <utility>
 
 INSTANTIATEFACTORY(IceSpider::IRouteHandler, const IceSpider::Core *);
 
@@ -34,7 +41,7 @@ namespace IceSpider {
 				return {rs.first, rs.second->create(strm)};
 			}
 		}
-		return ContentTypeSerializer();
+		return {};
 	}
 
 	ContentTypeSerializer

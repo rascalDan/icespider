@@ -1,11 +1,19 @@
 #define BOOST_TEST_MODULE TestFileSessions
 #include <boost/test/unit_test.hpp>
 
-#include <Ice/Initialize.h>
+#include <Ice/Communicator.h>
 #include <Ice/Properties.h>
+#include <Ice/Proxy.h>
 #include <core.h>
+#include <ctime>
 #include <definedDirs.h>
+#include <filesystem>
+#include <map>
+#include <memory>
 #include <session.h>
+#include <string>
+#include <string_view>
+#include <unistd.h>
 
 BOOST_TEST_DONT_PRINT_LOG_VALUE(IceSpider::Variables);
 

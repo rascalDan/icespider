@@ -1,11 +1,31 @@
 #define BOOST_TEST_MODULE TestApp
 #include <boost/test/unit_test.hpp>
 
+#include <Ice/Config.h>
+#include <boost/lexical_cast.hpp>
 #include <cgiRequestBase.h>
 #include <core.h>
-#include <definedDirs.h>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <http.h>
+#include <ihttpRequest.h>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <optional>
 #include <slicer/modelPartsTypes.h>
+#include <string>
+#include <string_view>
 #include <test-fcgi.h>
+#include <vector>
+
+namespace IceSpider {
+	class Http400_BadRequest;
+}
+namespace IceSpider {
+	class Http405_MethodNotAllowed;
+}
 
 using namespace std::literals;
 namespace std {
@@ -96,7 +116,7 @@ public:
 	}
 
 	// NOLINTNEXTLINE(hicpp-explicit-conversions)
-	operator char * *()
+	operator char **()
 	{
 		return &front();
 	}

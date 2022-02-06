@@ -1,8 +1,23 @@
 #include "xwwwFormUrlEncoded.h"
 #include "exceptions.h"
-#include <Ice/BuiltinSequences.h>
+#include <Ice/Config.h>
+#include <algorithm>
 #include <array>
+#include <boost/algorithm/string/compare.hpp>
+#include <boost/algorithm/string/finder.hpp>
 #include <boost/lexical_cast.hpp>
+#include <cstddef>
+#include <cstdint>
+#include <factory.h>
+#include <istream>
+#include <iterator>
+#include <limits>
+#include <maybeString.h>
+#include <memory>
+#include <optional>
+#include <slicer/modelParts.h>
+#include <slicer/serializer.h>
+#include <utility>
 
 namespace ba = boost::algorithm;
 using namespace std::literals;

@@ -1,14 +1,18 @@
 #ifndef ICESPIDER_CGI_CGIREQUESTBASE_H
 #define ICESPIDER_CGI_CGIREQUESTBASE_H
 
+#include "http.h"
 #include <case_less.h>
-#include <core.h>
 #include <flatMap.h>
 #include <ihttpRequest.h>
+#include <iosfwd>
 #include <maybeString.h>
 #include <string_view>
+// IWYU pragma: no_forward_declare AdHoc::case_less
 
 namespace IceSpider {
+	class Core;
+
 	class CgiRequestBase : public IHttpRequest {
 	protected:
 		CgiRequestBase(Core * c, const char * const * const env);

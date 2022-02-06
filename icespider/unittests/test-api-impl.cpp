@@ -1,3 +1,5 @@
+#include <iosfwd>
+#include <string>
 #include <test-api.h>
 
 void

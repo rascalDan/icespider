@@ -1,6 +1,12 @@
 #ifndef ICESPIDER_CORE_FLATMAP_H
 #define ICESPIDER_CORE_FLATMAP_H
 
+#include <algorithm>
+#include <cstddef>
+#include <functional>
+#include <iterator>
+#include <stdexcept>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -39,21 +45,21 @@ namespace IceSpider {
 		}
 
 		template<typename N>
-		auto
+		[[nodiscard]] auto
 		lower_bound(const N & n) const
 		{
 			return std::lower_bound(begin(), end(), n, KeyComp<N> {});
 		}
 
 		template<typename N>
-		auto
+		[[nodiscard]] auto
 		contains(const N & n) const
 		{
 			return std::binary_search(begin(), end(), n, KeyComp<N> {});
 		}
 
 		template<typename N>
-		auto
+		[[nodiscard]] auto
 		find(const N & n) const
 		{
 			const auto lb = lower_bound(n);
@@ -67,13 +73,14 @@ namespace IceSpider {
 		}
 
 		template<typename Ex = std::out_of_range, typename N>
-		const auto &
+		[[nodiscard]] const auto &
 		at(const N & n) const
 		{
 			if (const auto i = find(n); i != end()) {
 				return i->second;
 			}
 			if constexpr (std::is_constructible_v<Ex, N>) {
+				// NOLINTNEXTLINE(hicpp-no-array-decay)
 				throw Ex(n);
 			}
 			else {
@@ -81,12 +88,12 @@ namespace IceSpider {
 			}
 		}
 
-		auto
+		[[nodiscard]] auto
 		begin() const
 		{
 			return cbegin();
 		}
-		auto
+		[[nodiscard]] auto
 		end() const
 		{
 			return cend();

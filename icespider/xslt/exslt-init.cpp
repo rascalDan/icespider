@@ -1,5 +1,6 @@
 #include <libexslt/exslt.h>
-#include <libxslt/transform.h>
+#include <libxml/parser.h>
+#include <libxslt/xslt.h>
 
 static void initLibXml() __attribute__((constructor(102)));
 void

@@ -1,7 +1,18 @@
 #include "routeCompiler.h"
-#include <boost/algorithm/string/split.hpp>
+#include <array>
+#include <boost/algorithm/string/compare.hpp>
+#include <boost/algorithm/string/find_iterator.hpp>
+#include <boost/algorithm/string/finder.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
 #include <compileTimeFormatter.h>
+#include <cstdlib>
+#include <filesystem>
+#include <iostream>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
 
 namespace po = boost::program_options;
 using namespace AdHoc::literals;

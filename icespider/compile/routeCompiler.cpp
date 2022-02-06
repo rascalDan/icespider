@@ -1,15 +1,29 @@
 #include "routeCompiler.h"
+#include "routes.h"
+#include <Ice/Optional.h>
+#include <IceUtil/Handle.h>
 #include <Slice/CPlusPlusUtil.h>
 #include <Slice/Preprocessor.h>
+#include <algorithm>
+#include <boost/algorithm/string/find_iterator.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/format.hpp>
 #include <compileTimeFormatter.h>
+#include <cstdlib>
 #include <filesystem>
 #include <fprintbf.h>
+#include <http.h>
+#include <list>
+#include <memory>
 #include <pathparts.h>
 #include <scopeExit.h>
 #include <slicer/modelPartsTypes.h>
+#include <slicer/serializer.h>
 #include <slicer/slicer.h>
+#include <stdexcept>
+#include <string_view>
+#include <utility>
 
 namespace IceSpider {
 	using namespace AdHoc::literals;

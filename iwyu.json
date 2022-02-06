@@ -1,0 +1,293 @@
+[
+	{
+		"symbol": [
+			"Glib::ustring",
+			"private",
+			"<glibmm/ustring.h>",
+			"public"
+		]
+	},
+	{
+		"symbol": [
+			"@u?int\\d\\+_t",
+			"private",
+			"<cstdint>",
+			"public"
+		]
+	},
+	{
+		"symbol": [
+			"tm",
+			"private",
+			"<ctime>",
+			"public"
+		]
+	},
+	{
+		"symbol": [
+			"boost::posix_time::time_duration",
+			"private",
+			"<boost/date_time/posix_time/posix_time.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"<bits/types/stack_t.h>",
+			"private",
+			"<ucontext.h>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"@.field_types.h.",
+			"private",
+			"<mysql.h>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"@.mysql_time.h.",
+			"private",
+			"<mysql.h>",
+			"public"
+		]
+	},
+	{
+		"symbol": [
+			"free",
+			"private",
+			"<cstdlib>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"<boost/cstdint.hpp>",
+			"private",
+			"<cstdint>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"<ext/alloc_traits.h>",
+			"private",
+			"<memory>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"<bits/struct_stat.h>",
+			"private",
+			"<sys/stat.h>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"<bits/exception.h>",
+			"private",
+			"<stdexcept>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"@<boost/test/(unit_test_suite|framework).hpp>",
+			"private",
+			"<boost/test/unit_test.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"@<boost/test/(utils|tools|tree)/.*>",
+			"private",
+			"<boost/test/unit_test.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"@<boost/format/(format_(class|implementation)|alt_sstream).hpp>",
+			"private",
+			"<boost/format.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"@<boost/test/data/.*>",
+			"private",
+			"<boost/test/data/test_case.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"@<boost/mpl/.*>",
+			"private",
+			"<boost/mpl/list.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"@<boost/iostreams/detail/.*>",
+			"private",
+			"<boost/iostreams/stream.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"@<boost/date_time/gregorian/.*>",
+			"private",
+			"<boost/date_time/gregorian_calendar.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"@<boost/date_time/time_.*>",
+			"private",
+			"<boost/date_time/time.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"@<boost/date_time/posix_time/posix_time_.*>",
+			"private",
+			"<boost/date_time/posix_time/posix_time.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"@<boost/date_time/posix_time/(ptime|conversion|time_(formatt|pars)ers).hpp>",
+			"private",
+			"<boost/date_time/posix_time/posix_time.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"@<boost/preprocessor/.*>",
+			"private",
+			"<boost/test/unit_test.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"@<boost/lexical_cast/.*>",
+			"private",
+			"<boost/lexical_cast.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"<boost/algorithm/string/detail/finder.hpp>",
+			"private",
+			"<boost/algorithm/string/finder.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"@<boost/program_options/.*>",
+			"private",
+			"<boost/program_options.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"@<boost/multi_index/detail/index.*>",
+			"private",
+			"<boost/multi_index/ordered_index.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"@<boost/multi_index/detail/ord.*>",
+			"private",
+			"<boost/multi_index/ordered_index.hpp>",
+			"public"
+		]
+	},
+	{
+		"symbol": [
+			"std::filesystem",
+			"private",
+			"<filesystem>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"@<boost/multi_index/detail/bidir.*>",
+			"private",
+			"<boost/multi_index_container.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"<boost/algorithm/string/detail/classification.hpp>",
+			"private",
+			"<boost/algorithm/string/classification.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"@<boost/range/.*\\.hpp>",
+			"private",
+			"<boost/algorithm/string/find_iterator.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"@<boost/iterator/.*\\.hpp>",
+			"private",
+			"<boost/algorithm/string/find_iterator.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"<boost/detail/basic_pointerbuf.hpp>",
+			"private",
+			"<boost/lexical_cast.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"<boost/detail/basic_pointerbuf.hpp>",
+			"private",
+			"<boost/lexical_cast.hpp>",
+			"public"
+		]
+	},
+	{
+		"include": [
+			"<boost/algorithm/string/detail/find_iterator.hpp>",
+			"private",
+			"<boost/algorithm/string/find_iterator.hpp>",
+			"public"
+		]
+	},
+	{
+		"ref": "/usr/lib/llvm/13/share/include-what-you-use/boost-all-private.imp"
+	}
+]

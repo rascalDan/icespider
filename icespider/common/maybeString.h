@@ -1,21 +1,26 @@
 #ifndef ICESPIDER_COMMON_MAYBESTRING_H
 #define ICESPIDER_COMMON_MAYBESTRING_H
 
+#include <compare>
+#include <iosfwd>
 #include <string>
 #include <string_view>
+#include <type_traits>
+#include <utility>
 #include <variant>
 
 namespace IceSpider {
 	class MaybeString {
 	public:
-		MaybeString() { }
+		MaybeString() = default;
 
-		// NOLINTNEXTLINE(hicpp-explicit-conversions)
+		// cppcheck-suppress noExplicitConstructor; NOLINTNEXTLINE(hicpp-explicit-conversions)
 		inline MaybeString(std::string s) : value_ {std::move(s)} { }
 
-		// NOLINTNEXTLINE(hicpp-explicit-conversions)
-		inline MaybeString(std::string_view s) : value_ {std::move(s)} { }
+		// cppcheck-suppress noExplicitConstructor; NOLINTNEXTLINE(hicpp-explicit-conversions)
+		inline MaybeString(std::string_view s) : value_ {s} { }
 
+		// NOLINTNEXTLINE(hicpp-explicit-conversions)
 		[[nodiscard]] inline operator std::string_view() const
 		{
 			if (value_.index() == 0) {

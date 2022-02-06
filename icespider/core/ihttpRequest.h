@@ -3,12 +3,21 @@
 
 #include "exceptions.h"
 #include <Ice/Current.h>
-#include <Ice/Optional.h>
-#include <IceUtil/Exception.h>
-#include <IceUtil/Optional.h>
 #include <boost/lexical_cast.hpp>
+#include <c++11Helpers.h>
+#include <ctime>
 #include <http.h>
+#include <iosfwd>
+#include <map>
+#include <optional>
+#include <slicer/modelParts.h>
+#include <slicer/serializer.h>
 #include <slicer/slicer.h>
+#include <string>
+#include <string_view>
+#include <type_traits>
+#include <utility>
+#include <vector>
 #include <visibility.h>
 
 namespace IceSpider {
@@ -28,6 +37,7 @@ namespace IceSpider {
 	public:
 		explicit IHttpRequest(const Core *);
 		virtual ~IHttpRequest() = default;
+		SPECIAL_MEMBERS_DEFAULT_MOVE_NO_COPY(IHttpRequest);
 
 		[[nodiscard]] Ice::Context getContext() const;
 		[[nodiscard]] virtual const PathElements & getRequestPath() const = 0;

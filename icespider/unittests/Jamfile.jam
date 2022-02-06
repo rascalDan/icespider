@@ -52,6 +52,8 @@ run
 	<implicit-dependency>../compile//icespider-compile
 	<include>.
 	<implicit-dependency>test-api-lib
+	<variant>san:<testing.launcher>LSAN_OPTIONS=suppressions=$(me)/leak.suppressions
+	<variant>san:<dependency>$(me)/leak.suppressions
 	: testCompile :
 	;
 
@@ -121,11 +123,16 @@ run
 obj test-fcgi : test-fcgi.ice : <toolset>tidy:<checker>none ;
 run
 	testFcgi.cpp
-	test-fcgi.ice
+	[ obj slicer-test-fcgi : test-fcgi.ice :
+		<slicer>pure
+		<use>slicer
+		<use>adhocutil
+		<include>.
+		<implicit-dependency>test-fcgi
+		<toolset>tidy:<checker>none ]
 	test-fcgi
 	../fcgi/cgiRequestBase.cpp
 	: : :
-	<slicer>pure
 	<define>BOOST_TEST_DYN_LINK
 	<library>testCommon
 	<library>../common//icespider-common
@@ -155,11 +162,16 @@ run
 
 obj test-api : test-api.ice : <include>. <toolset>tidy:<checker>none ;
 lib test-api-lib :
-	test-api.ice
+	[ obj slicer-test-api : test-api.ice :
+		<slicer>pure
+		<use>slicer
+		<use>adhocutil
+		<include>.
+		<implicit-dependency>test-api
+		<toolset>tidy:<checker>none ]
 	test-api-impl.cpp
 	test-api
 	:
-	<slicer>pure
 	<library>slicer
 	<library>adhocutil
 	<library>..//pthread
@@ -172,4 +184,5 @@ run testFlatMap.cpp : : :
 	<library>boost_utf 
 	<define>BOOST_TEST_DYN_LINK
 	<use>../core//icespider-core
+	<toolset>tidy:<xcheckxx>hicpp-vararg
 	;

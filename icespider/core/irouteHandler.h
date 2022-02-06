@@ -1,17 +1,24 @@
 #ifndef ICESPIDER_IROUTEHANDLER_H
 #define ICESPIDER_IROUTEHANDLER_H
 
-#include "exceptions.h"
+#include "http.h"
 #include "ihttpRequest.h"
-#include "routeOptions.h"
-#include "util.h"
+#include "slicer/serializer.h"
 #include <c++11Helpers.h>
-#include <factory.h>
+#include <factory.h> // IWYU pragma: keep
+#include <iosfwd>
+#include <map>
+#include <memory>
 #include <pathparts.h>
+#include <string_view>
 #include <visibility.h>
+// IWYU pragma: no_include "factory.impl.h"
+// IWYU pragma: no_include <Ice/Comparable.h>
+// IWYU pragma: no_include <string>
 
 namespace IceSpider {
 	class Core;
+	class RouteOptions;
 
 	class DLL_PUBLIC IRouteHandler : public Path {
 	public:
@@ -48,11 +55,5 @@ namespace IceSpider {
 	using IRouteHandlerCPtr = std::shared_ptr<const IRouteHandler>;
 	using RouteHandlerFactory = AdHoc::Factory<IRouteHandler, const Core *>;
 }
-
-#if __cplusplus < 201709
-namespace std {
-	template<typename T> using remove_cvref = typename std::remove_cv<typename std::remove_reference<T>::type>;
-}
-#endif
 
 #endif

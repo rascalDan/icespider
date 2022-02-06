@@ -2,11 +2,15 @@
 #define ICESPIDER_TEST_BASE2_H
 
 // Standard headers.
-#include <core.h>
-#include <irouteHandler.h>
+#include <visibility.h>
 
 // Interface headers.
-#include <test-api.h>
+#include "test-api.h"
+
+namespace IceSpider {
+	class Core;
+	class IHttpRequest;
+}
 
 namespace common {
 	// Base classes.

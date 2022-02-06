@@ -1,9 +1,19 @@
 #include "xsltStreamSerializer.h"
-#include <factory.impl.h>
+#include <chrono>
 #include <filesystem>
 #include <libxml++/document.h>
+#include <libxml++/exceptions/exception.h>
 #include <libxml/HTMLtree.h>
+#include <libxml/tree.h>
+#include <libxml/xmlIO.h>
+#include <libxml/xmlstring.h>
+#include <libxslt/transform.h>
 #include <libxslt/xsltInternals.h>
+#include <memory>
+#include <ostream>
+#include <slicer/modelParts.h>
+#include <slicer/serializer.h>
+#include <slicer/xml/serializer.h>
 
 namespace IceSpider {
 	static int

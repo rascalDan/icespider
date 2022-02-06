@@ -2,6 +2,7 @@
 #define ICESPIDER_EXCEPTIONS_H
 
 #include "http.h"
+#include <string>
 #include <visibility.h>
 
 #define DeclareHttpEx(Name) \

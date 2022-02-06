@@ -3,9 +3,15 @@
 
 #include <c++11Helpers.h>
 #include <filesystem>
-#include <libxslt/transform.h>
+#include <iosfwd>
+#include <libxslt/xsltInternals.h>
+#include <slicer/modelParts.h>
+#include <slicer/serializer.h>
 #include <slicer/xml/serializer.h>
 #include <visibility.h>
+namespace xmlpp {
+	class Document;
+}
 
 namespace IceSpider {
 	class DLL_PUBLIC XsltStreamSerializer : public Slicer::XmlDocumentSerializer {

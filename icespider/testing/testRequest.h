@@ -1,10 +1,18 @@
 #ifndef ICESPIDER_TESTING_TESTREQUEST_H
 #define ICESPIDER_TESTING_TESTREQUEST_H
 
+#include <functional>
+#include <http.h>
 #include <ihttpRequest.h>
+#include <iosfwd>
+#include <map>
+#include <string>
+#include <string_view>
 #include <visibility.h>
 
 namespace IceSpider {
+	class Core;
+
 	class DLL_PUBLIC TestRequest : public IHttpRequest {
 	public:
 		using MapVars = std::map<std::string, std::string, std::less<>>;

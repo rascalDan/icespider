@@ -1,13 +1,21 @@
 #define BOOST_TEST_MODULE TestCompile
 #include <boost/test/unit_test.hpp>
 
-#include "../compile/routeCompiler.h"
-#include "../core/irouteHandler.h"
-#include <boost/algorithm/string/join.hpp>
+#include <Ice/Optional.h>
+#include <IceUtil/Handle.h>
+#include <Slice/Parser.h>
 #include <definedDirs.h>
-#include <dlfcn.h>
-#include <plugins.h>
+#include <filesystem>
+#include <http.h>
+#include <iosfwd>
+#include <map>
+#include <memory>
+#include <routeCompiler.h>
+#include <routes.h>
 #include <slicer/modelPartsTypes.h>
+#include <string>
+#include <utility>
+#include <vector>
 
 using namespace IceSpider;
 

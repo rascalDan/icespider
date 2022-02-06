@@ -2,8 +2,14 @@
 #include <boost/test/data/test_case.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <exceptions.h>
 #include <ihttpRequest.h>
+#include <optional>
+#include <ostream>
+#include <string_view>
+#include <vector>
+namespace IceSpider {
+	class Http400_BadRequest;
+}
 
 auto parse = IceSpider::IHttpRequest::parseAccept;
 using namespace boost::unit_test::data;

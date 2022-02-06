@@ -2,18 +2,19 @@ lib adhocutil : : : : <include>/usr/include/adhocutil ;
 lib slicer : : : : <include>/usr/include/slicer ;
 
 obj http : http.ice : <toolset>tidy:<checker>none ;
+obj slicer-http : http.ice : <use>slicer <use>adhocutil
+	<implicit-dependency>http <slicer>pure <toolset>tidy:<checker>none ;
 obj session : session.ice : <toolset>tidy:<checker>none ;
 
 lib icespider-common :
 	[ glob *.cpp ]
 	http session
-	http.ice
+	slicer-http
 	:
 	<library>adhocutil
 	<library>..//pthread
 	<library>..//Ice
 	<library>slicer
-	<slicer>pure
 	<implicit-dependency>http
 	<implicit-dependency>session
 	: :

@@ -2,6 +2,7 @@
 #define ICESPIDER_CORE_PATHS_H
 
 #include <c++11Helpers.h>
+#include <cstddef>
 #include <memory>
 #include <string_view>
 #include <vector>

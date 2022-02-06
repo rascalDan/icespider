@@ -1,4 +1,5 @@
 #include "util.h"
+#include <string_view>
 
 namespace foo ::bar {
 	class really;

@@ -2,6 +2,10 @@
 #include <boost/test/unit_test.hpp>
 
 #include <flatMap.h>
+#include <stdexcept>
+#include <string_view>
+#include <utility>
+#include <vector>
 
 using TM = IceSpider::flatmap<std::string_view, int>;
 
@@ -28,7 +32,7 @@ BOOST_AUTO_TEST_CASE(single)
 	BOOST_CHECK(contains("a"));
 	BOOST_CHECK_EQUAL(at("a"), 1);
 	BOOST_CHECK(!contains("b"));
-	BOOST_CHECK_THROW(at("b"), std::out_of_range);
+	BOOST_CHECK_THROW((void)at("b"), std::out_of_range);
 	BOOST_CHECK_EQUAL(begin()->first, "a");
 	BOOST_CHECK_EQUAL(begin()->second, 1);
 	BOOST_CHECK_EQUAL(find("a"), begin());
@@ -86,7 +90,7 @@ BOOST_AUTO_TEST_CASE(several)
 	BOOST_CHECK(contains(1));
 	BOOST_CHECK_EQUAL(at(1), "a");
 	BOOST_CHECK(!contains(2));
-	BOOST_CHECK_THROW(at(2), std::out_of_range);
+	BOOST_CHECK_THROW((void)at(2), std::out_of_range);
 	BOOST_CHECK(contains(3));
 	BOOST_CHECK(contains(6));
 	BOOST_CHECK_EQUAL(begin()->first, 1);

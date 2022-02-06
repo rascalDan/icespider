@@ -3,10 +3,18 @@
 #include "irouteHandler.h"
 #include "util.h"
 #include "xwwwFormUrlEncoded.h"
+#include <algorithm>
 #include <boost/lexical_cast.hpp>
-#include <cstdio>
+#include <compileTimeFormatter.h>
+#include <cstdlib>
 #include <ctime>
 #include <formatters.h>
+#include <http.h>
+#include <memory>
+#include <plugins.h>
+#include <slicer/modelParts.h>
+#include <slicer/serializer.h>
+#include <stdexcept>
 
 namespace IceSpider {
 	using namespace AdHoc::literals;
@@ -16,7 +24,7 @@ namespace IceSpider {
 	Ice::Context
 	IHttpRequest::getContext() const
 	{
-		return Ice::Context();
+		return {};
 	}
 
 	Slicer::DeserializerPtr
@@ -89,7 +97,7 @@ namespace IceSpider {
 					throw Http400_BadRequest();
 				}
 			}
-			accepts.push_back(std::move(a));
+			accepts.push_back(a);
 		}
 
 		std::stable_sort(accepts.begin(), accepts.end(), [](const auto & a, const auto & b) {

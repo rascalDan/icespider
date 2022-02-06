@@ -1,10 +1,16 @@
 #ifndef ICESPIDER_CGI_XWWWFORMURLENCODED_H
 #define ICESPIDER_CGI_XWWWFORMURLENCODED_H
 
-#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/find_iterator.hpp>
+#include <functional>
+#include <iosfwd>
 #include <maybeString.h>
+#include <slicer/modelParts.h>
 #include <slicer/serializer.h>
+#include <string>
+#include <string_view>
 #include <visibility.h>
+// IWYU pragma: no_forward_declare boost::algorithm::split_iterator
 
 namespace IceSpider {
 	class XWwwFormUrlEncoded : public Slicer::Deserializer {

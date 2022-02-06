@@ -3,14 +3,27 @@
 
 #include "irouteHandler.h"
 #include "util.h"
+#include <Ice/BuiltinSequences.h>
 #include <Ice/Communicator.h>
+#include <Ice/Object.h>
+#include <Ice/ObjectAdapterF.h>
+#include <Ice/Properties.h>
+#include <Ice/Proxy.h>
+#include <Ice/ProxyF.h>
 #include <c++11Helpers.h>
+#include <exception>
+#include <factory.h> // IWYU pragma: keep
 #include <filesystem>
-#include <plugins.h>
+#include <memory>
+#include <plugins.h> // IWYU pragma: keep
+#include <string_view>
 #include <vector>
 #include <visibility.h>
+// IWYU pragma: no_include "factory.impl.h"
 
 namespace IceSpider {
+	class IHttpRequest;
+
 	class DLL_PUBLIC Core {
 	public:
 		using AllRoutes = std::vector<IRouteHandlerCPtr>;

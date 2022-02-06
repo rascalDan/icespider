@@ -2,8 +2,11 @@
 #define ICESPIDER_CGI_CGIREQUEST_H
 
 #include "cgiRequestBase.h"
+#include <iosfwd>
 
 namespace IceSpider {
+	class Core;
+
 	class CgiRequest : public CgiRequestBase {
 	public:
 		CgiRequest(Core * c, int argc, char ** argv, char ** env);

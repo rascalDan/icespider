@@ -2,9 +2,13 @@
 #define ICESPIDER_CGI_FCGIREQUEST_H
 
 #include "cgiRequestBase.h"
+#include <fcgiapp.h>
 #include <fcgio.h>
+#include <iosfwd>
 
 namespace IceSpider {
+	class Core;
+
 	class FcgiRequest : public CgiRequestBase {
 	public:
 		FcgiRequest(Core * c, FCGX_Request * r);

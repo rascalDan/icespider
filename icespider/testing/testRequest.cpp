@@ -1,7 +1,15 @@
 #include "testRequest.h"
+#include <array>
 #include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/constants.hpp>
+#include <boost/algorithm/string/find_iterator.hpp>
+#include <boost/algorithm/string/predicate_facade.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <cstdio>
 #include <formatters.h>
+#include <http.h>
+#include <ihttpRequest.h>
+#include <utility>
 
 namespace IceSpider {
 	constexpr std::string_view slash("/");

@@ -6,12 +6,13 @@ lib stdc++fs ;
 lib slice-parser ;
 
 obj routes : routes.ice : <use>../common//icespider-common <toolset>tidy:<checker>none ;
+obj slicer-routes : routes.ice : <use>slicer <use>adhocutil
+	<implicit-dependency>routes <slicer>pure <toolset>tidy:<checker>none ;
 lib icespider-compile :
 	routeCompiler.cpp
-	routes.ice
+	slicer-routes
 	routes
 	:
-	<slicer>pure
 	<library>slicer
 	<library>adhocutil
 	<library>slicer-json
@@ -26,6 +27,7 @@ lib icespider-compile :
 	<library>stdc++fs
 	<library>../common//icespider-common
 	<library>slice-parser
+	<include>.
 	;
 
 exe icespider :

@@ -1,6 +1,8 @@
 #include "cgiRequest.h"
-#include "core.h"
 #include "fcgiRequest.h"
+#include <core.h>
+#include <fcgiapp.h>
+#include <http.h>
 #include <visibility.h>
 
 using namespace IceSpider;
