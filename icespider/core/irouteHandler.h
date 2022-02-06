@@ -33,16 +33,13 @@ namespace IceSpider {
 		using RouteSerializers = std::map<MimeType, StreamSerializerFactoryPtr>;
 		RouteSerializers routeSerializers;
 
-		void requiredParameterNotFound(const char *, const std::string_view & key) const;
+		[[noreturn]] void requiredParameterNotFound(const char *, const std::string_view & key) const;
 
 		template<typename T, typename K>
 		inline T
 		requiredParameterNotFound(const char * s, const K & key) const
 		{
 			requiredParameterNotFound(s, key);
-			// LCOV_EXCL_START unreachable, requiredParameterNotFound always throws
-			return T();
-			// LCOV_EXCL_STOP
 		}
 
 		void addRouteSerializer(const MimeType &, const StreamSerializerFactoryPtr &);
