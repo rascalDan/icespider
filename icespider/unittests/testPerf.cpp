@@ -60,7 +60,7 @@ class CoreFixture : public IceSpider::CoreWithDefaultRouter, public benchmark::F
 
 BENCHMARK_F(CoreFixture, script_name_root)(benchmark::State & state)
 {
-	CharPtrPtrArray env(XSTR(ROOT) "/fixtures/env1");
+	CharPtrPtrArray env(rootDir / "fixtures/env1");
 	for (auto _ : state) {
 		TestRequest r(this, &env.front());
 	}
@@ -68,7 +68,7 @@ BENCHMARK_F(CoreFixture, script_name_root)(benchmark::State & state)
 
 BENCHMARK_F(CoreFixture, is_secure)(benchmark::State & state)
 {
-	CharPtrPtrArray env(XSTR(ROOT) "/fixtures/env1");
+	CharPtrPtrArray env(rootDir / "fixtures/env1");
 	TestRequest r(this, &env.front());
 	for (auto _ : state) {
 		benchmark::DoNotOptimize(r.isSecure());
@@ -77,7 +77,7 @@ BENCHMARK_F(CoreFixture, is_secure)(benchmark::State & state)
 
 BENCHMARK_F(CoreFixture, get_env_param)(benchmark::State & state)
 {
-	CharPtrPtrArray env(XSTR(ROOT) "/fixtures/env1");
+	CharPtrPtrArray env(rootDir / "fixtures/env1");
 	TestRequest r(this, &env.front());
 	for (auto _ : state) {
 		benchmark::DoNotOptimize(r.getEnv("REMOTE_PORT"));
@@ -86,7 +86,7 @@ BENCHMARK_F(CoreFixture, get_env_param)(benchmark::State & state)
 
 BENCHMARK_F(CoreFixture, get_header_param)(benchmark::State & state)
 {
-	CharPtrPtrArray env(XSTR(ROOT) "/fixtures/env1");
+	CharPtrPtrArray env(rootDir / "fixtures/env1");
 	TestRequest r(this, &env.front());
 	for (auto _ : state) {
 		benchmark::DoNotOptimize(r.getHeaderParam("user_agent"));
@@ -95,7 +95,7 @@ BENCHMARK_F(CoreFixture, get_header_param)(benchmark::State & state)
 
 BENCHMARK_F(CoreFixture, get_query_string_param)(benchmark::State & state)
 {
-	CharPtrPtrArray env(XSTR(ROOT) "/fixtures/env1");
+	CharPtrPtrArray env(rootDir / "fixtures/env1");
 	TestRequest r(this, &env.front());
 	for (auto _ : state) {
 		benchmark::DoNotOptimize(r.getQueryStringParam("utm_source"));
@@ -104,7 +104,7 @@ BENCHMARK_F(CoreFixture, get_query_string_param)(benchmark::State & state)
 
 BENCHMARK_F(CoreFixture, get_cookie_param)(benchmark::State & state)
 {
-	CharPtrPtrArray env(XSTR(ROOT) "/fixtures/env1");
+	CharPtrPtrArray env(rootDir / "fixtures/env1");
 	TestRequest r(this, &env.front());
 	for (auto _ : state) {
 		benchmark::DoNotOptimize(r.getQueryStringParam("utm_source"));

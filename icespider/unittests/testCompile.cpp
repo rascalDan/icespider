@@ -19,12 +19,13 @@
 
 using namespace IceSpider;
 
-static void forceEarlyChangeDir() __attribute__((constructor(101)));
-void
-forceEarlyChangeDir()
-{
-	std::filesystem::current_path(XSTR(ROOT));
-}
+struct forceEarlyChangeDir {
+	forceEarlyChangeDir()
+	{
+		std::filesystem::current_path(rootDir);
+	}
+};
+BOOST_TEST_GLOBAL_FIXTURE(forceEarlyChangeDir);
 
 class CoreFixture {
 protected:
