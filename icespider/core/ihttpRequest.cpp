@@ -76,7 +76,7 @@ namespace IceSpider {
 
 		while (!acceptHdr.empty()) {
 			const auto group = upto(acceptHdr, "/", true).first;
-			const auto [type, tc] = upto(acceptHdr, ";,", false);
+			auto [type, tc] = upto(acceptHdr, ";,", false);
 			Accept a;
 			if (type != "*") {
 				a.type.emplace(type);
@@ -87,15 +87,16 @@ namespace IceSpider {
 			else if (a.type) {
 				throw Http400_BadRequest();
 			}
-			if (tc == ';') {
-				if (upto(acceptHdr, "=", true).first != "q") {
-					throw Http400_BadRequest();
+			while (tc == ';') {
+				const auto paramName = upto(acceptHdr, "=", true);
+				const auto paramValue = upto(acceptHdr, ",;", false);
+				if (paramName.first == "q") {
+					a.q = std::strtof(std::string(paramValue.first).c_str(), nullptr);
+					if (a.q <= 0.0F || a.q > 1.0F) {
+						throw Http400_BadRequest();
+					}
 				}
-				const auto qs = upto(acceptHdr, ",", false).first;
-				a.q = std::strtof(std::string(qs).c_str(), nullptr);
-				if (a.q <= 0.0F || a.q > 1.0F) {
-					throw Http400_BadRequest();
-				}
+				tc = paramValue.second;
 			}
 			accepts.push_back(a);
 		}

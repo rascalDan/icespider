@@ -37,7 +37,6 @@ BOOST_DATA_TEST_CASE(bad_requests,
 				" text / plain ; q = ",
 				" text / plain ; q = 0.0 ",
 				" text / plain ; q = 1.1 ",
-				" text / plain ; f = 0.1 ",
 		}),
 		a)
 {
@@ -119,4 +118,33 @@ BOOST_DATA_TEST_CASE(q1,
 			BOOST_CHECK_CLOSE(accept.q, 1.0, 0.1);
 		}
 	}
+}
+
+BOOST_DATA_TEST_CASE(extra_params_q_half,
+		make({
+				"a/a;q=0.5",
+				"a/a;v=1;q=0.5",
+				"a/a;q=0.5;v=1",
+				"a/a;p=1;q=0.5;v=1",
+				"a/a;v=string;q=0.5",
+		}),
+		a)
+{
+	auto all = parse(a);
+	for (const auto & accept : all) {
+		BOOST_TEST_CONTEXT(accept) {
+			BOOST_CHECK_CLOSE(accept.q, 0.5, 0.1);
+		}
+	}
+}
+
+BOOST_DATA_TEST_CASE(samples,
+		make({
+				// From Chromium, causes HTTP 400 in v0.7, unexpected param `v`
+				"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/"
+				"*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+		}),
+		a)
+{
+	BOOST_CHECK_NO_THROW(parse(a));
 }
