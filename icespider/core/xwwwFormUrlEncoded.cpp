@@ -99,9 +99,9 @@ constexpr HexIn hexin = []() {
 	size_t firstHex = std::min({'0', 'a', 'A'});
 	size_t lastHex = std::max({'9', 'f', 'F'});
 	for (auto first = firstHex; first <= lastHex; first++) {
-		if (const auto ch1 = hextable[first]) {
+		if (const auto & ch1 = hextable[first]) {
 			for (auto second = firstHex; second <= lastHex; second++) {
-				if (const auto ch2 = hextable[second]) {
+				if (const auto & ch2 = hextable[second]) {
 					hexin[first][second] = static_cast<char>((*ch1 << 4U) + *ch2);
 				}
 			}
