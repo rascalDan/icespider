@@ -450,33 +450,6 @@ namespace IceSpider {
 				fprintbf(4, output, "%s(core)", b);
 			}
 			auto proxies = initializeProxies(output, r.second);
-			for (const auto & p : r.second->params) {
-				if (p.second->hasUserSource) {
-					if (p.second->source == ParameterSource::URL) {
-						fputs(",\n", output);
-						Path path(r.second->path);
-						long idx = -1;
-						for (const auto & pp : path.parts) {
-							if (auto par = dynamic_cast<PathParameter *>(pp.get())) {
-								if (par->name == *p.second->key) {
-									idx = &pp - &path.parts.front();
-								}
-							}
-						};
-						fprintbf(4, output, "_pi_%s(%d)", p.first, idx);
-					}
-					else {
-						if (p.second->key) {
-							fputs(",\n", output);
-							fprintbf(4, output, "_pn_%s(\"%s\")", p.first, *p.second->key);
-						}
-					}
-				}
-				if (p.second->defaultExpr) {
-					fputs(",\n", output);
-					fprintbf(4, output, "_pd_%s(%s)", p.first, *p.second->defaultExpr);
-				}
-			}
 			fputs("\n", output);
 			fprintbf(3, output, "{\n");
 			registerOutputSerializers(output, r.second);
@@ -545,15 +518,29 @@ namespace IceSpider {
 			for (const auto & p : r.second->params) {
 				if (p.second->hasUserSource) {
 					if (p.second->source == ParameterSource::URL) {
-						fprintbf(3, output, "const unsigned int _pi_%s;\n", p.first);
+						Path path(r.second->path);
+						long idx = -1;
+						for (const auto & pp : path.parts) {
+							if (auto par = dynamic_cast<PathParameter *>(pp.get())) {
+								if (par->name == *p.second->key) {
+									idx = &pp - &path.parts.front();
+								}
+							}
+						}
+						fprintbf(3, output, "static constexpr unsigned int _pi_%s{%ld};\n", p.first, idx);
 					}
 					else {
-						fprintbf(3, output, "const std::string _pn_%s;\n", p.first);
+						fprintbf(3, output, "static constexpr std::string_view _pn_%s{", p.first);
+						if (p.second->key) {
+							fprintbf(output, "\"%s\"", *p.second->key);
+						}
+						fputs("};\n", output);
 					}
 				}
 				if (p.second->defaultExpr) {
 					auto ip = ps.find(p.first)->second;
-					fprintbf(3, output, "const %s _pd_%s;\n", Slice::typeToString(ip->type()), p.first);
+					fprintbf(3, output, "static const %s _pd_%s{%s};\n", Slice::typeToString(ip->type()), p.first,
+							*p.second->defaultExpr);
 				}
 			}
 			fprintbf(1, output, "};\n\n");
