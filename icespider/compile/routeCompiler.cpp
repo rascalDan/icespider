@@ -339,7 +339,6 @@ namespace IceSpider {
 						 "Ice/Config.h",
 						 "Ice/Exception.h",
 						 "Ice/Proxy.h",
-						 "boost/lexical_cast.hpp",
 						 "future",
 						 "ios",
 						 "memory",
