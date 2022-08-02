@@ -1,5 +1,10 @@
 #include "exceptions.h"
 
+#define DefineHttpEx(Name, Code, Message) \
+	Name::Name() : ::IceSpider::HttpException(__FILE__, __LINE__, CODE, MESSAGE) { } \
+	const short Name::CODE(Code); \
+	const std::string Name::MESSAGE(Message);
+
 namespace IceSpider {
 	DefineHttpEx(Http400_BadRequest, 400, "Bad Request");
 	DefineHttpEx(Http404_NotFound, 404, "Not found");

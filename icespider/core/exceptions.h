@@ -9,13 +9,11 @@
 	class DLL_PUBLIC Name : public ::IceSpider::HttpException { \
 	public: \
 		Name(); \
-		static const short code; \
-		static const std::string message; \
+\
+	private: \
+		static const short CODE; \
+		static const std::string MESSAGE; \
 	}
-#define DefineHttpEx(Name, Code, Message) \
-	Name::Name() : ::IceSpider::HttpException(__FILE__, __LINE__, code, message) { } \
-	const short Name::code(Code); \
-	const std::string Name::message(Message);
 
 namespace IceSpider {
 	DeclareHttpEx(Http400_BadRequest);
@@ -25,4 +23,5 @@ namespace IceSpider {
 	DeclareHttpEx(Http415_UnsupportedMediaType);
 }
 
+#undef DeclareHttpEx
 #endif
