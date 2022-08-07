@@ -31,14 +31,11 @@ namespace IceSpider {
 		};
 
 		XsltStreamSerializer(std::ostream &, xsltStylesheet *);
-		SPECIAL_MEMBERS_DELETE(XsltStreamSerializer);
-		~XsltStreamSerializer() override;
 
 		void Serialize(Slicer::ModelPartForRootPtr mp) override;
 
 	protected:
 		std::ostream & strm;
-		xmlpp::Document * doc;
 		xsltStylesheet * stylesheet;
 	};
 }

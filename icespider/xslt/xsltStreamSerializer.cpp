@@ -57,21 +57,13 @@ namespace IceSpider {
 		return std::make_shared<XsltStreamSerializer>(strm, stylesheet);
 	}
 
-	XsltStreamSerializer::XsltStreamSerializer(std::ostream & os, xsltStylesheet * ss) :
-		Slicer::XmlDocumentSerializer(doc), strm(os), doc(nullptr), stylesheet(ss)
-	{
-	}
-
-	XsltStreamSerializer::~XsltStreamSerializer()
-	{
-		delete doc;
-	}
+	XsltStreamSerializer::XsltStreamSerializer(std::ostream & os, xsltStylesheet * ss) : strm(os), stylesheet(ss) { }
 
 	void
 	XsltStreamSerializer::Serialize(Slicer::ModelPartForRootPtr mp)
 	{
 		Slicer::XmlDocumentSerializer::Serialize(mp);
-		auto result = xsltApplyStylesheet(stylesheet, doc->cobj(), nullptr);
+		auto result = xsltApplyStylesheet(stylesheet, doc.cobj(), nullptr);
 		if (!result) {
 			throw xmlpp::exception("Failed to apply XSL transform");
 		}
