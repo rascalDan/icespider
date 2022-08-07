@@ -5,13 +5,11 @@
 #include <filesystem>
 #include <iosfwd>
 #include <libxslt/xsltInternals.h>
+#include <memory>
 #include <slicer/modelParts.h>
 #include <slicer/serializer.h>
 #include <slicer/xml/serializer.h>
 #include <visibility.h>
-namespace xmlpp {
-	class Document;
-}
 
 namespace IceSpider {
 	class DLL_PUBLIC XsltStreamSerializer : public Slicer::XmlDocumentSerializer {
@@ -19,15 +17,13 @@ namespace IceSpider {
 		class IceSpiderFactory : public Slicer::StreamSerializerFactory {
 		public:
 			explicit IceSpiderFactory(const char *);
-			SPECIAL_MEMBERS_MOVE_RO(IceSpiderFactory);
-			~IceSpiderFactory() override;
 
 			Slicer::SerializerPtr create(std::ostream &) const override;
 
 		private:
-			const std::filesystem::path stylesheetPath;
+			std::filesystem::path stylesheetPath;
 			mutable std::filesystem::file_time_type stylesheetWriteTime;
-			mutable xsltStylesheet * stylesheet;
+			mutable std::unique_ptr<xsltStylesheet, decltype(&xsltFreeStylesheet)> stylesheet;
 		};
 
 		XsltStreamSerializer(std::ostream &, xsltStylesheet *);

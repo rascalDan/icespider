@@ -31,13 +31,8 @@ namespace IceSpider {
 	}
 
 	XsltStreamSerializer::IceSpiderFactory::IceSpiderFactory(const char * path) :
-		stylesheetPath(path), stylesheetWriteTime(std::filesystem::file_time_type::min()), stylesheet(nullptr)
+		stylesheetPath(path), stylesheetWriteTime(std::filesystem::file_time_type::min()), stylesheet(nullptr, nullptr)
 	{
-	}
-
-	XsltStreamSerializer::IceSpiderFactory::~IceSpiderFactory()
-	{
-		xsltFreeStylesheet(stylesheet);
 	}
 
 	Slicer::SerializerPtr
@@ -45,16 +40,14 @@ namespace IceSpider {
 	{
 		auto newMtime = std::filesystem::last_write_time(stylesheetPath);
 		if (newMtime != stylesheetWriteTime) {
-			if (stylesheet) {
-				xsltFreeStylesheet(stylesheet);
-			}
-			stylesheet = xsltParseStylesheetFile(reinterpret_cast<const unsigned char *>(stylesheetPath.c_str()));
+			stylesheet = {xsltParseStylesheetFile(reinterpret_cast<const unsigned char *>(stylesheetPath.c_str())),
+					xsltFreeStylesheet};
 			if (!stylesheet) {
 				throw xmlpp::exception("Failed to load stylesheet");
 			}
 			stylesheetWriteTime = newMtime;
 		}
-		return std::make_shared<XsltStreamSerializer>(strm, stylesheet);
+		return std::make_shared<XsltStreamSerializer>(strm, stylesheet.get());
 	}
 
 	XsltStreamSerializer::XsltStreamSerializer(std::ostream & os, xsltStylesheet * ss) : strm(os), stylesheet(ss) { }
@@ -63,19 +56,21 @@ namespace IceSpider {
 	XsltStreamSerializer::Serialize(Slicer::ModelPartForRootPtr mp)
 	{
 		Slicer::XmlDocumentSerializer::Serialize(mp);
-		auto result = xsltApplyStylesheet(stylesheet, doc.cobj(), nullptr);
+		const auto result = std::unique_ptr<xmlDoc, decltype(&xmlFreeDoc)> {
+				xsltApplyStylesheet(stylesheet, doc.cobj(), nullptr), &xmlFreeDoc};
 		if (!result) {
 			throw xmlpp::exception("Failed to apply XSL transform");
 		}
-		xmlOutputBufferPtr buf = xmlOutputBufferCreateIO(xmlstrmwritecallback, xmlstrmclosecallback, &strm, nullptr);
+		const auto buf = std::unique_ptr<xmlOutputBuffer, decltype(&xmlOutputBufferClose)> {
+				xmlOutputBufferCreateIO(xmlstrmwritecallback, xmlstrmclosecallback, &strm, nullptr),
+				&xmlOutputBufferClose};
 		if (xmlStrcmp(stylesheet->method, reinterpret_cast<const unsigned char *>("html")) == 0) {
-			htmlDocContentDumpFormatOutput(buf, result, reinterpret_cast<const char *>(stylesheet->encoding), 0);
+			htmlDocContentDumpFormatOutput(
+					buf.get(), result.get(), reinterpret_cast<const char *>(stylesheet->encoding), 0);
 		}
 		else {
-			xmlNodeDumpOutput(
-					buf, result, result->children, 0, 0, reinterpret_cast<const char *>(stylesheet->encoding));
+			xmlNodeDumpOutput(buf.get(), result.get(), result->children, 0, 0,
+					reinterpret_cast<const char *>(stylesheet->encoding));
 		}
-		xmlOutputBufferClose(buf);
-		xmlFreeDoc(result);
 	}
 }
