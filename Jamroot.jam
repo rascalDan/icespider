@@ -31,6 +31,7 @@ project
 			<toolset>gcc,<variant>debug:<cflags>-Wduplicated-branches
 			<toolset>gcc,<variant>debug:<cflags>-Wlogical-op
 			<variant>coverage:<coverage>on
+			<toolset>tidy:<enable>all
 			<toolset>tidy:<checkxx>boost-*
 			<toolset>tidy:<checkxx>bugprone-*
 			<toolset>tidy:<xcheckxx>bugprone-easily-swappable-parameters
@@ -42,12 +43,12 @@ project
 			<toolset>tidy:<checkxx>hicpp-*
 			<toolset>tidy:<xcheckxx>hicpp-named-parameter
 			<toolset>tidy:<checkxx>performance-*
-			<toolset>tidy:<exclude>common/bin/http.h
-			<toolset>tidy:<exclude>common/bin/session.h
-			<toolset>tidy:<exclude>cxxstd-20-iso/routes.h
-			<toolset>tidy:<exclude>core/bin/routeOptions.h
-			<toolset>tidy:<exclude>unittests/bin/test-api.h
-			<toolset>tidy:<exclude>unittests/bin/test-fcgi.h
+			<toolset>tidy:<exclude>icespider/common/bin/http.h
+			<toolset>tidy:<exclude>icespider/common/bin/session.h
+			<toolset>tidy:<exclude>icespider/compile/bin/tidy/debug/checker-none/cxxstd-20-iso/routes.h
+			<toolset>tidy:<exclude>icespider/core/bin/routeOptions.h
+			<toolset>tidy:<exclude>icespider/unittests/bin/test-api.h
+			<toolset>tidy:<exclude>icespider/unittests/bin/test-fcgi.h
 			<toolset>tidy:<exclude>ice/cpp/*
 			<toolset>tidy:<librarydef>boost
 			<toolset>tidy:<librarydef>std
