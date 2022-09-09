@@ -23,6 +23,6 @@ package.install install : :
 	:
 	[ glob-tree *.h : fcgi unittests compile ]
 	;
-package.install-data install-tools : boost-build/src/tools : compile/icespider.jam ;
+package.install-data install-tools : b2/src/tools : compile/icespider.jam ;
 package.install-data install-ice : ice/icespider : [ glob common/*.ice ] ;
 
