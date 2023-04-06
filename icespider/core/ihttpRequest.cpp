@@ -114,6 +114,12 @@ namespace IceSpider {
 		if (acceptHdr) {
 			auto accepts = parseAccept(*acceptHdr);
 			auto & strm = getOutputStream();
+			if (accepts.empty()) {
+				throw Http400_BadRequest();
+			}
+			if (!accepts.front().group && !accepts.front().type) {
+				return handler->defaultSerializer(strm);
+			}
 			for (auto & a : accepts) {
 				ContentTypeSerializer serializer = handler->getSerializer(a, strm);
 				if (serializer.second) {
