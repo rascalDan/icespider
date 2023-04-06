@@ -61,7 +61,7 @@ namespace IceSpider {
 		if (!result) {
 			throw xmlpp::exception("Failed to apply XSL transform");
 		}
-		const auto buf = std::unique_ptr<xmlOutputBuffer, decltype(&xmlOutputBufferClose)> {
+		auto buf = std::unique_ptr<xmlOutputBuffer, decltype(&xmlOutputBufferClose)> {
 				xmlOutputBufferCreateIO(xmlstrmwritecallback, xmlstrmclosecallback, &strm, nullptr),
 				&xmlOutputBufferClose};
 		if (xmlStrcmp(stylesheet->method, reinterpret_cast<const unsigned char *>("html")) == 0) {
@@ -69,8 +69,7 @@ namespace IceSpider {
 					buf.get(), result.get(), reinterpret_cast<const char *>(stylesheet->encoding), 0);
 		}
 		else {
-			xmlNodeDumpOutput(buf.get(), result.get(), result->children, 0, 0,
-					reinterpret_cast<const char *>(stylesheet->encoding));
+			xmlSaveFormatFileTo(buf.release(), result.get(), reinterpret_cast<const char *>(stylesheet->encoding), 0);
 		}
 	}
 }

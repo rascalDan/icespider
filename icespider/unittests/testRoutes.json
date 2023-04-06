@@ -1,10 +1,17 @@
 {
 	"name": "common",
-	"headers": [ "xsltStreamSerializer.h", "base2.h" ],
+	"headers": [
+		"xsltStreamSerializer.h",
+		"base2.h"
+	],
 	"routeBases": {
 		"base1": {
-			"proxies": ["TestIceSpider.TestApi"],
-			"functions": [ "void doNothing()" ]
+			"proxies": [
+				"TestIceSpider.TestApi"
+			],
+			"functions": [
+				"void doNothing()"
+			]
 		}
 	},
 	"routes": {
@@ -14,11 +21,24 @@
 			"outputSerializers": {
 				"text/html": {
 					"serializer": "IceSpider.XsltStreamSerializer",
-					"params": [ "\"xslt/transform.xslt\"" ]
+					"params": [
+						"\"xslt/transform.xslt\""
+					]
+				},
+				"application/xml+test": {
+					"serializer": "IceSpider.XsltStreamSerializer",
+					"params": [
+						"\"xslt/transformxml.xslt\""
+					]
 				}
 			},
-			"bases": [ "base1", "base2" ],
-			"mutators": [ "testMutate" ],
+			"bases": [
+				"base1",
+				"base2"
+			],
+			"mutators": [
+				"testMutate"
+			],
 			"operation": "TestIceSpider.TestApi.index"
 		},
 		"simple": {
@@ -66,7 +86,7 @@
 				}
 			}
 		},
-		"itemWithDefault":{
+		"itemWithDefault": {
 			"path": "/item/{s}/{i}",
 			"method": "GET",
 			"operation": "TestIceSpider.TestApi.withParams"
@@ -109,7 +129,9 @@
 			"outputSerializers": {
 				"application/xml": {
 					"serializer": "IceSpider.XsltStreamSerializer",
-					"params": [ "\"xslt/transform.xslt\"" ]
+					"params": [
+						"\"xslt/transform.xslt\""
+					]
 				}
 			},
 			"operation": "TestIceSpider.TestApi.index"
@@ -146,4 +168,3 @@
 		"test-api.ice"
 	]
 }
-

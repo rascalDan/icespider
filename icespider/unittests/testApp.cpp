@@ -385,8 +385,24 @@ BOOST_AUTO_TEST_CASE(testCallIndexAcceptXml)
 	auto h = requestXml.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
 	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/xml");
+	BOOST_TEST_INFO(requestXml.output.view());
+	BOOST_REQUIRE_NE(requestXml.output.view().find("<?xml version"), std::string_view::npos);
 	auto v = Slicer::DeserializeAny<Slicer::XmlStreamDeserializer, TestIceSpider::SomeModelPtr>(requestXml.output);
 	BOOST_REQUIRE_EQUAL(v->value, "index");
+}
+
+BOOST_AUTO_TEST_CASE(testCallIndexAcceptXsltXml)
+{
+	TestRequest requestXml(this, HttpMethod::GET, "/");
+	requestXml.hdr["Accept"] = "application/xml+test";
+	process(&requestXml);
+	auto h = requestXml.getResponseHeaders();
+	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
+	BOOST_REQUIRE_EQUAL(h["Content-Type"], "application/xml+test");
+	BOOST_TEST_INFO(requestXml.output.view());
+	BOOST_REQUIRE_NE(requestXml.output.view().find("<?xml version"), std::string_view::npos);
+	xmlpp::DomParser d;
+	d.parse_stream(requestXml.output);
 }
 
 BOOST_AUTO_TEST_CASE(testCallIndexAcceptTextHtml)
