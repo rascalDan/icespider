@@ -32,6 +32,17 @@ namespace IceSpider {
 		return parts.size();
 	}
 
+	bool
+	Path::matches(const PathElements & pathparts) const
+	{
+		return std::mismatch(pathparts.begin(), pathparts.end(), parts.begin(),
+					   [](const auto & pathpart, const auto & routepart) {
+						   return routepart->matches(pathpart);
+					   })
+					   .first
+				== pathparts.end();
+	}
+
 	PathLiteral::PathLiteral(const std::string_view & p) : value(p) { }
 
 	bool

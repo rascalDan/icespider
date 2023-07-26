@@ -146,18 +146,6 @@ namespace IceSpider {
 		return communicator->propertyToProxy(std::string {type});
 	}
 
-	static bool
-	operator/=(const PathElements & pathparts, const IRouteHandler * r)
-	{
-		auto rpi = r->parts.begin();
-		for (auto ppi = pathparts.begin(); ppi != pathparts.end(); ++ppi, ++rpi) {
-			if (!(*rpi)->matches(*ppi)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 	CoreWithDefaultRouter::CoreWithDefaultRouter(const Ice::StringSeq & opts) : Core(opts)
 	{
 		for (const auto & r : allRoutes) {
@@ -180,7 +168,7 @@ namespace IceSpider {
 		const auto & routeSet = routes[pathparts.size()];
 		bool match = false;
 		for (const auto & r : routeSet) {
-			if (pathparts /= r.get()) {
+			if (r->matches(pathparts)) {
 				if (r->method == method) {
 					return r.get();
 				}

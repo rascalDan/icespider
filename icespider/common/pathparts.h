@@ -8,6 +8,8 @@
 #include <visibility.h>
 
 namespace IceSpider {
+	using PathElements = std::vector<std::string>;
+
 	class DLL_PUBLIC PathPart {
 	public:
 		PathPart() = default;
@@ -46,6 +48,7 @@ namespace IceSpider {
 		std::string_view path;
 
 		[[nodiscard]] std::size_t pathElementCount() const;
+		[[nodiscard]] bool matches(const PathElements &) const;
 
 		PathParts parts;
 	};
