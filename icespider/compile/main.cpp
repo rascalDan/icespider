@@ -38,7 +38,7 @@ defaultPostProcessor()
 int
 main(int c, char ** v)
 {
-	bool showHelp;
+	bool showHelp = false;
 	IceSpider::Compile::RouteCompiler rc;
 	std::filesystem::path input, output;
 	std::string post;
