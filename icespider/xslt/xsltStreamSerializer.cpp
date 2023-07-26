@@ -16,18 +16,20 @@
 #include <slicer/xml/serializer.h>
 
 namespace IceSpider {
-	static int
-	xmlstrmclosecallback(void * context)
-	{
-		static_cast<std::ostream *>(context)->flush();
-		return 0;
-	}
+	namespace {
+		int
+		xmlstrmclosecallback(void * context)
+		{
+			static_cast<std::ostream *>(context)->flush();
+			return 0;
+		}
 
-	static int
-	xmlstrmwritecallback(void * context, const char * buffer, int len)
-	{
-		static_cast<std::ostream *>(context)->write(buffer, len);
-		return len;
+		int
+		xmlstrmwritecallback(void * context, const char * buffer, int len)
+		{
+			static_cast<std::ostream *>(context)->write(buffer, len);
+			return len;
+		}
 	}
 
 	XsltStreamSerializer::IceSpiderFactory::IceSpiderFactory(const char * path) :

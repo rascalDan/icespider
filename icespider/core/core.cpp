@@ -118,11 +118,13 @@ namespace IceSpider {
 		defaultErrorReport(request, exception);
 	}
 
-	auto
-	demangle(const char * const name)
-	{
-		return std::unique_ptr<char, decltype(&std::free)>(
-				__cxxabiv1::__cxa_demangle(name, nullptr, nullptr, nullptr), std::free);
+	namespace {
+		auto
+		demangle(const char * const name)
+		{
+			return std::unique_ptr<char, decltype(&std::free)>(
+					__cxxabiv1::__cxa_demangle(name, nullptr, nullptr, nullptr), std::free);
+		}
 	}
 
 	AdHocFormatter(LogExp, "Exception type: %?\nDetail: %?\n");

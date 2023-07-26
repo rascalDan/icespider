@@ -272,19 +272,21 @@ namespace IceSpider::Compile {
 		return Slicer::ModelPartForEnum<Enum>::lookup(e);
 	}
 
-	static std::string
-	outputSerializerClass(const IceSpider::OutputSerializers::value_type & os)
-	{
-		return boost::algorithm::replace_all_copy(os.second->serializer, ".", "::");
-	}
+	namespace {
+		std::string
+		outputSerializerClass(const IceSpider::OutputSerializers::value_type & os)
+		{
+			return boost::algorithm::replace_all_copy(os.second->serializer, ".", "::");
+		}
 
-	AdHocFormatter(MimePair, R"C({ "%?", "%?" })C");
+		AdHocFormatter(MimePair, R"C({ "%?", "%?" })C");
 
-	static std::string
-	outputSerializerMime(const IceSpider::OutputSerializers::value_type & os)
-	{
-		auto slash = os.first.find('/');
-		return MimePair::get(os.first.substr(0, slash), os.first.substr(slash + 1));
+		std::string
+		outputSerializerMime(const IceSpider::OutputSerializers::value_type & os)
+		{
+			auto slash = os.first.find('/');
+			return MimePair::get(os.first.substr(0, slash), os.first.substr(slash + 1));
+		}
 	}
 
 	void
