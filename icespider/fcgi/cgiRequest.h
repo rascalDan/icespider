@@ -10,7 +10,7 @@ namespace IceSpider {
 	public:
 		CgiRequest(Core * c, int argc, char ** argv, char ** env);
 
-		std::istream & getInputStream() const override;
-		std::ostream & getOutputStream() const override;
+		[[nodiscard]] std::istream & getInputStream() const override;
+		[[nodiscard]] std::ostream & getOutputStream() const override;
 	};
 }
