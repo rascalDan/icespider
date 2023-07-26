@@ -9,7 +9,6 @@
 	public: \
 		Name(); \
 \
-	private: \
 		static const short CODE; \
 		static const std::string MESSAGE; \
 	}
@@ -20,6 +19,7 @@ namespace IceSpider {
 	DeclareHttpEx(Http405_MethodNotAllowed);
 	DeclareHttpEx(Http406_NotAcceptable);
 	DeclareHttpEx(Http415_UnsupportedMediaType);
+	DeclareHttpEx(Http500_InternalServerError);
 }
 
 #undef DeclareHttpEx

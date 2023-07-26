@@ -11,4 +11,5 @@ namespace IceSpider {
 	DefineHttpEx(Http405_MethodNotAllowed, 405, "Method Not Allowed");
 	DefineHttpEx(Http406_NotAcceptable, 406, "Not Acceptable");
 	DefineHttpEx(Http415_UnsupportedMediaType, 415, "Unsupported Media Type");
+	DefineHttpEx(Http500_InternalServerError, 500, "Internal Server Error");
 }

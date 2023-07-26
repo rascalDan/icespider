@@ -85,7 +85,7 @@ namespace IceSpider {
 			handleError(request, e);
 		}
 		catch (...) {
-			request->response(500, "Unknown internal server error");
+			request->response(Http500_InternalServerError::CODE, Http500_InternalServerError::MESSAGE);
 			request->dump(std::cerr);
 		}
 	}
@@ -134,7 +134,7 @@ namespace IceSpider {
 	{
 		auto buf = demangle(typeid(exception).name());
 		request->setHeader(H::CONTENT_TYPE, MIME::TEXT_PLAIN);
-		request->response(500, buf.get());
+		request->response(Http500_InternalServerError::CODE, buf.get());
 		LogExp::write(request->getOutputStream(), buf.get(), exception.what());
 		request->dump(std::cerr);
 		LogExp::write(std::cerr, buf.get(), exception.what());
