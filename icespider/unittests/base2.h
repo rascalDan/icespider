@@ -1,5 +1,4 @@
-#ifndef ICESPIDER_TEST_BASE2_H
-#define ICESPIDER_TEST_BASE2_H
+#pragma once
 
 // Standard headers.
 #include <visibility.h>
@@ -22,5 +21,3 @@ namespace common {
 		void testMutate(const IceSpider::IHttpRequest *, TestIceSpider::SomeModelPtr &) const;
 	}; // base2
 } // namespace common
-
-#endif

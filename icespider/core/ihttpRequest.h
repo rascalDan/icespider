@@ -1,5 +1,4 @@
-#ifndef ICESPIDER_IHTTPREQUEST_H
-#define ICESPIDER_IHTTPREQUEST_H
+#pragma once
 
 #include "exceptions.h"
 #include <Ice/Current.h>
@@ -171,5 +170,3 @@ namespace IceSpider {
 		const Core * core;
 	};
 }
-
-#endif

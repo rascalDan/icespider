@@ -1,5 +1,4 @@
-#ifndef ICESPIDER_COMPILE_ROURTECOMPILER_H
-#define ICESPIDER_COMPILE_ROURTECOMPILER_H
+#pragma once
 
 #include <Ice/BuiltinSequences.h>
 #include <Slice/Parser.h>
@@ -61,5 +60,3 @@ namespace IceSpider::Compile {
 #pragma GCC visibility pop
 	};
 }
-
-#endif

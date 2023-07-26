@@ -1,5 +1,4 @@
-#ifndef ICETRAY_STRING_VIEW_SUPPORT_H
-#define ICETRAY_STRING_VIEW_SUPPORT_H
+#pragma once
 
 #include <Ice/OutputStream.h>
 #include <Ice/StreamHelpers.h>
@@ -38,5 +37,3 @@ namespace Ice {
 		}
 	};
 }
-
-#endif

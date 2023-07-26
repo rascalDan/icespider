@@ -1,5 +1,4 @@
-#ifndef ICESPIDER_CGI_CGIREQUESTBASE_H
-#define ICESPIDER_CGI_CGIREQUESTBASE_H
+#pragma once
 
 #include "http.h"
 #include <case_less.h>
@@ -49,5 +48,3 @@ namespace IceSpider {
 		PathElements pathElements;
 	};
 }
-
-#endif

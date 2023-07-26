@@ -1,5 +1,4 @@
-#ifndef ICESPIDER_CORE_PATHS_H
-#define ICESPIDER_CORE_PATHS_H
+#pragma once
 
 #include <c++11Helpers.h>
 #include <cstddef>
@@ -51,5 +50,3 @@ namespace IceSpider {
 		PathParts parts;
 	};
 }
-
-#endif

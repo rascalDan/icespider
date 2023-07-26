@@ -1,5 +1,4 @@
-#ifndef ICESPIDER_COMMON_MAYBESTRING_H
-#define ICESPIDER_COMMON_MAYBESTRING_H
+#pragma once
 
 #include <compare>
 #include <iosfwd>
@@ -66,5 +65,3 @@ namespace std {
 		return s << ms.value();
 	}
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ICESPIDER_CORE_CORE_H
-#define ICESPIDER_CORE_CORE_H
+#pragma once
 
 #include "irouteHandler.h"
 #include "util.h"
@@ -85,5 +84,3 @@ namespace IceSpider {
 
 	using ErrorHandlerPlugin = AdHoc::PluginOf<ErrorHandler>;
 }
-
-#endif

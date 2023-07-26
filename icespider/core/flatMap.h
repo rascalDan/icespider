@@ -1,5 +1,4 @@
-#ifndef ICESPIDER_CORE_FLATMAP_H
-#define ICESPIDER_CORE_FLATMAP_H
+#pragma once
 
 #include <algorithm>
 #include <cstddef>
@@ -112,5 +111,3 @@ namespace IceSpider {
 		using const_iterator = typename S::const_iterator;
 	};
 }
-
-#endif

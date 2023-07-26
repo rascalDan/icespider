@@ -1,5 +1,4 @@
-#ifndef ICESPIDER_CGI_FCGIREQUEST_H
-#define ICESPIDER_CGI_FCGIREQUEST_H
+#pragma once
 
 #include "cgiRequestBase.h"
 #include <fcgiapp.h>
@@ -22,5 +21,3 @@ namespace IceSpider {
 		mutable std::ostream output;
 	};
 }
-
-#endif

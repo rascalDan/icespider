@@ -1,5 +1,4 @@
-#ifndef ICESPIDER_EXCEPTIONS_H
-#define ICESPIDER_EXCEPTIONS_H
+#pragma once
 
 #include "http.h"
 #include <string>
@@ -24,4 +23,3 @@ namespace IceSpider {
 }
 
 #undef DeclareHttpEx
-#endif

@@ -1,5 +1,4 @@
-#ifndef ICESPIDER_CORE_UTIL_H
-#define ICESPIDER_CORE_UTIL_H
+#pragma once
 
 #include <Ice/Optional.h>
 #include <array>
@@ -125,5 +124,3 @@ namespace IceSpider {
 	void remove_trailing(std::string_view & in, const char c);
 	void remove_leading(std::string_view & in, const char c);
 }
-
-#endif

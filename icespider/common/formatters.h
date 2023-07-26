@@ -1,5 +1,4 @@
-#ifndef ICESPIDER_COMMON_FORMATTERS_H
-#define ICESPIDER_COMMON_FORMATTERS_H
+#pragma once
 
 #include <compileTimeFormatter.h>
 
@@ -8,5 +7,3 @@ namespace IceSpider {
 	AdHocFormatter(HdrFmt, "%?: %?\r\n");
 	AdHocFormatter(MimeTypeFmt, "%?/%?");
 }
-
-#endif

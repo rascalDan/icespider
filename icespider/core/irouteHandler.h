@@ -1,5 +1,4 @@
-#ifndef ICESPIDER_IROUTEHANDLER_H
-#define ICESPIDER_IROUTEHANDLER_H
+#pragma once
 
 #include "http.h"
 #include "ihttpRequest.h"
@@ -57,5 +56,3 @@ namespace IceSpider {
 	using IRouteHandlerCPtr = std::shared_ptr<const IRouteHandler>;
 	using RouteHandlerFactory = AdHoc::Factory<IRouteHandler, const Core *>;
 }
-
-#endif

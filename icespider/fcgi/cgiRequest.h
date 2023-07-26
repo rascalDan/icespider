@@ -1,5 +1,4 @@
-#ifndef ICESPIDER_CGI_CGIREQUEST_H
-#define ICESPIDER_CGI_CGIREQUEST_H
+#pragma once
 
 #include "cgiRequestBase.h"
 #include <iosfwd>
@@ -15,5 +14,3 @@ namespace IceSpider {
 		std::ostream & getOutputStream() const override;
 	};
 }
-
-#endif

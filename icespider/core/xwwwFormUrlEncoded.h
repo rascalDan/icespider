@@ -1,5 +1,4 @@
-#ifndef ICESPIDER_CGI_XWWWFORMURLENCODED_H
-#define ICESPIDER_CGI_XWWWFORMURLENCODED_H
+#pragma once
 
 #include <boost/algorithm/string/find_iterator.hpp>
 #include <functional>
@@ -44,5 +43,3 @@ namespace IceSpider {
 	};
 
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ICESPIDER_CORE_XSLTSTREAMSERIALIZER_H
-#define ICESPIDER_CORE_XSLTSTREAMSERIALIZER_H
+#pragma once
 
 #include <c++11Helpers.h>
 #include <filesystem>
@@ -35,5 +34,3 @@ namespace IceSpider {
 		xsltStylesheet * stylesheet;
 	};
 }
-
-#endif

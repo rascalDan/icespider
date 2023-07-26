@@ -1,5 +1,4 @@
-#ifndef ICESPIDER_TESTING_TESTREQUEST_H
-#define ICESPIDER_TESTING_TESTREQUEST_H
+#pragma once
 
 #include <functional>
 #include <http.h>
@@ -56,5 +55,3 @@ namespace IceSpider {
 		MapVars responseHeaders;
 	};
 }
-
-#endif
