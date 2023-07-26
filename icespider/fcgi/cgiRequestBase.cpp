@@ -33,10 +33,12 @@ namespace IceSpider {
 	CGI_CONST(HTTP_COOKIE);
 	CGI_CONST(REQUEST_METHOD);
 
-	CgiRequestBase::CgiRequestBase(Core * c, const char * const * const env) : IHttpRequest(c)
+	CgiRequestBase::CgiRequestBase(Core * c, const EnvArray envs, const EnvArray extra) : IHttpRequest(c)
 	{
-		for (const char * const * e = env; *e; ++e) {
-			addenv(*e);
+		for (const auto & envdata : {envs, extra}) {
+			for (const auto & e : envdata) {
+				addenv(e);
+			}
 		}
 	}
 

@@ -6,6 +6,7 @@
 #include <ihttpRequest.h>
 #include <iosfwd>
 #include <maybeString.h>
+#include <span>
 #include <string_view>
 
 // IWYU pragma: no_forward_declare AdHoc::case_less
@@ -15,7 +16,11 @@ namespace IceSpider {
 
 	class CgiRequestBase : public IHttpRequest {
 	protected:
-		CgiRequestBase(Core * c, const char * const * const env);
+		using EnvArray = std::span<const char * const>;
+		// Null terminated list, bsv will handle this and is convertible to span
+		using EnvNTL = std::basic_string_view<const char * const>;
+
+		CgiRequestBase(Core * c, const EnvArray envs, const EnvArray extra = {});
 		void addenv(const std::string_view);
 		void initialize();
 
