@@ -70,12 +70,7 @@ template<typename T> struct type_names {
 	static constexpr auto
 	namespaces()
 	{
-		auto ns {0U};
-		for (const auto & c : name()) {
-			// cppcheck-suppress useStlAlgorithm; (not constexpr)
-			ns += (c == ':') ? 1 : 0;
-		}
-		return ns / 2;
+		return std::count(name().begin(), name().end(), ':') / 2;
 	}
 
 	using char_type = typename decltype(name())::value_type;
