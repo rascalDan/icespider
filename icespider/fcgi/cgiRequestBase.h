@@ -8,6 +8,7 @@
 #include <iosfwd>
 #include <maybeString.h>
 #include <string_view>
+
 // IWYU pragma: no_forward_declare AdHoc::case_less
 
 namespace IceSpider {

@@ -126,6 +126,7 @@ namespace IceSpider {
 	}
 
 	AdHocFormatter(LogExp, "Exception type: %?\nDetail: %?\n");
+
 	void
 	Core::defaultErrorReport(IHttpRequest * request, const std::exception & exception) const
 	{

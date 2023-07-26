@@ -23,11 +23,13 @@
 namespace IceSpider {
 	class Http400_BadRequest;
 }
+
 namespace IceSpider {
 	class Http405_MethodNotAllowed;
 }
 
 using namespace std::literals;
+
 namespace std {
 	template<typename T>
 	ostream &
@@ -68,6 +70,7 @@ public:
 	{
 		return std::cin;
 	}
+
 	// LCOV_EXCL_STOP
 
 	// NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
@@ -132,6 +135,7 @@ namespace std {
 		}
 		return s;
 	}
+
 	// LCOV_EXCL_STOP
 }
 

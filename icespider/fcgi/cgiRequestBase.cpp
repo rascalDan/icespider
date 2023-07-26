@@ -95,6 +95,7 @@ namespace IceSpider {
 
 	AdHocFormatter(VarFmt, "\t%?: [%?]\n");
 	AdHocFormatter(PathFmt, "\t[%?]\n");
+
 	template<typename Fmt, typename Map>
 	void
 	dumpMap(std::ostream & s, const std::string_view & n, const Map & map)

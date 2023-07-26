@@ -12,6 +12,7 @@
 #include <pathparts.h>
 #include <string_view>
 #include <visibility.h>
+
 // IWYU pragma: no_include "factory.impl.h"
 // IWYU pragma: no_include <Ice/Comparable.h>
 // IWYU pragma: no_include <string>
@@ -51,6 +52,7 @@ namespace IceSpider {
 
 		void addRouteSerializer(const MimeType &, const StreamSerializerFactoryPtr &);
 	};
+
 	using IRouteHandlerPtr = std::shared_ptr<IRouteHandler>;
 	using IRouteHandlerCPtr = std::shared_ptr<const IRouteHandler>;
 	using RouteHandlerFactory = AdHoc::Factory<IRouteHandler, const Core *>;

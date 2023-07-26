@@ -19,6 +19,7 @@
 #include <string_view>
 #include <vector>
 #include <visibility.h>
+
 // IWYU pragma: no_include "factory.impl.h"
 
 namespace IceSpider {
@@ -67,8 +68,8 @@ namespace IceSpider {
 		Routes routes;
 	};
 
-	class DLL_PUBLIC Plugin : public virtual Ice::Object {
-	};
+	class DLL_PUBLIC Plugin : public virtual Ice::Object { };
+
 	using PluginFactory = AdHoc::Factory<Plugin, Ice::CommunicatorPtr, Ice::PropertiesPtr>;
 
 	enum ErrorHandlerResult {
@@ -76,10 +77,12 @@ namespace IceSpider {
 		ErrorHandlerResult_Handled,
 		ErrorHandlerResult_Modified,
 	};
+
 	class DLL_PUBLIC ErrorHandler : public AdHoc::AbstractPluginImplementation {
 	public:
 		virtual ErrorHandlerResult handleError(IHttpRequest * IHttpRequest, const std::exception &) const = 0;
 	};
+
 	using ErrorHandlerPlugin = AdHoc::PluginOf<ErrorHandler>;
 }
 

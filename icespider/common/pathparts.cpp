@@ -8,6 +8,7 @@ namespace ba = boost::algorithm;
 
 namespace IceSpider {
 	const auto slash = ba::first_finder("/", ba::is_equal());
+
 	Path::Path(const std::string_view & p) : path(p)
 	{
 		auto relp = p.substr(1);

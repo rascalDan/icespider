@@ -25,11 +25,13 @@ struct forceEarlyChangeDir {
 		std::filesystem::current_path(rootDir);
 	}
 };
+
 BOOST_TEST_GLOBAL_FIXTURE(forceEarlyChangeDir);
 
 class CoreFixture {
 protected:
 	CoreFixture() : modeDir(binDir.lexically_relative(rootDir / "bin" / "testCompile.test")) { }
+
 	// NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
 	const std::filesystem::path modeDir;
 };

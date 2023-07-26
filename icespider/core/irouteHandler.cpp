@@ -18,6 +18,7 @@ namespace IceSpider {
 	static const std::string APPLICATION_JSON = MimeTypeFmt::get(APPLICATION, JSON);
 
 	const RouteOptions IRouteHandler::defaultRouteOptions {};
+
 	IRouteHandler::IRouteHandler(HttpMethod m, const std::string_view & p) :
 		IRouteHandler(m, p, defaultRouteOptions) { }
 

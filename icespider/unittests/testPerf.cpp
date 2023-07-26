@@ -25,6 +25,7 @@ public:
 	{
 		return std::cin;
 	}
+
 	// LCOV_EXCL_STOP
 
 	// NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
@@ -55,8 +56,7 @@ public:
 	}
 };
 
-class CoreFixture : public IceSpider::CoreWithDefaultRouter, public benchmark::Fixture {
-};
+class CoreFixture : public IceSpider::CoreWithDefaultRouter, public benchmark::Fixture { };
 
 BENCHMARK_F(CoreFixture, script_name_root)(benchmark::State & state)
 {
@@ -118,6 +118,7 @@ AcceptParse(benchmark::State & state, const std::string_view accept)
 		benchmark::DoNotOptimize(IceSpider::IHttpRequest::parseAccept(accept));
 	}
 }
+
 BENCHMARK_CAPTURE_LITERAL(AcceptParse, "*/*");
 BENCHMARK_CAPTURE_LITERAL(AcceptParse, "any/html");
 BENCHMARK_CAPTURE_LITERAL(AcceptParse, "image/png, */*");

@@ -7,6 +7,7 @@
 #include <ostream>
 #include <string_view>
 #include <vector>
+
 namespace IceSpider {
 	class Http400_BadRequest;
 }
@@ -24,6 +25,7 @@ namespace std {
 }
 
 BOOST_TEST_DECORATOR(*boost::unit_test::timeout(1))
+
 BOOST_DATA_TEST_CASE(bad_requests,
 		make({
 				"", // Can't specify nothing

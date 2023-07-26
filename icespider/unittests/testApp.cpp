@@ -32,6 +32,7 @@
 #include <string_view>
 #include <test-api.h>
 #include <testRequest.h>
+
 namespace Ice {
 	struct Current;
 }
@@ -44,6 +45,7 @@ struct forceEarlyChangeDir {
 		std::filesystem::current_path(rootDir);
 	}
 };
+
 BOOST_TEST_GLOBAL_FIXTURE(forceEarlyChangeDir);
 
 BOOST_AUTO_TEST_CASE(testLoadConfiguration)
@@ -214,6 +216,7 @@ class Dummy : public IceSpider::Plugin, TestIceSpider::DummyPlugin {
 public:
 	Dummy(const Ice::CommunicatorPtr &, const Ice::PropertiesPtr &) { }
 };
+
 NAMEDFACTORY("DummyPlugin", Dummy, IceSpider::PluginFactory);
 
 BOOST_FIXTURE_TEST_SUITE(ta, TestApp);

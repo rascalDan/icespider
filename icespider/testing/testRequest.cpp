@@ -13,6 +13,7 @@
 
 namespace IceSpider {
 	constexpr std::string_view slash("/");
+
 	TestRequest::TestRequest(const Core * c, HttpMethod m, const std::string_view & p) : IHttpRequest(c), method(m)
 	{
 		namespace ba = boost::algorithm;

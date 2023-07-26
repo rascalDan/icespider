@@ -167,8 +167,9 @@ namespace IceSpider {
 		XWwwFormUrlEncoded::urlencodeto(o, value.begin(), value.end());
 		if (e) {
 			std::string buf(45, 0);
-			struct tm tm {
-			};
+
+			struct tm tm { };
+
 			gmtime_r(&*e, &tm);
 			buf.resize(strftime(buf.data(), buf.length(), "; expires=%a, %d %b %Y %T %Z", &tm));
 			o << buf;

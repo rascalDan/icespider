@@ -28,6 +28,7 @@ namespace IceSpider {
 		std::optional<std::string_view> group, type;
 		float q {1.0F};
 	};
+
 	using Accepted = std::vector<Accept>;
 	using PathElements = std::vector<std::string>;
 	using OptionalString = std::optional<std::string_view>;
@@ -86,18 +87,21 @@ namespace IceSpider {
 				return std::nullopt;
 			}
 		}
+
 		template<typename T>
 		[[nodiscard]] T
 		getURLParam(unsigned int n) const
 		{
 			return *getFrom<T, unsigned int>(n, &IHttpRequest::getURLParam);
 		}
+
 		template<typename T>
 		[[nodiscard]] std::optional<T>
 		getBody() const
 		{
 			return Slicer::DeserializeAnyWith<T>(getDeserializer());
 		}
+
 		template<typename T>
 		[[nodiscard]] std::optional<T>
 		getBodyParam(const std::optional<IceSpider::StringMap> & map, const std::string_view & key) const
@@ -113,9 +117,11 @@ namespace IceSpider {
 				return boost::lexical_cast<T>(i->second);
 			}
 		}
+
 		void responseRedirect(const std::string_view & url, const OptionalString & = {}) const;
 		void setCookie(const std::string_view &, const std::string_view &, const OptionalString & = {},
 				const OptionalString & = {}, bool = false, std::optional<time_t> = {});
+
 		template<typename T>
 		void
 		setCookie(const std::string_view & n, const T & v, const OptionalString & d, const OptionalString & p, bool s,
@@ -129,31 +135,37 @@ namespace IceSpider {
 				setCookie(n, std::string_view(vs), d, p, s, e);
 			}
 		}
+
 		template<typename T>
 		[[nodiscard]] std::optional<T>
 		getQueryStringParam(const std::string_view & key) const
 		{
 			return getFrom<T, std::string_view>(key, &IHttpRequest::getQueryStringParam);
 		}
+
 		template<typename T>
 		[[nodiscard]] std::optional<T>
 		getHeaderParam(const std::string_view & key) const
 		{
 			return getFrom<T, std::string_view>(key, &IHttpRequest::getHeaderParam);
 		}
+
 		template<typename T>
 		[[nodiscard]] std::optional<T>
 		getCookieParam(const std::string_view & key) const
 		{
 			return getFrom<T, std::string_view>(key, &IHttpRequest::getCookieParam);
 		}
+
 		virtual void response(short, const std::string_view &) const = 0;
+
 		template<typename T>
 		void
 		response(const IRouteHandler * route, const T & t) const
 		{
 			modelPartResponse(route, Slicer::ModelPart::CreateRootFor(t));
 		}
+
 		void modelPartResponse(const IRouteHandler * route, const Slicer::ModelPartForRootPtr &) const;
 
 		const Core * core;

@@ -47,12 +47,14 @@ namespace IceSpider::Compile {
 		static Slice::OperationPtr findOperation(const std::string &, const Units &);
 		static Slice::OperationPtr findOperation(
 				const std::string &, const Slice::ContainerPtr &, const Ice::StringSeq & = Ice::StringSeq());
+
 		// using Type = std::pair<Slice::StructPtr, Slice::ClassDeclPtr>;
 		struct Type {
 			std::string type;
 			std::optional<std::string> scoped;
 			Slice::DataMemberList members;
 		};
+
 		static Type findType(const std::string &, const Units &);
 		static std::optional<Type> findType(
 				const std::string &, const Slice::ContainerPtr &, const Ice::StringSeq & = Ice::StringSeq());

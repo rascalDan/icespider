@@ -28,6 +28,7 @@
 
 namespace IceSpider {
 	using namespace AdHoc::literals;
+
 	namespace Compile {
 		RouteCompiler::RouteCompiler()
 		{
@@ -280,6 +281,7 @@ namespace IceSpider {
 		}
 
 		AdHocFormatter(MimePair, R"C({ "%?", "%?" })C");
+
 		static std::string
 		outputSerializerMime(const IceSpider::OutputSerializers::value_type & os)
 		{

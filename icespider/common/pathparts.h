@@ -17,6 +17,7 @@ namespace IceSpider {
 
 		[[nodiscard]] virtual bool matches(const std::string_view &) const = 0;
 	};
+
 	using PathPartPtr = std::unique_ptr<PathPart>;
 
 	class DLL_PUBLIC PathLiteral : public PathPart {

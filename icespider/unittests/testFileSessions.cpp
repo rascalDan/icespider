@@ -26,6 +26,7 @@ public:
 		root(communicator->getProperties()->getProperty("IceSpider.FileSessions.Path"))
 	{
 	}
+
 	// NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
 	const std::filesystem::path root;
 };

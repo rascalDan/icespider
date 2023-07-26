@@ -23,16 +23,19 @@ namespace IceSpider {
 			{
 				return c(v.first, n);
 			}
+
 			bool
 			operator()(const N & n, const V & v) const
 			{
 				return c(n, v.first);
 			}
+
 			Comp c;
 		};
 
 	public:
 		flatmap() = default;
+
 		explicit flatmap(std::size_t n)
 		{
 			reserve(n);
@@ -93,6 +96,7 @@ namespace IceSpider {
 		{
 			return cbegin();
 		}
+
 		[[nodiscard]] auto
 		end() const
 		{

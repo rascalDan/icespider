@@ -170,4 +170,5 @@ namespace IceSpider {
 		const Ice::Short duration;
 	};
 }
+
 NAMEDFACTORY("IceSpider-FileSessions", IceSpider::FileSessions, IceSpider::PluginFactory);
