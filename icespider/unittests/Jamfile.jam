@@ -101,23 +101,31 @@ run
 	<include>.
 	: testApp ;
 
-explicit testPerf ;
 run
-	testPerf.cpp
-	../fcgi/cgiRequestBase.cpp
+	[ obj testPerf : testPerf.cpp :
+		<slicer>pure
+		<define>ROOT=\"$(me)\"
+		<implicit-dependency>../core//icespider-core
+		<implicit-dependency>test-fcgi
+		<use>benchmark
+		<use>../common//icespider-common
+		<use>../core//icespider-core
+		<use>../fcgi//icespider-fcgi-reqs
+		<use>stdc++fs
+		<use>slicer
+		<use>slicer-json
+		<use>adhocutil
+	]
 	: : :
-	<slicer>pure
 	<library>benchmark
-	<define>ROOT=\"$(me)\"
-	<library>../common//icespider-common
 	<library>../core//icespider-core
-	<implicit-dependency>../core//icespider-core
-	<implicit-dependency>test-fcgi
+	<library>../fcgi//icespider-fcgi-reqs
 	<library>stdc++fs
 	<library>slicer
 	<library>slicer-json
 	<library>adhocutil
-	<include>../fcgi
+	<variant>profile:<testing.execute>on
+	<testing.execute>off
 	: testPerf ;
 
 obj test-fcgi : test-fcgi.ice : <toolset>tidy:<checker>none ;
@@ -131,19 +139,18 @@ run
 		<implicit-dependency>test-fcgi
 		<toolset>tidy:<checker>none ]
 	test-fcgi
-	../fcgi/cgiRequestBase.cpp
 	: : :
 	<define>BOOST_TEST_DYN_LINK
 	<library>testCommon
 	<library>../common//icespider-common
 	<library>../core//icespider-core
+	<library>../fcgi//icespider-fcgi-reqs
 	<implicit-dependency>../core//icespider-core
 	<implicit-dependency>test-fcgi
 	<library>stdc++fs
 	<library>slicer
 	<library>slicer-json
 	<library>adhocutil
-	<include>../fcgi
 	: testFcgi ;
 
 run

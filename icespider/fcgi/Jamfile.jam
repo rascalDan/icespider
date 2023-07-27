@@ -1,16 +1,28 @@
-lib slicer ;
-lib fcgi : : <name>fcgi ;
-lib fcgi++ : : <name>fcgi++ ;
+lib slicer : : <link>shared ;
+lib fcgi : : <link>shared ;
+lib fcgi++ : : <link>shared ;
 
-lib icespider-fcgi :
-	[ glob-tree *.cpp : bin ]
+lib icespider-fcgi-reqs :
+	[ glob *Request*.cpp ]
 	:
-	<library>slicer
+	<link>static
+	<cxxflags>-fPIC
+	<implicit-dependency>../core//icespider-core/<link>shared
+	<use>..//core/<link>shared
+	<use>fcgi
+	<use>fcgi++
+	<use>slicer
+	: :
+	<include>.
+	<implicit-dependency>../core//icespider-core/<link>shared
+	<library>..//core//icespider-core/<link>shared
 	<library>fcgi
 	<library>fcgi++
-	<library>..//core//icespider-core
-	<implicit-dependency>../core//icespider-core
-	: :
-	<library>..//core//icespider-core
-	<implicit-dependency>../core//icespider-core
+	<library>slicer
+	;
+
+lib icespider-fcgi :
+	main.cpp
+	:
+	<library>icespider-fcgi-reqs
 	;

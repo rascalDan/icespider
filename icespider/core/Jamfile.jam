@@ -13,11 +13,11 @@ lib icespider-core :
 	<library>adhocutil
 	<library>slicer
 	<library>stdc++fs
-	<implicit-dependency>../common
+	<implicit-dependency>../common//icespider-common
 	<implicit-dependency>routeOptions
 	: :
 	<include>.
 	<library>../common//icespider-common
-	<implicit-dependency>../common
+	<implicit-dependency>../common//icespider-common
 	<implicit-dependency>routeOptions
 	;
