@@ -1,8 +1,8 @@
 #pragma once
 
-#include "http.h"
 #include <case_less.h>
 #include <flatMap.h>
+#include <http.h>
 #include <ihttpRequest.h>
 #include <iosfwd>
 #include <maybeString.h>
@@ -21,8 +21,6 @@ namespace IceSpider {
 		using EnvNTL = std::basic_string_view<const char * const>;
 
 		CgiRequestBase(Core * c, const EnvArray envs, const EnvArray extra = {});
-		void addenv(const std::string_view);
-		void initialize();
 
 	public:
 		using VarMap = flatmap<std::string_view, std::string_view>;

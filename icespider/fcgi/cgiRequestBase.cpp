@@ -33,23 +33,6 @@ namespace IceSpider {
 	CGI_CONST(HTTP_COOKIE);
 	CGI_CONST(REQUEST_METHOD);
 
-	CgiRequestBase::CgiRequestBase(Core * c, const EnvArray envs, const EnvArray extra) : IHttpRequest(c)
-	{
-		for (const auto & envdata : {envs, extra}) {
-			for (const auto & e : envdata) {
-				addenv(e);
-			}
-		}
-	}
-
-	void
-	CgiRequestBase::addenv(const std::string_view e)
-	{
-		if (const auto eq = e.find('='); eq != std::string_view::npos) {
-			envmap.insert({e.substr(0, eq), e.substr(eq + 1)});
-		}
-	}
-
 	template<typename in, typename out>
 	inline void
 	mapVars(const std::string_view & vn, const in & envmap, out & map, const std::string_view & sp)
@@ -78,9 +61,16 @@ namespace IceSpider {
 		throw Ex();
 	}
 
-	void
-	CgiRequestBase::initialize()
+	CgiRequestBase::CgiRequestBase(Core * c, const EnvArray envs, const EnvArray extra) : IHttpRequest(c)
 	{
+		for (const auto & envdata : {envs, extra}) {
+			for (const std::string_view e : envdata) {
+				if (const auto eq = e.find('='); eq != std::string_view::npos) {
+					envmap.insert({e.substr(0, eq), e.substr(eq + 1)});
+				}
+			}
+		}
+
 		if (auto path = findFirstOrElse<Http400_BadRequest>(envmap, REDIRECT_URL, SCRIPT_NAME).substr(1);
 				// NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
 				!path.empty()) {

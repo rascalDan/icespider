@@ -8,10 +8,7 @@
 
 class TestRequest : public IceSpider::CgiRequestBase {
 public:
-	TestRequest(IceSpider::Core * c, const EnvArray env) : IceSpider::CgiRequestBase(c, env)
-	{
-		initialize();
-	}
+	TestRequest(IceSpider::Core * c, const EnvArray env) : IceSpider::CgiRequestBase(c, env) { }
 
 	std::ostream &
 	getOutputStream() const override

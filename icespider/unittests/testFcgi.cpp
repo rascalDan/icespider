@@ -53,10 +53,7 @@ namespace std {
 
 class TestRequest : public IceSpider::CgiRequestBase {
 public:
-	TestRequest(IceSpider::Core * c, const EnvArray env) : IceSpider::CgiRequestBase(c, env)
-	{
-		initialize();
-	}
+	TestRequest(IceSpider::Core * c, const EnvArray env) : IceSpider::CgiRequestBase(c, env) { }
 
 	std::ostream &
 	getOutputStream() const override
@@ -79,10 +76,7 @@ public:
 
 class TestPayloadRequest : public TestRequest {
 public:
-	TestPayloadRequest(IceSpider::Core * c, const EnvArray env, std::istream & s) : TestRequest(c, env), in(s)
-	{
-		initialize();
-	}
+	TestPayloadRequest(IceSpider::Core * c, const EnvArray env, std::istream & s) : TestRequest(c, env), in(s) { }
 
 	std::istream &
 	getInputStream() const override
