@@ -30,26 +30,21 @@ public:
 };
 
 // NOLINTNEXTLINE(hicpp-special-member-functions)
-class CharPtrPtrArray : public std::vector<char *> {
+class CharPtrPtrArray : public std::vector<const char *> {
 public:
 	explicit CharPtrPtrArray(const std::filesystem::path & p)
 	{
-		reserve(40);
 		std::ifstream f(p);
-		while (f.good()) {
-			std::string line;
-			std::getline(f, line, '\n');
-			push_back(strdup(line.c_str()));
+		for (std::string line; getline(f, line);) {
+			lines.emplace_back(line);
 		}
+		std::transform(lines.begin(), lines.end(), std::back_inserter(*this), [](const auto & s) {
+			return s.c_str();
+		});
 	}
 
-	~CharPtrPtrArray()
-	{
-		for (const auto & e : *this) {
-			// NOLINTNEXTLINE(hicpp-no-malloc)
-			free(e);
-		}
-	}
+private:
+	std::vector<std::string> lines;
 };
 
 class CoreFixture : public IceSpider::CoreWithDefaultRouter, public benchmark::Fixture { };
