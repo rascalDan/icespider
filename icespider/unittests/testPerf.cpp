@@ -102,11 +102,13 @@ BENCHMARK_F(CoreFixture, get_cookie_param)(benchmark::State & state)
 	}
 }
 
-static void
-AcceptParse(benchmark::State & state, const std::string_view accept)
-{
-	for (auto _ : state) {
-		benchmark::DoNotOptimize(IceSpider::IHttpRequest::parseAccept(accept));
+namespace {
+	void
+	AcceptParse(benchmark::State & state, const std::string_view accept)
+	{
+		for (auto _ : state) {
+			benchmark::DoNotOptimize(IceSpider::IHttpRequest::parseAccept(accept));
+		}
 	}
 }
 
