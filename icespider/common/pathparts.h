@@ -8,7 +8,7 @@
 #include <visibility.h>
 
 namespace IceSpider {
-	using PathElements = std::vector<std::string>;
+	using PathElements = std::vector<std::string_view>;
 
 	class DLL_PUBLIC PathPart {
 	public:

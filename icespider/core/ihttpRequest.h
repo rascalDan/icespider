@@ -29,7 +29,7 @@ namespace IceSpider {
 	};
 
 	using Accepted = std::vector<Accept>;
-	using PathElements = std::vector<std::string>;
+	using PathElements = std::vector<std::string_view>;
 	using OptionalString = std::optional<std::string_view>;
 	using ContentTypeSerializer = std::pair<MimeType, Slicer::SerializerPtr>;
 
