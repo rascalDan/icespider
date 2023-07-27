@@ -156,7 +156,6 @@ namespace IceSpider {
 	}
 
 	// Set-Cookie: value[; expires=date][; domain=domain][; path=path][; secure]
-	// Sat, 02 May 2009 23:38:25 GMT
 	void
 	IHttpRequest::setCookie(const std::string_view & name, const std::string_view & value, const OptionalString & d,
 			const OptionalString & p, bool s, std::optional<time_t> e)
@@ -166,13 +165,13 @@ namespace IceSpider {
 		o << '=';
 		XWwwFormUrlEncoded::urlencodeto(o, value.begin(), value.end());
 		if (e) {
-			std::string buf(45, 0);
-
-			struct tm tm { };
+			static constexpr auto dateLength = std::string_view {"Sat, 02 May 2009 23:38:25 GMT"}.length() + 1;
+			std::array<char, dateLength> buf {};
+			tm tm {};
 
 			gmtime_r(&*e, &tm);
-			buf.resize(strftime(buf.data(), buf.length(), "; expires=%a, %d %b %Y %T %Z", &tm));
-			o << buf;
+			const auto len = strftime(buf.data(), buf.size(), "%a, %d %b %Y %T %Z", &tm);
+			o << "; expires=" << std::string_view {buf.data(), len};
 		}
 		if (d) {
 			"; domain=%?"_fmt(o, *d);
