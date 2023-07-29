@@ -138,57 +138,57 @@ BOOST_AUTO_TEST_CASE(script_name_foobar)
 BOOST_AUTO_TEST_CASE(query_string_empty)
 {
 	TestRequest r(this, {{"SCRIPT_NAME=/foo/bar", "QUERY_STRING="}});
-	BOOST_REQUIRE(!r.getQueryStringParam(""));
+	BOOST_REQUIRE(!r.getQueryStringParamStr(""));
 }
 
 BOOST_AUTO_TEST_CASE(query_string_one)
 {
 	TestRequest r(this, {{"SCRIPT_NAME=/foo/bar", "QUERY_STRING=one=1"}});
-	BOOST_REQUIRE(!r.getQueryStringParam(""));
-	BOOST_REQUIRE_EQUAL("1", *r.getQueryStringParam("one"));
+	BOOST_REQUIRE(!r.getQueryStringParamStr(""));
+	BOOST_REQUIRE_EQUAL("1", *r.getQueryStringParamStr("one"));
 }
 
 BOOST_AUTO_TEST_CASE(query_string_two)
 {
 	TestRequest r(this, {{"SCRIPT_NAME=/foo/bar", "QUERY_STRING=one=1&two=2"}});
-	BOOST_REQUIRE(!r.getQueryStringParam(""));
-	BOOST_REQUIRE_EQUAL("1", *r.getQueryStringParam("one"));
-	BOOST_REQUIRE_EQUAL("2", *r.getQueryStringParam("two"));
+	BOOST_REQUIRE(!r.getQueryStringParamStr(""));
+	BOOST_REQUIRE_EQUAL("1", *r.getQueryStringParamStr("one"));
+	BOOST_REQUIRE_EQUAL("2", *r.getQueryStringParamStr("two"));
 }
 
 BOOST_AUTO_TEST_CASE(query_string_three)
 {
 	TestRequest r(this, {{"SCRIPT_NAME=/foo/bar", "QUERY_STRING=one=1&two=2&three=3"}});
-	BOOST_REQUIRE(!r.getQueryStringParam(""));
-	BOOST_REQUIRE_EQUAL("1", *r.getQueryStringParam("one"));
-	BOOST_REQUIRE_EQUAL("2", *r.getQueryStringParam("two"));
-	BOOST_REQUIRE_EQUAL("3", *r.getQueryStringParam("three"));
+	BOOST_REQUIRE(!r.getQueryStringParamStr(""));
+	BOOST_REQUIRE_EQUAL("1", *r.getQueryStringParamStr("one"));
+	BOOST_REQUIRE_EQUAL("2", *r.getQueryStringParamStr("two"));
+	BOOST_REQUIRE_EQUAL("3", *r.getQueryStringParamStr("three"));
 }
 
 BOOST_AUTO_TEST_CASE(query_string_urlencoding)
 {
 	TestRequest r(this, {{"SCRIPT_NAME=/foo/bar", "QUERY_STRING=url+%65ncoded=%53tring%2e"}});
-	BOOST_REQUIRE(!r.getQueryStringParam(""));
-	BOOST_REQUIRE(r.getQueryStringParam("url encoded"));
-	BOOST_REQUIRE_EQUAL("String.", *r.getQueryStringParam("url encoded"));
+	BOOST_REQUIRE(!r.getQueryStringParamStr(""));
+	BOOST_REQUIRE(r.getQueryStringParamStr("url encoded"));
+	BOOST_REQUIRE_EQUAL("String.", *r.getQueryStringParamStr("url encoded"));
 }
 
 BOOST_AUTO_TEST_CASE(query_string_three_emptyVal)
 {
 	TestRequest r(this, {{"SCRIPT_NAME=/foo/bar", "QUERY_STRING=one=1&two=&three=3"}});
-	BOOST_REQUIRE(!r.getQueryStringParam(""));
-	BOOST_REQUIRE_EQUAL("1", *r.getQueryStringParam("one"));
-	BOOST_REQUIRE_EQUAL("", *r.getQueryStringParam("two"));
-	BOOST_REQUIRE_EQUAL("3", *r.getQueryStringParam("three"));
+	BOOST_REQUIRE(!r.getQueryStringParamStr(""));
+	BOOST_REQUIRE_EQUAL("1", *r.getQueryStringParamStr("one"));
+	BOOST_REQUIRE_EQUAL("", *r.getQueryStringParamStr("two"));
+	BOOST_REQUIRE_EQUAL("3", *r.getQueryStringParamStr("three"));
 }
 
 BOOST_AUTO_TEST_CASE(query_string_three_noVal)
 {
 	TestRequest r(this, {{"SCRIPT_NAME=/foo/bar", "QUERY_STRING=one=1&two&three=3"}});
-	BOOST_REQUIRE(!r.getQueryStringParam(""));
-	BOOST_REQUIRE_EQUAL("1", *r.getQueryStringParam("one"));
-	BOOST_REQUIRE_EQUAL("", *r.getQueryStringParam("two"));
-	BOOST_REQUIRE_EQUAL("3", *r.getQueryStringParam("three"));
+	BOOST_REQUIRE(!r.getQueryStringParamStr(""));
+	BOOST_REQUIRE_EQUAL("1", *r.getQueryStringParamStr("one"));
+	BOOST_REQUIRE_EQUAL("", *r.getQueryStringParamStr("two"));
+	BOOST_REQUIRE_EQUAL("3", *r.getQueryStringParamStr("three"));
 }
 
 BOOST_AUTO_TEST_CASE(requestmethod_get)
@@ -218,14 +218,14 @@ BOOST_AUTO_TEST_CASE(requestmethod_missing)
 BOOST_AUTO_TEST_CASE(acceptheader)
 {
 	TestRequest r(this, {{"SCRIPT_NAME=/", "HTTP_ACCEPT=text/html"}});
-	BOOST_REQUIRE_EQUAL("text/html", *r.getHeaderParam("ACCEPT"));
-	BOOST_REQUIRE_EQUAL("text/html", *r.getHeaderParam(IceSpider::H::ACCEPT));
+	BOOST_REQUIRE_EQUAL("text/html", *r.getHeaderParamStr("ACCEPT"));
+	BOOST_REQUIRE_EQUAL("text/html", *r.getHeaderParamStr(IceSpider::H::ACCEPT));
 }
 
 BOOST_AUTO_TEST_CASE(missingheader)
 {
 	TestRequest r(this, {{"SCRIPT_NAME=/", "HTTP_ACCEPT=text/html"}});
-	BOOST_REQUIRE(!r.getHeaderParam("ACCEPT_LANGUAGE"));
+	BOOST_REQUIRE(!r.getHeaderParamStr("ACCEPT_LANGUAGE"));
 }
 
 BOOST_AUTO_TEST_CASE(postxwwwformurlencoded_simple)

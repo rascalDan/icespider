@@ -150,19 +150,19 @@ namespace IceSpider {
 	}
 
 	OptionalString
-	CgiRequestBase::getQueryStringParam(const std::string_view & key) const
+	CgiRequestBase::getQueryStringParamStr(const std::string_view & key) const
 	{
 		return optionalLookup(key, qsmap);
 	}
 
 	OptionalString
-	CgiRequestBase::getCookieParam(const std::string_view & key) const
+	CgiRequestBase::getCookieParamStr(const std::string_view & key) const
 	{
 		return optionalLookup(key, cookiemap);
 	}
 
 	OptionalString
-	CgiRequestBase::getEnv(const std::string_view & key) const
+	CgiRequestBase::getEnvStr(const std::string_view & key) const
 	{
 		return optionalLookup(key, envmap);
 	}
@@ -174,7 +174,7 @@ namespace IceSpider {
 	}
 
 	OptionalString
-	CgiRequestBase::getHeaderParam(const std::string_view & key) const
+	CgiRequestBase::getHeaderParamStr(const std::string_view & key) const
 	{
 		return optionalLookup(key, hdrmap);
 	}

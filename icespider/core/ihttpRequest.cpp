@@ -32,7 +32,7 @@ namespace IceSpider {
 	{
 		try {
 			return Slicer::StreamDeserializerFactory::createNew(
-					getEnv(E::CONTENT_TYPE) / []() -> std::string_view {
+					getEnvStr(E::CONTENT_TYPE) / []() -> std::string_view {
 						throw Http400_BadRequest();
 					},
 					getInputStream());
@@ -110,7 +110,7 @@ namespace IceSpider {
 	ContentTypeSerializer
 	IHttpRequest::getSerializer(const IRouteHandler * handler) const
 	{
-		auto acceptHdr = getHeaderParam(H::ACCEPT);
+		auto acceptHdr = getHeaderParamStr(H::ACCEPT);
 		if (acceptHdr) {
 			auto accepts = parseAccept(*acceptHdr);
 			auto & strm = getOutputStream();
@@ -134,7 +134,7 @@ namespace IceSpider {
 	}
 
 	OptionalString
-	IHttpRequest::getURLParam(const unsigned int & idx) const
+	IHttpRequest::getURLParamStr(const unsigned int & idx) const
 	{
 		auto & url = getRequestPath();
 		if (idx >= url.size()) {

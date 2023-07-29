@@ -44,7 +44,7 @@ namespace IceSpider {
 	}
 
 	OptionalString
-	TestRequest::getEnv(const std::string_view & key) const
+	TestRequest::getEnvStr(const std::string_view & key) const
 	{
 		return get(key, env);
 	}
@@ -56,19 +56,19 @@ namespace IceSpider {
 	}
 
 	OptionalString
-	TestRequest::getQueryStringParam(const std::string_view & key) const
+	TestRequest::getQueryStringParamStr(const std::string_view & key) const
 	{
 		return get(key, qs);
 	}
 
 	OptionalString
-	TestRequest::getCookieParam(const std::string_view & key) const
+	TestRequest::getCookieParamStr(const std::string_view & key) const
 	{
 		return get(key, cookies);
 	}
 
 	OptionalString
-	TestRequest::getHeaderParam(const std::string_view & key) const
+	TestRequest::getHeaderParamStr(const std::string_view & key) const
 	{
 		return get(key, hdr);
 	}

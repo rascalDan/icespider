@@ -44,11 +44,11 @@ namespace IceSpider {
 		[[nodiscard]] virtual PathElements & getRequestPath() = 0;
 		[[nodiscard]] virtual HttpMethod getRequestMethod() const = 0;
 
-		[[nodiscard]] OptionalString getURLParam(const unsigned int &) const;
-		[[nodiscard]] virtual OptionalString getQueryStringParam(const std::string_view &) const = 0;
-		[[nodiscard]] virtual OptionalString getHeaderParam(const std::string_view &) const = 0;
-		[[nodiscard]] virtual OptionalString getCookieParam(const std::string_view &) const = 0;
-		[[nodiscard]] virtual OptionalString getEnv(const std::string_view &) const = 0;
+		[[nodiscard]] OptionalString getURLParamStr(const unsigned int &) const;
+		[[nodiscard]] virtual OptionalString getQueryStringParamStr(const std::string_view &) const = 0;
+		[[nodiscard]] virtual OptionalString getHeaderParamStr(const std::string_view &) const = 0;
+		[[nodiscard]] virtual OptionalString getCookieParamStr(const std::string_view &) const = 0;
+		[[nodiscard]] virtual OptionalString getEnvStr(const std::string_view &) const = 0;
 		[[nodiscard]] virtual bool isSecure() const = 0;
 		[[nodiscard]] static Accepted parseAccept(std::string_view);
 		[[nodiscard]] virtual Slicer::DeserializerPtr getDeserializer() const;
@@ -91,7 +91,7 @@ namespace IceSpider {
 		[[nodiscard]] T
 		getURLParam(unsigned int n) const
 		{
-			return *getFrom<T, unsigned int>(n, &IHttpRequest::getURLParam);
+			return *getFrom<T, unsigned int>(n, &IHttpRequest::getURLParamStr);
 		}
 
 		template<typename T>
@@ -139,21 +139,21 @@ namespace IceSpider {
 		[[nodiscard]] std::optional<T>
 		getQueryStringParam(const std::string_view & key) const
 		{
-			return getFrom<T, std::string_view>(key, &IHttpRequest::getQueryStringParam);
+			return getFrom<T, std::string_view>(key, &IHttpRequest::getQueryStringParamStr);
 		}
 
 		template<typename T>
 		[[nodiscard]] std::optional<T>
 		getHeaderParam(const std::string_view & key) const
 		{
-			return getFrom<T, std::string_view>(key, &IHttpRequest::getHeaderParam);
+			return getFrom<T, std::string_view>(key, &IHttpRequest::getHeaderParamStr);
 		}
 
 		template<typename T>
 		[[nodiscard]] std::optional<T>
 		getCookieParam(const std::string_view & key) const
 		{
-			return getFrom<T, std::string_view>(key, &IHttpRequest::getCookieParam);
+			return getFrom<T, std::string_view>(key, &IHttpRequest::getCookieParamStr);
 		}
 
 		virtual void response(short, const std::string_view &) const = 0;

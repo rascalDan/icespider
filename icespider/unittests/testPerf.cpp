@@ -71,7 +71,7 @@ BENCHMARK_F(CoreFixture, get_env_param)(benchmark::State & state)
 	CharPtrPtrArray env(rootDir / "fixtures/env1");
 	TestRequest r(this, env);
 	for (auto _ : state) {
-		benchmark::DoNotOptimize(r.getEnv("REMOTE_PORT"));
+		benchmark::DoNotOptimize(r.getEnvStr("REMOTE_PORT"));
 	}
 }
 
@@ -80,7 +80,7 @@ BENCHMARK_F(CoreFixture, get_header_param)(benchmark::State & state)
 	CharPtrPtrArray env(rootDir / "fixtures/env1");
 	TestRequest r(this, env);
 	for (auto _ : state) {
-		benchmark::DoNotOptimize(r.getHeaderParam("user_agent"));
+		benchmark::DoNotOptimize(r.getHeaderParamStr("user_agent"));
 	}
 }
 
@@ -89,7 +89,7 @@ BENCHMARK_F(CoreFixture, get_query_string_param)(benchmark::State & state)
 	CharPtrPtrArray env(rootDir / "fixtures/env1");
 	TestRequest r(this, env);
 	for (auto _ : state) {
-		benchmark::DoNotOptimize(r.getQueryStringParam("utm_source"));
+		benchmark::DoNotOptimize(r.getQueryStringParamStr("utm_source"));
 	}
 }
 
@@ -98,7 +98,7 @@ BENCHMARK_F(CoreFixture, get_cookie_param)(benchmark::State & state)
 	CharPtrPtrArray env(rootDir / "fixtures/env1");
 	TestRequest r(this, env);
 	for (auto _ : state) {
-		benchmark::DoNotOptimize(r.getQueryStringParam("utm_source"));
+		benchmark::DoNotOptimize(r.getQueryStringParamStr("utm_source"));
 	}
 }
 

@@ -30,10 +30,10 @@ namespace IceSpider {
 		[[nodiscard]] const PathElements & getRequestPath() const override;
 		[[nodiscard]] PathElements & getRequestPath() override;
 		[[nodiscard]] HttpMethod getRequestMethod() const override;
-		[[nodiscard]] OptionalString getQueryStringParam(const std::string_view & key) const override;
-		[[nodiscard]] OptionalString getHeaderParam(const std::string_view & key) const override;
-		[[nodiscard]] OptionalString getCookieParam(const std::string_view & key) const override;
-		[[nodiscard]] OptionalString getEnv(const std::string_view & key) const override;
+		[[nodiscard]] OptionalString getQueryStringParamStr(const std::string_view & key) const override;
+		[[nodiscard]] OptionalString getHeaderParamStr(const std::string_view & key) const override;
+		[[nodiscard]] OptionalString getCookieParamStr(const std::string_view & key) const override;
+		[[nodiscard]] OptionalString getEnvStr(const std::string_view & key) const override;
 		[[nodiscard]] bool isSecure() const override;
 
 		void response(short, const std::string_view &) const override;
