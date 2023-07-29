@@ -135,12 +135,14 @@ namespace IceSpider {
 		setCookie(const std::string_view n, const T & v, const OptionalString & d, const OptionalString & p, bool s,
 				std::optional<time_t> e)
 		{
-			if constexpr (std::is_constructible<std::string_view, T>::value) {
+			if constexpr (std::is_constructible_v<std::string_view, T>) {
 				setCookie(n, std::string_view(v), d, p, s, e);
 			}
+			else if constexpr (requires { std::to_string(v); }) {
+				setCookie(n, std::to_string(v), d, p, s, e);
+			}
 			else {
-				auto vs = boost::lexical_cast<std::string>(v);
-				setCookie(n, std::string_view(vs), d, p, s, e);
+				setCookie(n, boost::lexical_cast<std::string>(v), d, p, s, e);
 			}
 		}
 
