@@ -4,6 +4,7 @@
 #include <Ice/Current.h>
 #include <boost/lexical_cast.hpp>
 #include <c++11Helpers.h>
+#include <charconv>
 #include <ctime>
 #include <http.h>
 #include <iosfwd>
@@ -60,6 +61,7 @@ namespace IceSpider {
 		virtual std::ostream & dump(std::ostream & s) const = 0;
 
 		static_assert(std::is_constructible_v<std::string, std::string_view>);
+		static_assert(std::is_convertible_v<std::string_view, std::string_view>);
 
 		template<typename T, typename K>
 		[[nodiscard]] inline std::optional<T>
@@ -70,7 +72,15 @@ namespace IceSpider {
 					return *v;
 				}
 				else if constexpr (std::is_constructible<T, std::string_view>::value) {
-					return T(*v);
+					return std::optional<T> {std::in_place, *v};
+				}
+				else if constexpr (requires(T out) { std::from_chars(v->begin(), v->end(), out); }) {
+					if (T out {}; std::from_chars(v->begin(), v->end(), out).ec == std::errc {}) {
+						return out;
+					}
+					else {
+						throw Http400_BadRequest();
+					}
 				}
 				else {
 					try {

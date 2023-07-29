@@ -5,7 +5,7 @@
 #include <array>
 #include <boost/algorithm/string/compare.hpp>
 #include <boost/algorithm/string/finder.hpp>
-#include <boost/lexical_cast.hpp>
+#include <charconv>
 #include <cstddef>
 #include <cstdint>
 #include <factory.h>
@@ -181,7 +181,9 @@ namespace IceSpider {
 	/* NOLINTNEXTLINE(bugprone-macro-parentheses) */ \
 	void set(T & t) const override \
 	{ \
-		t = boost::lexical_cast<T>(s); \
+		if (const auto v = s.value(); std::from_chars(v.begin(), v.end(), t).ec != std::errc {}) { \
+			throw Http400_BadRequest(); \
+		} \
 	}
 
 		SET(Ice::Byte);
