@@ -47,7 +47,7 @@ namespace IceSpider {
 		}
 
 		[[nodiscard]] inline bool
-		operator<(const std::string_view & o) const
+		operator<(const std::string_view o) const
 		{
 			return value() < o;
 		}

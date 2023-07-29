@@ -35,7 +35,7 @@ namespace IceSpider {
 
 	template<typename in, typename out>
 	inline void
-	mapVars(const std::string_view & vn, const in & envmap, out & map, const std::string_view & sp)
+	mapVars(const std::string_view vn, const in & envmap, out & map, const std::string_view sp)
 	{
 		auto qs = envmap.find(vn);
 		if (qs != envmap.end()) {
@@ -49,8 +49,8 @@ namespace IceSpider {
 	}
 
 	template<typename Ex, typename Map, typename... Ks>
-	const std::string_view &
-	findFirstOrElse(const Map & map, const std::string_view & k, const Ks &... ks)
+	const std::string_view
+	findFirstOrElse(const Map & map, const std::string_view k, const Ks &... ks)
 	{
 		if (const auto i = map.find(k); i != map.end()) {
 			return i->second;
@@ -90,7 +90,7 @@ namespace IceSpider {
 
 	template<typename Fmt, typename Map>
 	void
-	dumpMap(std::ostream & s, const std::string_view & n, const Map & map)
+	dumpMap(std::ostream & s, const std::string_view n, const Map & map)
 	{
 		s << n << std::endl;
 		for (const auto & p : map) {
@@ -113,7 +113,7 @@ namespace IceSpider {
 
 	template<typename MapType>
 	OptionalString
-	CgiRequestBase::optionalLookup(const std::string_view & key, const MapType & vm)
+	CgiRequestBase::optionalLookup(const std::string_view key, const MapType & vm)
 	{
 		auto i = vm.find(key);
 		if (i == vm.end()) {
@@ -150,19 +150,19 @@ namespace IceSpider {
 	}
 
 	OptionalString
-	CgiRequestBase::getQueryStringParamStr(const std::string_view & key) const
+	CgiRequestBase::getQueryStringParamStr(const std::string_view key) const
 	{
 		return optionalLookup(key, qsmap);
 	}
 
 	OptionalString
-	CgiRequestBase::getCookieParamStr(const std::string_view & key) const
+	CgiRequestBase::getCookieParamStr(const std::string_view key) const
 	{
 		return optionalLookup(key, cookiemap);
 	}
 
 	OptionalString
-	CgiRequestBase::getEnvStr(const std::string_view & key) const
+	CgiRequestBase::getEnvStr(const std::string_view key) const
 	{
 		return optionalLookup(key, envmap);
 	}
@@ -174,19 +174,19 @@ namespace IceSpider {
 	}
 
 	OptionalString
-	CgiRequestBase::getHeaderParamStr(const std::string_view & key) const
+	CgiRequestBase::getHeaderParamStr(const std::string_view key) const
 	{
 		return optionalLookup(key, hdrmap);
 	}
 
 	void
-	CgiRequestBase::response(short statusCode, const std::string_view & statusMsg) const
+	CgiRequestBase::response(short statusCode, const std::string_view statusMsg) const
 	{
 		StatusFmt::write(getOutputStream(), statusCode, statusMsg);
 	}
 
 	void
-	CgiRequestBase::setHeader(const std::string_view & header, const std::string_view & value) const
+	CgiRequestBase::setHeader(const std::string_view header, const std::string_view value) const
 	{
 		HdrFmt::write(getOutputStream(), header, value);
 	}

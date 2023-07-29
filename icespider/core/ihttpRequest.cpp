@@ -134,7 +134,7 @@ namespace IceSpider {
 	}
 
 	OptionalString
-	IHttpRequest::getURLParamStr(const unsigned int & idx) const
+	IHttpRequest::getURLParamStr(const unsigned int idx) const
 	{
 		auto & url = getRequestPath();
 		if (idx >= url.size()) {
@@ -157,7 +157,7 @@ namespace IceSpider {
 
 	// Set-Cookie: value[; expires=date][; domain=domain][; path=path][; secure]
 	void
-	IHttpRequest::setCookie(const std::string_view & name, const std::string_view & value, const OptionalString & d,
+	IHttpRequest::setCookie(const std::string_view name, const std::string_view value, const OptionalString & d,
 			const OptionalString & p, bool s, std::optional<time_t> e)
 	{
 		std::stringstream o;
@@ -197,7 +197,7 @@ namespace IceSpider {
 	}
 
 	void
-	IHttpRequest::responseRedirect(const std::string_view & url, const OptionalString & statusMsg) const
+	IHttpRequest::responseRedirect(const std::string_view url, const OptionalString & statusMsg) const
 	{
 		setHeader(H::LOCATION, url);
 		response(303, (statusMsg ? *statusMsg : S::MOVED));

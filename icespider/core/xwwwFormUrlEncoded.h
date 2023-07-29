@@ -21,13 +21,13 @@ namespace IceSpider {
 
 		void Deserialize(Slicer::ModelPartForRootPtr mp) override;
 		DLL_PUBLIC static void iterateVars(
-				const std::string_view & input, const KVh & h, const std::string_view & split);
+				const std::string_view input, const KVh & h, const std::string_view split);
 
 		DLL_PUBLIC static MaybeString urldecode(std::string_view::const_iterator s, std::string_view::const_iterator);
 		DLL_PUBLIC static std::string urlencode(std::string_view::const_iterator s, std::string_view::const_iterator);
 		DLL_PUBLIC static void urlencodeto(
 				std::ostream &, std::string_view::const_iterator s, std::string_view::const_iterator);
-		DLL_PUBLIC static std::string urlencode(const std::string_view & s);
+		DLL_PUBLIC static std::string urlencode(const std::string_view s);
 
 	private:
 		static inline void iterateVars(

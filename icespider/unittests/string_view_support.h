@@ -14,7 +14,7 @@ namespace Ice {
 	template<> struct StreamHelper<std::string_view, StreamHelperCategoryBuiltin> {
 		template<class S>
 		static inline void
-		write(S * stream, const std::string_view & v)
+		write(S * stream, const std::string_view v)
 		{
 			stream->write(v.data(), v.size());
 		}

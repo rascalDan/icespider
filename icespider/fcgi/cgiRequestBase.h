@@ -30,19 +30,19 @@ namespace IceSpider {
 		[[nodiscard]] const PathElements & getRequestPath() const override;
 		[[nodiscard]] PathElements & getRequestPath() override;
 		[[nodiscard]] HttpMethod getRequestMethod() const override;
-		[[nodiscard]] OptionalString getQueryStringParamStr(const std::string_view & key) const override;
-		[[nodiscard]] OptionalString getHeaderParamStr(const std::string_view & key) const override;
-		[[nodiscard]] OptionalString getCookieParamStr(const std::string_view & key) const override;
-		[[nodiscard]] OptionalString getEnvStr(const std::string_view & key) const override;
+		[[nodiscard]] OptionalString getQueryStringParamStr(const std::string_view key) const override;
+		[[nodiscard]] OptionalString getHeaderParamStr(const std::string_view key) const override;
+		[[nodiscard]] OptionalString getCookieParamStr(const std::string_view key) const override;
+		[[nodiscard]] OptionalString getEnvStr(const std::string_view key) const override;
 		[[nodiscard]] bool isSecure() const override;
 
-		void response(short, const std::string_view &) const override;
-		void setHeader(const std::string_view &, const std::string_view &) const override;
+		void response(short, const std::string_view) const override;
+		void setHeader(const std::string_view, const std::string_view) const override;
 
 		std::ostream & dump(std::ostream & s) const override;
 
 	private:
-		template<typename MapType> static OptionalString optionalLookup(const std::string_view & key, const MapType &);
+		template<typename MapType> static OptionalString optionalLookup(const std::string_view key, const MapType &);
 
 		VarMap envmap {40};
 		StrMap qsmap;

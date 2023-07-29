@@ -196,7 +196,7 @@ namespace IceSpider {
 	};
 
 	std::string
-	XWwwFormUrlEncoded::urlencode(const std::string_view & s)
+	XWwwFormUrlEncoded::urlencode(const std::string_view s)
 	{
 		return urlencode(s.begin(), s.end());
 	}
@@ -280,7 +280,7 @@ namespace IceSpider {
 	}
 
 	void
-	XWwwFormUrlEncoded::iterateVars(const std::string_view & input, const KVh & h, const std::string_view & split)
+	XWwwFormUrlEncoded::iterateVars(const std::string_view input, const KVh & h, const std::string_view split)
 	{
 		if (!input.empty()) {
 			iterateVars(h, ba::make_split_iterator(input, ba::first_finder(split, ba::is_equal())));
