@@ -181,7 +181,7 @@ namespace IceSpider {
 	/* NOLINTNEXTLINE(bugprone-macro-parentheses) */ \
 	void set(T & t) const override \
 	{ \
-		convert<T>(s, t); \
+		convert(s, t); \
 	}
 
 		SET(Ice::Byte);
