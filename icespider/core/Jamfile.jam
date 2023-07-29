@@ -2,7 +2,7 @@ lib adhocutil : : : : <include>/usr/include/adhocutil ;
 lib slicer : : : : <include>/usr/include/slicer ;
 lib stdc++fs ;
 
-obj util-test : util-test.cpp ;
+obj util-test : util-test.cpp : <use>adhocutil ;
 
 obj routeOptions : routeOptions.ice : <toolset>tidy:<checker>none ;
 lib icespider-core :
@@ -17,6 +17,7 @@ lib icespider-core :
 	<implicit-dependency>routeOptions
 	: :
 	<include>.
+	<use>adhocutil
 	<library>../common//icespider-common
 	<implicit-dependency>../common//icespider-common
 	<implicit-dependency>routeOptions

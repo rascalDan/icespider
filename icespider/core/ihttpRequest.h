@@ -1,6 +1,7 @@
 #pragma once
 
 #include "exceptions.h"
+#include "util.h"
 #include <Ice/Current.h>
 #include <boost/lexical_cast.hpp>
 #include <c++11Helpers.h>
@@ -60,36 +61,12 @@ namespace IceSpider {
 
 		virtual std::ostream & dump(std::ostream & s) const = 0;
 
-		static_assert(std::is_constructible_v<std::string, std::string_view>);
-		static_assert(std::is_convertible_v<std::string_view, std::string_view>);
-
 		template<typename T, typename K>
 		[[nodiscard]] inline std::optional<T>
 		getFrom(const K key, OptionalString (IHttpRequest::*src)(const K) const) const
 		{
 			if (auto v = (this->*src)(key)) {
-				if constexpr (std::is_convertible<std::string_view, T>::value) {
-					return *v;
-				}
-				else if constexpr (std::is_constructible<T, std::string_view>::value) {
-					return std::optional<T> {std::in_place, *v};
-				}
-				else if constexpr (requires(T out) { std::from_chars(v->begin(), v->end(), out); }) {
-					if (T out {}; std::from_chars(v->begin(), v->end(), out).ec == std::errc {}) {
-						return out;
-					}
-					else {
-						throw Http400_BadRequest();
-					}
-				}
-				else {
-					try {
-						return boost::lexical_cast<T>(*v);
-					}
-					catch (const boost::bad_lexical_cast & e) {
-						throw Http400_BadRequest();
-					}
-				}
+				return convert<T>(*v);
 			}
 			else {
 				return std::nullopt;
@@ -117,13 +94,11 @@ namespace IceSpider {
 			if (!map) {
 				return {};
 			}
-			auto i = map->find(key);
-			if (i == map->end()) {
-				return {};
+
+			if (const auto i = map->find(key); i != map->end()) {
+				return convert<T>(i->second);
 			}
-			else {
-				return boost::lexical_cast<T>(i->second);
-			}
+			return {};
 		}
 
 		void responseRedirect(const std::string_view url, const OptionalString & = {}) const;

@@ -1,6 +1,13 @@
 #include "util.h"
+#include "exceptions.h"
 
 namespace IceSpider {
+	void
+	conversion_failure()
+	{
+		throw Http400_BadRequest();
+	}
+
 	void
 	remove_trailing(std::string_view & in, const char c)
 	{

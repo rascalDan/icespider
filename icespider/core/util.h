@@ -2,8 +2,11 @@
 
 #include <Ice/Optional.h>
 #include <array>
+#include <boost/lexical_cast.hpp>
+#include <charconv>
 #include <optional>
 #include <string_view>
+#include <visibility.h>
 
 namespace std::experimental::Ice {
 	template<typename T, typename TF>
@@ -116,6 +119,66 @@ private:
 };
 
 namespace IceSpider {
+	[[noreturn]] DLL_PUBLIC void conversion_failure();
+
+	static_assert(std::is_constructible_v<std::string, std::string_view>);
+	static_assert(std::is_convertible_v<std::string_view, std::string_view>);
+
+	template<typename T>
+	inline T
+	from_chars(const std::string_view v, T && out)
+	{
+		if (std::from_chars(v.begin(), v.end(), out).ec != std::errc {}) {
+			conversion_failure();
+		}
+		return out;
+	}
+
+	template<typename T>
+	inline T
+	lexical_cast(const std::string_view v)
+	{
+		try {
+			return boost::lexical_cast<T>(v);
+		}
+		catch (const boost::bad_lexical_cast & e) {
+			conversion_failure();
+		}
+	}
+
+	template<typename T>
+	inline void
+	convert(const std::string_view v, T & out)
+	{
+		if constexpr (std::is_assignable_v<std::string_view, T>) {
+			out = v;
+		}
+		if constexpr (requires { std::from_chars(v.begin(), v.end(), out); }) {
+			from_chars(v, out);
+		}
+		else {
+			out = lexical_cast<T>(v);
+		}
+	}
+
+	template<typename T>
+	inline T
+	convert(const std::string_view v)
+	{
+		if constexpr (std::is_convertible_v<std::string_view, T>) {
+			return v;
+		}
+		else if constexpr (std::is_constructible_v<T, std::string_view>) {
+			return T {v};
+		}
+		else if constexpr (requires(T out) { std::from_chars(v.begin(), v.end(), out); }) {
+			return from_chars<T>(v, {});
+		}
+		else {
+			return lexical_cast<T>(v);
+		}
+	}
+
 	void remove_trailing(std::string_view & in, const char c);
 	void remove_leading(std::string_view & in, const char c);
 }
