@@ -59,6 +59,8 @@ namespace IceSpider {
 
 		virtual std::ostream & dump(std::ostream & s) const = 0;
 
+		static_assert(std::is_constructible_v<std::string, std::string_view>);
+
 		template<typename T, typename K>
 		[[nodiscard]] inline std::optional<T>
 		getFrom(const K & key, OptionalString (IHttpRequest::*src)(const K &) const) const
@@ -67,11 +69,8 @@ namespace IceSpider {
 				if constexpr (std::is_convertible<std::string_view, T>::value) {
 					return *v;
 				}
-				else if constexpr (std::is_constructible<std::string_view, T>::value) {
+				else if constexpr (std::is_constructible<T, std::string_view>::value) {
 					return T(*v);
-				}
-				else if constexpr (std::is_same<std::string, T>::value) {
-					return std::to_string(*v);
 				}
 				else {
 					try {
