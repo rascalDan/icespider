@@ -4,7 +4,6 @@
 #include "util.h"
 #include "xwwwFormUrlEncoded.h"
 #include <algorithm>
-#include <boost/lexical_cast.hpp>
 #include <compileTimeFormatter.h>
 #include <cstdlib>
 #include <ctime>
@@ -143,18 +142,6 @@ namespace IceSpider {
 		return url[idx];
 	}
 
-	template<typename T, typename Y>
-	inline T
-	wrapLexicalCast(const Y & y)
-	{
-		try {
-			return boost::lexical_cast<T>(y);
-		}
-		catch (const boost::bad_lexical_cast &) {
-			throw Http400_BadRequest();
-		}
-	}
-
 	// Set-Cookie: value[; expires=date][; domain=domain][; path=path][; secure]
 	void
 	IHttpRequest::setCookie(const std::string_view name, const std::string_view value, const OptionalString & d,
@@ -184,16 +171,6 @@ namespace IceSpider {
 		}
 		"; samesite=strict"_fmt(o);
 		setHeader(H::SET_COOKIE, o.str());
-	}
-
-	template<typename T>
-	inline std::optional<T>
-	optionalLexicalCast(const OptionalString & p)
-	{
-		if (p) {
-			return wrapLexicalCast<T>(*p);
-		}
-		return {};
 	}
 
 	void
