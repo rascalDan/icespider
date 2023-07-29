@@ -238,29 +238,37 @@ namespace IceSpider {
 	MaybeString
 	XWwwFormUrlEncoded::urldecode(std::string_view::const_iterator i, std::string_view::const_iterator e)
 	{
-		if (std::find_first_of(i, e, URL_ESCAPES.begin(), URL_ESCAPES.end()) == e) {
+		const auto getNext = [e, &i] {
+			return std::find_first_of(i, e, URL_ESCAPES.begin(), URL_ESCAPES.end());
+		};
+		auto next = getNext();
+		if (next == e) {
 			return std::string_view {i, e};
 		}
 		std::string t;
 		t.reserve(static_cast<std::string::size_type>(std::distance(i, e)));
-		while (i != e) {
-			switch (*i) {
-				case '+':
-					t += ' ';
-					break;
-				case '%':
-					if (const auto ch = hexin[static_cast<uint8_t>(*(i + 1))][static_cast<uint8_t>(*(i + 2))]) {
-						t += ch;
-					}
-					else {
-						throw Http400_BadRequest();
-					}
-					i += 2;
-					break;
-				default:
-					t += *i;
+		for (; i != e; next = getNext()) {
+			if (next != i) {
+				t.append(i, next);
+				i = next;
 			}
-			++i;
+			else {
+				switch (*i) {
+					case '+':
+						t += ' ';
+						++i;
+						break;
+					case '%':
+						if (const auto ch = hexin[static_cast<uint8_t>(*(i + 1))][static_cast<uint8_t>(*(i + 2))]) {
+							t += ch;
+						}
+						else {
+							throw Http400_BadRequest();
+						}
+						i += 3;
+						break;
+				}
+			}
 		}
 		return t;
 	}
