@@ -102,6 +102,15 @@ BENCHMARK_F(CoreFixture, get_query_string_param_int)(benchmark::State & state)
 	}
 }
 
+BENCHMARK_F(CoreFixture, get_url_param)(benchmark::State & state)
+{
+	CharPtrPtrArray env(rootDir / "fixtures/env1");
+	TestRequest r(this, env);
+	for (auto _ : state) {
+		benchmark::DoNotOptimize(r.getURLParam<std::string_view>(0));
+	}
+}
+
 BENCHMARK_F(CoreFixture, get_cookie_param)(benchmark::State & state)
 {
 	CharPtrPtrArray env(rootDir / "fixtures/env1");

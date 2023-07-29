@@ -132,7 +132,7 @@ namespace IceSpider {
 		}
 	}
 
-	OptionalString
+	std::string_view
 	IHttpRequest::getURLParamStr(const unsigned int idx) const
 	{
 		auto & url = getRequestPath();

@@ -46,7 +46,7 @@ namespace IceSpider {
 		[[nodiscard]] virtual PathElements & getRequestPath() = 0;
 		[[nodiscard]] virtual HttpMethod getRequestMethod() const = 0;
 
-		[[nodiscard]] OptionalString getURLParamStr(const unsigned int) const;
+		[[nodiscard]] std::string_view getURLParamStr(const unsigned int) const;
 		[[nodiscard]] virtual OptionalString getQueryStringParamStr(const std::string_view) const = 0;
 		[[nodiscard]] virtual OptionalString getHeaderParamStr(const std::string_view) const = 0;
 		[[nodiscard]] virtual OptionalString getCookieParamStr(const std::string_view) const = 0;
@@ -77,7 +77,7 @@ namespace IceSpider {
 		[[nodiscard]] T
 		getURLParam(unsigned int n) const
 		{
-			return *getFrom<T, unsigned int>(n, &IHttpRequest::getURLParamStr);
+			return convert<T>(getURLParamStr(n));
 		}
 
 		template<typename T>
