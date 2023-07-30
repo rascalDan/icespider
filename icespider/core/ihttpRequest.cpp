@@ -90,14 +90,13 @@ namespace IceSpider {
 				const auto paramName = upto(acceptHdr, "=", true);
 				const auto paramValue = upto(acceptHdr, ",;", false);
 				if (paramName.first == "q") {
-					a.q = std::strtof(std::string(paramValue.first).c_str(), nullptr);
-					if (a.q <= 0.0F || a.q > 1.0F) {
+					if (convert(paramValue.first, a.q); a.q <= 0.0F || a.q > 1.0F) {
 						throw Http400_BadRequest();
 					}
 				}
 				tc = paramValue.second;
 			}
-			accepts.push_back(a);
+			accepts.emplace_back(a);
 		}
 
 		std::stable_sort(accepts.begin(), accepts.end(), [](const auto & a, const auto & b) {
