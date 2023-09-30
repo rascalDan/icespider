@@ -27,7 +27,7 @@ namespace IceSpider {
 
 		XsltStreamSerializer(std::ostream &, xsltStylesheet *);
 
-		void Serialize(Slicer::ModelPartForRootPtr mp) override;
+		void Serialize(Slicer::ModelPartForRootParam mp) override;
 
 	protected:
 		std::ostream & strm;

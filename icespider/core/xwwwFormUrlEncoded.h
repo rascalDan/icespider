@@ -19,9 +19,8 @@ namespace IceSpider {
 
 		explicit XWwwFormUrlEncoded(std::istream & in);
 
-		void Deserialize(Slicer::ModelPartForRootPtr mp) override;
-		DLL_PUBLIC static void iterateVars(
-				const std::string_view input, const KVh & h, const std::string_view split);
+		void Deserialize(Slicer::ModelPartForRootParam mp) override;
+		DLL_PUBLIC static void iterateVars(const std::string_view input, const KVh & h, const std::string_view split);
 
 		DLL_PUBLIC static MaybeString urldecode(std::string_view::const_iterator s, std::string_view::const_iterator);
 		DLL_PUBLIC static std::string urlencode(std::string_view::const_iterator s, std::string_view::const_iterator);
@@ -35,9 +34,9 @@ namespace IceSpider {
 
 		void iterateVars(const KVh & h);
 
-		void DeserializeSimple(const Slicer::ModelPartPtr & mp);
-		void DeserializeComplex(const Slicer::ModelPartPtr & mp);
-		void DeserializeDictionary(const Slicer::ModelPartPtr & mp);
+		void DeserializeSimple(const Slicer::ModelPartParam mp);
+		void DeserializeComplex(const Slicer::ModelPartParam mp);
+		void DeserializeDictionary(const Slicer::ModelPartParam mp);
 
 		const std::string input;
 	};

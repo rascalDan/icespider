@@ -148,10 +148,12 @@ namespace IceSpider {
 		void
 		response(const IRouteHandler * route, const T & t) const
 		{
-			modelPartResponse(route, Slicer::ModelPart::CreateRootFor(t));
+			Slicer::ModelPart::OnRootFor(t, [this, route](Slicer::ModelPartForRootParam root) {
+				modelPartResponse(route, root);
+			});
 		}
 
-		void modelPartResponse(const IRouteHandler * route, const Slicer::ModelPartForRootPtr &) const;
+		void modelPartResponse(const IRouteHandler * route, const Slicer::ModelPartForRootParam) const;
 
 		const Core * core;
 	};

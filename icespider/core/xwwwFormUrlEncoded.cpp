@@ -131,7 +131,7 @@ namespace IceSpider {
 	}
 
 	void
-	XWwwFormUrlEncoded::Deserialize(Slicer::ModelPartForRootPtr mp)
+	XWwwFormUrlEncoded::Deserialize(Slicer::ModelPartForRootParam mp)
 	{
 		mp->Create();
 		mp->OnEachChild([this](auto, auto mp, auto) {
@@ -302,7 +302,7 @@ namespace IceSpider {
 	}
 
 	void
-	XWwwFormUrlEncoded::DeserializeSimple(const Slicer::ModelPartPtr & mp)
+	XWwwFormUrlEncoded::DeserializeSimple(const Slicer::ModelPartParam mp)
 	{
 		iterateVars([mp](auto &&, const auto && v) {
 			mp->SetValue(SetFromString(std::forward<decltype(v)>(v)));
@@ -310,25 +310,36 @@ namespace IceSpider {
 	}
 
 	void
-	XWwwFormUrlEncoded::DeserializeComplex(const Slicer::ModelPartPtr & mp)
+	XWwwFormUrlEncoded::DeserializeComplex(const Slicer::ModelPartParam mp)
 	{
 		mp->Create();
 		iterateVars([mp](auto && k, const auto && v) {
-			if (auto m = mp->GetChild(k)) {
-				m->SetValue(SetFromString(std::forward<decltype(v)>(v)));
-			}
+			mp->OnChild(
+					[&v](Slicer::ModelPartParam m, const Slicer::Metadata &) {
+						m->SetValue(SetFromString(std::forward<decltype(v)>(v)));
+					},
+					k);
 		});
 		mp->Complete();
 	}
 
 	void
-	XWwwFormUrlEncoded::DeserializeDictionary(const Slicer::ModelPartPtr & mp)
+	XWwwFormUrlEncoded::DeserializeDictionary(const Slicer::ModelPartParam mp)
 	{
 		iterateVars([mp](auto && k, const auto && v) {
-			auto p = mp->GetAnonChild();
-			p->GetChild(KEY)->SetValue(SetFromString(std::forward<decltype(k)>(k)));
-			p->GetChild(VALUE)->SetValue(SetFromString(std::forward<decltype(v)>(v)));
-			p->Complete();
+			mp->OnAnonChild([&k, &v](Slicer::ModelPartParam p, const Slicer::Metadata &) {
+				p->OnChild(
+						[&k](Slicer::ModelPartParam kp, const Slicer::Metadata &) {
+							kp->SetValue(SetFromString(std::forward<decltype(k)>(k)));
+						},
+						KEY);
+				p->OnChild(
+						[&v](Slicer::ModelPartParam vp, const Slicer::Metadata &) {
+							vp->SetValue(SetFromString(std::forward<decltype(v)>(v)));
+						},
+						VALUE);
+				p->Complete();
+			});
 		});
 	}
 }

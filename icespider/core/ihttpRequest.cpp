@@ -180,7 +180,7 @@ namespace IceSpider {
 	}
 
 	void
-	IHttpRequest::modelPartResponse(const IRouteHandler * route, const Slicer::ModelPartForRootPtr & mp) const
+	IHttpRequest::modelPartResponse(const IRouteHandler * route, const Slicer::ModelPartForRootParam mp) const
 	{
 		auto s = getSerializer(route);
 		setHeader(H::CONTENT_TYPE, MimeTypeFmt::get(s.first.group, s.first.type));

@@ -55,7 +55,7 @@ namespace IceSpider {
 	XsltStreamSerializer::XsltStreamSerializer(std::ostream & os, xsltStylesheet * ss) : strm(os), stylesheet(ss) { }
 
 	void
-	XsltStreamSerializer::Serialize(Slicer::ModelPartForRootPtr mp)
+	XsltStreamSerializer::Serialize(Slicer::ModelPartForRootParam mp)
 	{
 		Slicer::XmlDocumentSerializer::Serialize(mp);
 		const auto result = std::unique_ptr<xmlDoc, decltype(&xmlFreeDoc)> {
