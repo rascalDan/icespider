@@ -483,7 +483,10 @@ BOOST_AUTO_TEST_CASE(testCallSearch)
 	process(&request);
 	auto h = request.getResponseHeaders();
 	BOOST_REQUIRE_EQUAL(h["Status"], "200 OK");
-	Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::SomeModelPtr>(request.output);
+	const auto response
+			= Slicer::DeserializeAny<Slicer::JsonStreamDeserializer, TestIceSpider::SomeModelPtr>(request.output);
+	BOOST_REQUIRE(response);
+	BOOST_CHECK_EQUAL(response->value, "withParams");
 }
 
 BOOST_AUTO_TEST_CASE(testCallSearchBadLexicalCast)
