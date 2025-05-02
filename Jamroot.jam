@@ -7,8 +7,7 @@ import pkg-config ;
 
 variant coverage : debug ;
 
-project
-  : requirements
+project icespider : requirements
 			<define>ICE_CPP11_MAPPING
 			<cxxstd>20
 			<visibility>hidden
