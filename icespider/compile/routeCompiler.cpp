@@ -179,6 +179,11 @@ namespace IceSpider::Compile {
 		}
 	}
 
+	template<auto Deleter>
+	using DeleteWith = decltype([](auto ptr) {
+		Deleter(ptr);
+	});
+
 	void
 	RouteCompiler::compile(const std::filesystem::path & input, const std::filesystem::path & output) const
 	{
@@ -193,9 +198,9 @@ namespace IceSpider::Compile {
 			}
 		});
 
-		using FilePtr = std::unique_ptr<FILE, decltype(&fclose)>;
-		const auto out = FilePtr {fopen(output.c_str(), "w"), &fclose};
-		const auto outh = FilePtr {fopen(outputh.c_str(), "w"), &fclose};
+		using FilePtr = std::unique_ptr<FILE, DeleteWith<fclose>>;
+		const FilePtr out {fopen(output.c_str(), "w")};
+		const FilePtr outh {fopen(outputh.c_str(), "w")};
 		if (!out || !outh) {
 			throw std::runtime_error("Failed to open output files");
 		}

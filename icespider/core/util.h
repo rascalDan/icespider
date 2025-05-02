@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Ice/Optional.h>
+#include <algorithm>
 #include <array>
 #include <boost/lexical_cast.hpp>
 #include <charconv>
