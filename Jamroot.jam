@@ -2,7 +2,6 @@ import os ;
 import slice ;
 import testing ;
 
-using gcc : : [ os.environ CXX ] ;
 using pkg-config ;
 import pkg-config ;
 
