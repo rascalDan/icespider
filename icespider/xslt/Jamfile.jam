@@ -13,6 +13,7 @@ lib icespider-xslt :
 	<library>xslt
 	<library>exslt
 	<library>../..//libxmlpp
+	<library>../..//glibmm
 	: :
 	<include>.
 	<library>../..//libxmlpp
