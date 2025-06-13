@@ -1,5 +1,4 @@
 #include "testRequest.h"
-#include <array>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/constants.hpp>
 #include <boost/algorithm/string/find_iterator.hpp>
@@ -12,16 +11,15 @@
 #include <utility>
 
 namespace IceSpider {
-	constexpr std::string_view slash("/");
+	constexpr std::string_view SLASH("/");
 
-	TestRequest::TestRequest(const Core * c, HttpMethod m, const std::string_view p) : IHttpRequest(c), method(m)
+	TestRequest::TestRequest(const Core * core, HttpMethod method, std::string_view path) :
+		IHttpRequest(core), method(method)
 	{
 		namespace ba = boost::algorithm;
-		auto path = p.substr(1);
-		// NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
+		path.remove_prefix(1);
 		if (!path.empty()) {
-			// NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-			ba::split(url, path, ba::is_any_of(slash), ba::token_compress_off);
+			ba::split(url, path, ba::is_any_of(SLASH), ba::token_compress_off);
 		}
 	}
 
@@ -74,13 +72,13 @@ namespace IceSpider {
 	}
 
 	OptionalString
-	TestRequest::get(const std::string_view key, const MapVars & vars) const
+	TestRequest::get(const std::string_view key, const MapVars & vars)
 	{
-		auto i = vars.find(key);
-		if (i == vars.end()) {
+		auto iter = vars.find(key);
+		if (iter == vars.end()) {
 			return {};
 		}
-		return i->second;
+		return iter->second;
 	}
 
 	void
@@ -143,9 +141,9 @@ namespace IceSpider {
 	}
 
 	std::ostream &
-	TestRequest::dump(std::ostream & s) const
+	TestRequest::dump(std::ostream & strm) const
 	{
-		return s;
+		return strm;
 	}
 
 	const TestRequest::MapVars &
@@ -153,13 +151,21 @@ namespace IceSpider {
 	{
 		if (responseHeaders.empty()) {
 			while (true) {
-				std::array<char, BUFSIZ> buf {}, n {}, v {};
-				output.getline(buf.data(), BUFSIZ);
-				// NOLINTNEXTLINE(hicpp-vararg)
-				if (sscanf(buf.data(), "%[^:]: %[^\r]", n.data(), v.data()) != 2) {
+				std::string lineBuffer;
+				lineBuffer.resize_and_overwrite(BUFSIZ, [this](char * buf, size_t len) {
+					output.getline(buf, static_cast<std::streamsize>(len));
+					return static_cast<size_t>(output.gcount());
+				});
+				if (lineBuffer.empty()) {
 					break;
 				}
-				responseHeaders[n.data()] = v.data();
+				auto colonPos = lineBuffer.find(':');
+				if (colonPos == std::string::npos) {
+					break;
+				}
+				auto valStart = lineBuffer.find_first_not_of(' ', colonPos + 1);
+				auto valEnd = lineBuffer.find_first_of("\r\n", valStart);
+				responseHeaders.emplace(lineBuffer.substr(0, colonPos), lineBuffer.substr(valStart, valEnd - valStart));
 			}
 		}
 		return responseHeaders;

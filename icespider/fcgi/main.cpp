@@ -19,14 +19,14 @@ main(int argc, char ** argv, char ** env)
 		FCGX_InitRequest(&request, 0, 0);
 
 		while (FCGX_Accept_r(&request) == 0) {
-			FcgiRequest r(&core, &request);
-			core.process(&r);
+			FcgiRequest req(&core, &request);
+			core.process(&req);
 			FCGX_Finish_r(&request);
 		}
 	}
 	else {
-		CgiRequest r(&core, argc, argv, env);
-		core.process(&r);
+		CgiRequest req(&core, argc, argv, env);
+		core.process(&req);
 	}
 	return 0;
 }

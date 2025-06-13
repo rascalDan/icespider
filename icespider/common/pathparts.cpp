@@ -2,26 +2,25 @@
 #include <boost/algorithm/string/compare.hpp>
 #include <boost/algorithm/string/find_iterator.hpp>
 #include <boost/algorithm/string/finder.hpp>
-#include <string>
 
 namespace ba = boost::algorithm;
 
 namespace IceSpider {
-	const auto slash = ba::first_finder("/", ba::is_equal());
+	const auto SLASH = ba::first_finder("/", ba::is_equal());
 
-	Path::Path(const std::string_view p) : path(p)
+	Path::Path(const std::string_view path) : path(path)
 	{
-		auto relp = p.substr(1);
+		auto relp = path.substr(1);
 		if (relp.empty()) {
 			return;
 		}
-		for (auto pi = ba::make_split_iterator(relp, slash); pi != decltype(pi)(); ++pi) {
-			std::string_view pp {pi->begin(), pi->end()};
-			if (pp.front() == '{' && pp.back() == '}') {
-				parts.push_back(std::make_unique<PathParameter>(pp));
+		for (auto pi = ba::make_split_iterator(relp, SLASH); pi != decltype(pi)(); ++pi) {
+			std::string_view pathPart {pi->begin(), pi->end()};
+			if (pathPart.front() == '{' && pathPart.back() == '}') {
+				parts.push_back(std::make_unique<PathParameter>(pathPart));
 			}
 			else {
-				parts.push_back(std::make_unique<PathLiteral>(pp));
+				parts.push_back(std::make_unique<PathLiteral>(pathPart));
 			}
 		}
 	}
@@ -43,15 +42,15 @@ namespace IceSpider {
 				== pathparts.end();
 	}
 
-	PathLiteral::PathLiteral(const std::string_view p) : value(p) { }
+	PathLiteral::PathLiteral(const std::string_view value) : value(value) { }
 
 	bool
-	PathLiteral::matches(const std::string_view v) const
+	PathLiteral::matches(const std::string_view candidate) const
 	{
-		return value == v;
+		return value == candidate;
 	}
 
-	PathParameter::PathParameter(const std::string_view s) : name(s.substr(1, s.length() - 2)) { }
+	PathParameter::PathParameter(const std::string_view fmt) : name(fmt.substr(1, fmt.length() - 2)) { }
 
 	bool
 	PathParameter::matches(const std::string_view) const

@@ -17,16 +17,16 @@ namespace IceSpider {
 	public:
 		using KVh = std::function<void(MaybeString &&, MaybeString &&)>;
 
-		explicit XWwwFormUrlEncoded(std::istream & in);
+		explicit XWwwFormUrlEncoded(std::istream & input);
 
-		void Deserialize(Slicer::ModelPartForRootParam mp) override;
-		DLL_PUBLIC static void iterateVars(const std::string_view input, const KVh & h, const std::string_view split);
+		void Deserialize(Slicer::ModelPartForRootParam modelPart) override;
+		DLL_PUBLIC static void iterateVars(std::string_view input, const KVh & h, std::string_view split);
 
-		DLL_PUBLIC static MaybeString urldecode(std::string_view::const_iterator s, std::string_view::const_iterator);
-		DLL_PUBLIC static std::string urlencode(std::string_view::const_iterator s, std::string_view::const_iterator);
+		DLL_PUBLIC static MaybeString urlDecode(std::string_view::const_iterator, std::string_view::const_iterator);
+		DLL_PUBLIC static std::string urlencode(std::string_view::const_iterator, std::string_view::const_iterator);
 		DLL_PUBLIC static void urlencodeto(
-				std::ostream &, std::string_view::const_iterator s, std::string_view::const_iterator);
-		DLL_PUBLIC static std::string urlencode(const std::string_view s);
+				std::ostream &, std::string_view::const_iterator, std::string_view::const_iterator);
+		DLL_PUBLIC static std::string urlencode(std::string_view);
 
 	private:
 		static inline void iterateVars(
@@ -34,9 +34,9 @@ namespace IceSpider {
 
 		void iterateVars(const KVh & h);
 
-		void DeserializeSimple(const Slicer::ModelPartParam mp);
-		void DeserializeComplex(const Slicer::ModelPartParam mp);
-		void DeserializeDictionary(const Slicer::ModelPartParam mp);
+		void deserializeSimple(Slicer::ModelPartParam modelPart);
+		void deserializeComplex(Slicer::ModelPartParam modelPart);
+		void deserializeDictionary(Slicer::ModelPartParam modelPart);
 
 		const std::string input;
 	};

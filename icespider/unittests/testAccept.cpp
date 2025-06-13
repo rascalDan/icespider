@@ -2,6 +2,7 @@
 #include <boost/test/data/test_case.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <exceptions.h>
 #include <ihttpRequest.h>
 #include <optional>
 #include <ostream>
@@ -9,7 +10,7 @@
 #include <vector>
 
 namespace IceSpider {
-	class Http400_BadRequest;
+	class Http400BadRequest;
 }
 
 auto parse = IceSpider::IHttpRequest::parseAccept;
@@ -42,7 +43,7 @@ BOOST_DATA_TEST_CASE(bad_requests,
 		}),
 		a)
 {
-	BOOST_CHECK_THROW(parse(a), IceSpider::Http400_BadRequest);
+	BOOST_CHECK_THROW(parse(a), IceSpider::Http400BadRequest);
 }
 
 BOOST_DATA_TEST_CASE(texthtml,

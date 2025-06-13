@@ -13,7 +13,6 @@
 #include <exception>
 #include <factory.h> // IWYU pragma: keep
 #include <filesystem>
-#include <memory>
 #include <plugins.h> // IWYU pragma: keep
 #include <string_view>
 #include <vector>
@@ -49,10 +48,10 @@ namespace IceSpider {
 		Ice::CommunicatorPtr communicator;
 		Ice::ObjectAdapterPtr pluginAdapter;
 
-		static const std::filesystem::path defaultConfig;
+		static const std::filesystem::path DEFAULT_CONFIG;
 
 	private:
-		void defaultErrorReport(IHttpRequest * request, const std::exception & ex) const;
+		static void defaultErrorReport(IHttpRequest * request, const std::exception & exception);
 	};
 
 	class DLL_PUBLIC CoreWithDefaultRouter : public Core {
@@ -71,15 +70,15 @@ namespace IceSpider {
 
 	using PluginFactory = AdHoc::Factory<Plugin, Ice::CommunicatorPtr, Ice::PropertiesPtr>;
 
-	enum ErrorHandlerResult {
-		ErrorHandlerResult_Unhandled,
-		ErrorHandlerResult_Handled,
-		ErrorHandlerResult_Modified,
+	enum class ErrorHandlerResult : uint8_t {
+		Unhandled,
+		Handled,
+		Modified,
 	};
 
 	class DLL_PUBLIC ErrorHandler : public AdHoc::AbstractPluginImplementation {
 	public:
-		virtual ErrorHandlerResult handleError(IHttpRequest * IHttpRequest, const std::exception &) const = 0;
+		virtual ErrorHandlerResult handleError(IHttpRequest * iHttpRequest, const std::exception &) const = 0;
 	};
 
 	using ErrorHandlerPlugin = AdHoc::PluginOf<ErrorHandler>;

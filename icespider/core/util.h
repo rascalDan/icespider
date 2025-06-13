@@ -12,48 +12,48 @@
 namespace std::experimental::Ice {
 	template<typename T, typename TF>
 	inline const T &
-	operator/(const Ice::optional<T> & o, const TF & tf)
+	operator/(const Ice::optional<T> & value, const TF & whenNullOpt)
 	{
-		if (o) {
-			return *o;
+		if (value) {
+			return *value;
 		}
-		return tf();
+		return whenNullOpt();
 	}
 
 	template<typename T, typename TF>
 	inline T
-	operator/(Ice::optional<T> && o, const TF & tf)
+	operator/(Ice::optional<T> && value, const TF & whenNullOpt)
 	{
-		if (o) {
-			return std::move(*o);
+		if (value) {
+			return *std::move(value);
 		}
-		return tf();
+		return whenNullOpt();
 	}
 }
 
 namespace std {
 	template<typename T, typename TF>
 	inline const T &
-	operator/(const std::optional<T> & o, const TF & tf)
+	operator/(const std::optional<T> & value, const TF & whenNullOpt)
 	{
-		if (o) {
-			return *o;
+		if (value) {
+			return *value;
 		}
-		return tf();
+		return whenNullOpt();
 	}
 
 	template<typename T, typename TF>
 	inline T
-	operator/(std::optional<T> && o, const TF & tf)
+	operator/(std::optional<T> && value, const TF & whenNullOpt)
 	{
-		if (o) {
-			return std::move(*o);
+		if (value) {
+			return *std::move(value);
 		}
-		return tf();
+		return whenNullOpt();
 	}
 }
 
-template<typename T> struct type_names {
+template<typename T> struct TypeNames {
 	static constexpr auto
 	pf()
 	{
@@ -63,46 +63,46 @@ template<typename T> struct type_names {
 	static constexpr auto
 	name()
 	{
-		constexpr std::string_view with_T {"T = "};
-		constexpr auto start {pf().find(with_T) + with_T.length()};
-		constexpr auto end {pf().find(']', start)};
-		constexpr auto name {pf().substr(start, end - start)};
-		static_assert(name.find('<') == std::string_view::npos, "Templates not supported");
-		return name;
+		constexpr std::string_view WITH_T {"T = "};
+		constexpr auto START {pf().find(WITH_T) + WITH_T.length()};
+		constexpr auto END {pf().find(']', START)};
+		constexpr auto NAME {pf().substr(START, END - START)};
+		static_assert(NAME.find('<') == std::string_view::npos, "Templates not supported");
+		return NAME;
 	}
 
 	static constexpr auto
 	namespaces()
 	{
-		return std::count(name().begin(), name().end(), ':') / 2;
+		return std::ranges::count(name(), ':') / 2;
 	}
 
-	using char_type = typename decltype(name())::value_type;
+	using CharType = typename decltype(name())::value_type;
 };
 
-template<typename T> class TypeName : type_names<T> {
+template<typename T> class TypeName : TypeNames<T> {
 public:
-	constexpr static inline auto
+	constexpr static auto
 	str()
 	{
-		return std::string_view {buf.data(), buf.size() - 1};
+		return std::string_view {BUF.data(), BUF.size() - 1};
 	}
 
-	constexpr static inline auto
-	c_str()
+	constexpr static auto
+	c_str() // NOLINT(readability-identifier-naming) - STL like
 	{
-		return buf.data();
+		return BUF.data();
 	}
 
 private:
-	using tn = type_names<T>;
+	using Tn = TypeNames<T>;
 
-	constexpr static auto buf {[]() {
-		std::array<typename tn::char_type, tn::name().length() - tn::namespaces() + 1> buf {};
+	constexpr static auto BUF {[]() {
+		std::array<typename Tn::CharType, Tn::name().length() - Tn::namespaces() + 1> buf {};
 		auto out {buf.begin()};
 		auto cln = false;
-		for (const auto & in : tn::name()) {
-			if (in == ':') {
+		for (const auto & input : Tn::name()) {
+			if (input == ':') {
 				if (cln) {
 					*out++ = '.';
 				}
@@ -111,7 +111,7 @@ private:
 				}
 			}
 			else {
-				*out++ = in;
+				*out++ = input;
 				cln = false;
 			}
 		}
@@ -120,7 +120,7 @@ private:
 };
 
 namespace IceSpider {
-	[[noreturn]] DLL_PUBLIC void conversion_failure();
+	[[noreturn]] DLL_PUBLIC void conversionFailure();
 
 	static_assert(std::is_assignable_v<std::string, std::string_view>);
 	static_assert(std::is_assignable_v<std::string_view, std::string_view>);
@@ -128,20 +128,20 @@ namespace IceSpider {
 	namespace {
 		template<typename T>
 		inline T
-		from_chars(const std::string_view v, T && out)
+		from_chars(const std::string_view chars, T && out) // NOLINT(readability-identifier-naming) - STL like
 		{
-			if (std::from_chars(v.begin(), v.end(), out).ec != std::errc {}) {
-				conversion_failure();
+			if (std::from_chars(chars.begin(), chars.end(), std::forward<T>(out)).ec != std::errc {}) {
+				conversionFailure();
 			}
 			return out;
 		}
 
 		template<typename T>
 		inline T
-		lexical_cast(const std::string_view v, T && out)
+		lexical_cast(const std::string_view value, T && out) // NOLINT(readability-identifier-naming) - Boost like
 		{
-			if (!boost::conversion::try_lexical_convert(v, out)) {
-				conversion_failure();
+			if (!boost::conversion::try_lexical_convert(value, std::forward<T>(out))) {
+				conversionFailure();
 			}
 			return out;
 		}
@@ -149,32 +149,40 @@ namespace IceSpider {
 
 	template<typename T>
 	inline T
-	convert(const std::string_view v, T && out = {})
+	convert(const std::string_view value, T && out)
 	{
 		if constexpr (std::is_assignable_v<T, std::string_view>) {
-			return (out = v);
+			return (out = value);
 		}
-		else if constexpr (requires { std::from_chars(v.begin(), v.end(), out); }) {
-			return from_chars(v, out);
+		else if constexpr (requires { std::from_chars(value.begin(), value.end(), out); }) {
+			return from_chars(value, std::forward<T>(out));
 		}
 		else {
-			return lexical_cast(v, out);
+			return lexical_cast(value, std::forward<T>(out));
+		}
+	}
+
+	template<typename T>
+	inline T
+	convert(const std::string_view value)
+	{
+		T tmp;
+		return convert(value, tmp);
+	}
+
+	inline void
+	remove_trailing(std::string_view & input, const char chr) // NOLINT(readability-identifier-naming) - STL like
+	{
+		if (const auto pos = input.find_last_not_of(chr); pos != std::string_view::npos) {
+			input.remove_suffix(input.length() - pos - 1);
 		}
 	}
 
 	inline void
-	remove_trailing(std::string_view & in, const char c)
+	remove_leading(std::string_view & input, const char chr) // NOLINT(readability-identifier-naming) - STL like
 	{
-		if (const auto n = in.find_last_not_of(c); n != std::string_view::npos) {
-			in.remove_suffix(in.length() - n - 1);
-		}
-	}
-
-	inline void
-	remove_leading(std::string_view & in, const char c)
-	{
-		if (const auto n = in.find_first_not_of(c); n != std::string_view::npos) {
-			in.remove_prefix(n);
+		if (const auto pos = input.find_first_not_of(chr); pos != std::string_view::npos) {
+			input.remove_prefix(pos);
 		}
 	}
 }

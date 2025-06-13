@@ -9,7 +9,7 @@ variant coverage : debug ;
 
 project icespider : requirements
 			<define>ICE_CPP11_MAPPING
-			<cxxstd>20
+			<cxxstd>23
 			<visibility>hidden
 			<linkflags>"-Wl,-z,defs,--warn-once,--gc-sections"
 			<variant>release:<lto>on

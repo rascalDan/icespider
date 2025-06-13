@@ -3,8 +3,8 @@
 
 namespace IceSpider {
 	void
-	conversion_failure()
+	conversionFailure()
 	{
-		throw Http400_BadRequest();
+		throw Http400BadRequest();
 	}
 }

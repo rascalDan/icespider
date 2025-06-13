@@ -15,7 +15,6 @@
 #include <exception>
 #include <factory.impl.h>
 #include <fileUtils.h>
-#include <ios>
 #include <memory>
 #include <session.h>
 #include <string>
@@ -28,9 +27,10 @@
 namespace IceSpider {
 	class FileSessions : public Plugin, public SessionManager {
 	public:
-		FileSessions(Ice::CommunicatorPtr c, const Ice::PropertiesPtr & p) :
-			ic(std::move(c)), root(p->getProperty("IceSpider.FileSessions.Path")),
-			duration(static_cast<Ice::Short>(p->getPropertyAsIntWithDefault("IceSpider.FileSessions.Duration", 3600)))
+		FileSessions(Ice::CommunicatorPtr com, const Ice::PropertiesPtr & props) :
+			ic(std::move(com)), root(props->getProperty("IceSpider.FileSessions.Path")),
+			duration(static_cast<Ice::Short>(
+					props->getPropertyAsIntWithDefault("IceSpider.FileSessions.Duration", 3600)))
 		{
 			if (!root.empty() && !std::filesystem::exists(root)) {
 				std::filesystem::create_directories(root);
@@ -45,8 +45,7 @@ namespace IceSpider {
 			try {
 				removeExpired();
 			}
-			catch (...) {
-				// Meh :)
+			catch (...) { // NOLINT(bugprone-empty-catch) - Meh :)
 			}
 		}
 
@@ -56,36 +55,36 @@ namespace IceSpider {
 		SessionPtr
 		createSession(const ::Ice::Current &) override
 		{
-			auto s = std::make_shared<Session>();
+			auto session = std::make_shared<Session>();
 			// NOLINTNEXTLINE(clang-analyzer-optin.cplusplus.VirtualCall)
-			s->id = boost::lexical_cast<std::string>(boost::uuids::random_generator()());
-			s->duration = duration;
-			save(s);
-			return s;
+			session->id = boost::lexical_cast<std::string>(boost::uuids::random_generator()());
+			session->duration = duration;
+			save(session);
+			return session;
 		}
 
 		SessionPtr
-		getSession(const ::std::string id, const ::Ice::Current & current) override
+		getSession(const ::std::string sessionId, const ::Ice::Current & current) override
 		{
-			auto s = load(id);
-			if (s && isExpired(s)) {
-				destroySession(id, current);
+			auto session = load(sessionId);
+			if (session && isExpired(session)) {
+				destroySession(sessionId, current);
 				return nullptr;
 			}
-			return s;
+			return session;
 		}
 
 		void
-		updateSession(const SessionPtr s, const ::Ice::Current &) override
+		updateSession(const SessionPtr session, const ::Ice::Current &) override
 		{
-			save(s);
+			save(session);
 		}
 
 		void
-		destroySession(const ::std::string id, const ::Ice::Current &) override
+		destroySession(const ::std::string sessionId, const ::Ice::Current &) override
 		{
 			try {
-				std::filesystem::remove(root / id);
+				std::filesystem::remove(root / sessionId);
 			}
 			catch (const std::exception & e) {
 				throw SessionError(e.what());
@@ -94,36 +93,36 @@ namespace IceSpider {
 
 	private:
 		void
-		save(const SessionPtr & s)
+		save(const SessionPtr & session)
 		{
-			s->lastUsed = time(nullptr);
+			session->lastUsed = time(nullptr);
 			Ice::OutputStream buf(ic);
-			buf.write(s);
+			buf.write(session);
 			const auto range = buf.finished();
 			// NOLINTNEXTLINE(hicpp-signed-bitwise)
-			AdHoc::FileUtils::FileHandle f(root / s->id, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
-			sysassert(flock(f.fh, LOCK_EX), -1);
-			sysassert(pwrite(f.fh, range.first, static_cast<size_t>(range.second - range.first), 0), -1);
-			sysassert(ftruncate(f.fh, range.second - range.first), -1);
-			sysassert(flock(f.fh, LOCK_UN), -1);
+			AdHoc::FileUtils::FileHandle sessionFile(root / session->id, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
+			sysassert(flock(sessionFile.fh, LOCK_EX), -1);
+			sysassert(pwrite(sessionFile.fh, range.first, static_cast<size_t>(range.second - range.first), 0), -1);
+			sysassert(ftruncate(sessionFile.fh, range.second - range.first), -1);
+			sysassert(flock(sessionFile.fh, LOCK_UN), -1);
 		}
 
 		SessionPtr
-		load(const std::string & id)
+		load(const std::string & sessionId)
 		{
-			auto path = root / id;
+			auto path = root / sessionId;
 			if (!std::filesystem::exists(path)) {
 				return nullptr;
 			}
 			try {
-				AdHoc::FileUtils::MemMap f(path);
-				sysassert(flock(f.fh, LOCK_SH), -1);
-				auto fbuf = f.sv<Ice::Byte>();
+				AdHoc::FileUtils::MemMap sessionFile(path);
+				sysassert(flock(sessionFile.fh, LOCK_SH), -1);
+				auto fbuf = sessionFile.sv<Ice::Byte>();
 				Ice::InputStream buf(ic, std::make_pair(fbuf.begin(), fbuf.end()));
-				SessionPtr s;
-				buf.read(s);
-				sysassert(flock(f.fh, LOCK_UN), -1);
-				return s;
+				SessionPtr session;
+				buf.read(session);
+				sysassert(flock(sessionFile.fh, LOCK_UN), -1);
+				return session;
 			}
 			catch (const AdHoc::SystemException & e) {
 				if (e.errNo == ENOENT) {
@@ -139,20 +138,21 @@ namespace IceSpider {
 			if (root.empty() || !std::filesystem::exists(root)) {
 				return;
 			}
-			std::filesystem::directory_iterator di(root);
-			while (di != std::filesystem::directory_iterator()) {
-				auto s = load(di->path());
-				if (s && isExpired(s)) {
-					FileSessions::destroySession(s->id, Ice::Current());
+			std::filesystem::directory_iterator dirIter(root);
+			while (dirIter != std::filesystem::directory_iterator()) {
+				auto session = load(dirIter->path());
+				if (session && isExpired(session)) {
+					FileSessions::destroySession(session->id, Ice::Current());
 				}
-				di++;
+				dirIter++;
 			}
 		}
 
-		bool
-		isExpired(const SessionPtr & s)
+		[[nodiscard]]
+		static bool
+		isExpired(const SessionPtr & session)
 		{
-			return (s->lastUsed + s->duration < time(nullptr));
+			return (session->lastUsed + session->duration < time(nullptr));
 		}
 
 		template<typename R, typename ER>

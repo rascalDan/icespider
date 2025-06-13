@@ -104,13 +104,13 @@ BOOST_AUTO_TEST_CASE(testFindRoutes)
 	BOOST_REQUIRE(findRoute(&requestGetIndex));
 
 	TestRequest requestPostIndex(this, HttpMethod::POST, "/");
-	BOOST_REQUIRE_THROW(findRoute(&requestPostIndex), IceSpider::Http405_MethodNotAllowed);
+	BOOST_REQUIRE_THROW(findRoute(&requestPostIndex), IceSpider::Http405MethodNotAllowed);
 
 	TestRequest requestPostUpdate(this, HttpMethod::POST, "/something");
 	BOOST_REQUIRE(findRoute(&requestPostUpdate));
 
 	TestRequest requestGetUpdate(this, HttpMethod::GET, "/something");
-	BOOST_REQUIRE_THROW(findRoute(&requestGetUpdate), IceSpider::Http405_MethodNotAllowed);
+	BOOST_REQUIRE_THROW(findRoute(&requestGetUpdate), IceSpider::Http405MethodNotAllowed);
 
 	TestRequest requestGetItem(this, HttpMethod::GET, "/view/something/something");
 	BOOST_REQUIRE(findRoute(&requestGetItem));
@@ -123,13 +123,13 @@ BOOST_AUTO_TEST_CASE(testFindRoutes)
 
 	TestRequest requestGetItemLong(
 			this, HttpMethod::GET, "/view/something/something/extra/many/things/longer/than/longest/route");
-	BOOST_REQUIRE_THROW(findRoute(&requestGetItemLong), IceSpider::Http404_NotFound);
+	BOOST_REQUIRE_THROW(findRoute(&requestGetItemLong), IceSpider::Http404NotFound);
 
 	TestRequest requestGetItemShort(this, HttpMethod::GET, "/view/missingSomething");
-	BOOST_REQUIRE_THROW(findRoute(&requestGetItemShort), IceSpider::Http404_NotFound);
+	BOOST_REQUIRE_THROW(findRoute(&requestGetItemShort), IceSpider::Http404NotFound);
 
 	TestRequest requestGetNothing(this, HttpMethod::GET, "/badview/something/something");
-	BOOST_REQUIRE_THROW(findRoute(&requestGetNothing), IceSpider::Http404_NotFound);
+	BOOST_REQUIRE_THROW(findRoute(&requestGetNothing), IceSpider::Http404NotFound);
 
 	TestRequest requestDeleteThing(this, HttpMethod::DELETE, "/something");
 	BOOST_REQUIRE(findRoute(&requestDeleteThing));
@@ -540,18 +540,18 @@ public:
 	{
 		if (const auto * tex = dynamic_cast<const TestIceSpider::Ex *>(&ex)) {
 			if (tex->message == "404") {
-				throw IceSpider::Http404_NotFound();
+				throw IceSpider::Http404NotFound();
 			}
 			if (tex->message == "304") {
 				request->getRequestPath().front() = "some value";
-				return IceSpider::ErrorHandlerResult_Modified;
+				return IceSpider::ErrorHandlerResult::Modified;
 			}
 			if (tex->message == "400") {
 				request->response(400, "Handled");
-				return IceSpider::ErrorHandlerResult_Handled;
+				return IceSpider::ErrorHandlerResult::Handled;
 			}
 		}
-		return IceSpider::ErrorHandlerResult_Unhandled;
+		return IceSpider::ErrorHandlerResult::Unhandled;
 	}
 };
 

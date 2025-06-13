@@ -9,7 +9,6 @@
 #include <ctime>
 #include <formatters.h>
 #include <http.h>
-#include <memory>
 #include <plugins.h>
 #include <slicer/modelParts.h>
 #include <slicer/serializer.h>
@@ -18,10 +17,10 @@
 namespace IceSpider {
 	using namespace AdHoc::literals;
 
-	IHttpRequest::IHttpRequest(const Core * c) : core(c) { }
+	IHttpRequest::IHttpRequest(const Core * core) : core(core) { }
 
 	Ice::Context
-	IHttpRequest::getContext() const
+	IHttpRequest::getContext()
 	{
 		return {};
 	}
@@ -32,12 +31,12 @@ namespace IceSpider {
 		try {
 			return Slicer::StreamDeserializerFactory::createNew(
 					getEnvStr(E::CONTENT_TYPE) / []() -> std::string_view {
-						throw Http400_BadRequest();
+						throw Http400BadRequest();
 					},
 					getInputStream());
 		}
 		catch (const AdHoc::NoSuchPluginException &) {
-			throw Http415_UnsupportedMediaType();
+			throw Http415UnsupportedMediaType();
 		}
 	}
 
@@ -46,89 +45,82 @@ namespace IceSpider {
 	{
 		remove_leading(acceptHdr, ' ');
 		if (acceptHdr.empty()) {
-			throw Http400_BadRequest();
+			throw Http400BadRequest();
 		}
 		Accepted accepts;
 		accepts.reserve(static_cast<std::size_t>(std::count(acceptHdr.begin(), acceptHdr.end(), ',') + 1));
 
-		auto upto = [](std::string_view & in, const std::string_view term, bool req) {
-			remove_leading(in, ' ');
-			const auto end = in.find_first_of(term);
+		auto upto = [](std::string_view & input, const std::string_view term, bool req) {
+			remove_leading(input, ' ');
+			const auto end = input.find_first_of(term);
 			if (req && end == std::string_view::npos) {
-				throw Http400_BadRequest();
+				throw Http400BadRequest();
 			}
-			auto val = in.substr(0, end);
+			auto val = input.substr(0, end);
 			remove_trailing(val, ' ');
 			if (val.empty()) {
-				throw Http400_BadRequest();
+				throw Http400BadRequest();
 			}
 			if (end != std::string_view::npos) {
-				const auto tc = in[end];
-				in.remove_prefix(end + 1);
-				return std::make_pair(val, tc);
+				const auto terminatorChar = input[end];
+				input.remove_prefix(end + 1);
+				return std::make_pair(val, terminatorChar);
 			}
-			else {
-				in.remove_prefix(in.length());
-				return std::make_pair(val, '\n');
-			}
+			input.remove_prefix(input.length());
+			return std::make_pair(val, '\n');
 		};
 
 		while (!acceptHdr.empty()) {
 			const auto group = upto(acceptHdr, "/", true).first;
-			auto [type, tc] = upto(acceptHdr, ";,", false);
-			Accept a;
+			auto [type, terminatorChar] = upto(acceptHdr, ";,", false);
+			Accept accept;
 			if (type != "*") {
-				a.type.emplace(type);
+				accept.type.emplace(type);
 			}
 			if (group != "*") {
-				a.group.emplace(group);
+				accept.group.emplace(group);
 			}
-			else if (a.type) {
-				throw Http400_BadRequest();
+			else if (accept.type) {
+				throw Http400BadRequest();
 			}
-			while (tc == ';') {
+			while (terminatorChar == ';') {
 				const auto paramName = upto(acceptHdr, "=", true);
 				const auto paramValue = upto(acceptHdr, ",;", false);
 				if (paramName.first == "q") {
-					if (convert(paramValue.first, a.q); a.q <= 0.0F || a.q > 1.0F) {
-						throw Http400_BadRequest();
+					if (convert(paramValue.first, accept.q); accept.q <= 0.0F || accept.q > 1.0F) {
+						throw Http400BadRequest();
 					}
 				}
-				tc = paramValue.second;
+				terminatorChar = paramValue.second;
 			}
-			accepts.emplace_back(a);
+			accepts.emplace_back(accept);
 		}
 
-		std::stable_sort(accepts.begin(), accepts.end(), [](const auto & a, const auto & b) {
-			return a.q > b.q;
-		});
+		std::ranges::stable_sort(accepts, std::greater<float> {}, &Accept::q);
 		return accepts;
 	}
 
 	ContentTypeSerializer
 	IHttpRequest::getSerializer(const IRouteHandler * handler) const
 	{
-		auto acceptHdr = getHeaderParamStr(H::ACCEPT);
-		if (acceptHdr) {
+		if (auto acceptHdr = getHeaderParamStr(H::ACCEPT)) {
 			auto accepts = parseAccept(*acceptHdr);
 			auto & strm = getOutputStream();
 			if (accepts.empty()) {
-				throw Http400_BadRequest();
+				throw Http400BadRequest();
 			}
 			if (!accepts.front().group && !accepts.front().type) {
 				return handler->defaultSerializer(strm);
 			}
-			for (auto & a : accepts) {
-				ContentTypeSerializer serializer = handler->getSerializer(a, strm);
+			for (const auto & accept : accepts) {
+				ContentTypeSerializer serializer = handler->getSerializer(accept, strm);
 				if (serializer.second) {
 					return serializer;
 				}
 			}
-			throw Http406_NotAcceptable();
+			throw Http406NotAcceptable();
 		}
-		else {
-			return handler->defaultSerializer(getOutputStream());
-		}
+		return handler->defaultSerializer(getOutputStream());
 	}
 
 	std::string_view
@@ -143,33 +135,35 @@ namespace IceSpider {
 
 	// Set-Cookie: value[; expires=date][; domain=domain][; path=path][; secure]
 	void
-	IHttpRequest::setCookie(const std::string_view name, const std::string_view value, const OptionalString & d,
-			const OptionalString & p, bool s, std::optional<time_t> e)
+	IHttpRequest::setCookie(const std::string_view name, const std::string_view value, const OptionalString & domain,
+			const OptionalString & path, bool secure, std::optional<time_t> expiry) const
 	{
-		std::stringstream o;
-		XWwwFormUrlEncoded::urlencodeto(o, name.begin(), name.end());
-		o << '=';
-		XWwwFormUrlEncoded::urlencodeto(o, value.begin(), value.end());
-		if (e) {
-			static constexpr auto dateLength = std::string_view {"Sat, 02 May 2009 23:38:25 GMT"}.length() + 1;
-			std::array<char, dateLength> buf {};
-			tm tm {};
+		std::stringstream cookieString;
+		XWwwFormUrlEncoded::urlencodeto(cookieString, name.begin(), name.end());
+		cookieString << '=';
+		XWwwFormUrlEncoded::urlencodeto(cookieString, value.begin(), value.end());
+		if (expiry) {
+			static constexpr auto DATE_LENGTH = sizeof("Sat, 02 May 2009 23:38:25 GMT");
+			tm timeParts {};
 
-			gmtime_r(&*e, &tm);
-			const auto len = strftime(buf.data(), buf.size(), "%a, %d %b %Y %T %Z", &tm);
-			o << "; expires=" << std::string_view {buf.data(), len};
+			gmtime_r(&*expiry, &timeParts);
+			std::string buf;
+			buf.resize_and_overwrite(DATE_LENGTH, [&timeParts](char * out, size_t len) {
+				return strftime(out, len, "%a, %d %b %Y %T %Z", &timeParts);
+			});
+			cookieString << "; expires=" << buf;
 		}
-		if (d) {
-			"; domain=%?"_fmt(o, *d);
+		if (domain) {
+			"; domain=%?"_fmt(cookieString, *domain);
 		}
-		if (p) {
-			"; path=%?"_fmt(o, *p);
+		if (path) {
+			"; path=%?"_fmt(cookieString, *path);
 		}
-		if (s) {
-			"; secure"_fmt(o);
+		if (secure) {
+			"; secure"_fmt(cookieString);
 		}
-		"; samesite=strict"_fmt(o);
-		setHeader(H::SET_COOKIE, o.str());
+		"; samesite=strict"_fmt(cookieString);
+		setHeader(H::SET_COOKIE, std::move(cookieString).str());
 	}
 
 	void
@@ -180,15 +174,15 @@ namespace IceSpider {
 	}
 
 	void
-	IHttpRequest::modelPartResponse(const IRouteHandler * route, const Slicer::ModelPartForRootParam mp) const
+	IHttpRequest::modelPartResponse(const IRouteHandler * route, const Slicer::ModelPartForRootParam modelPart) const
 	{
-		auto s = getSerializer(route);
-		setHeader(H::CONTENT_TYPE, MimeTypeFmt::get(s.first.group, s.first.type));
+		const auto serializer = getSerializer(route);
+		setHeader(H::CONTENT_TYPE, MimeTypeFmt::get(serializer.first.group, serializer.first.type));
 		response(200, S::OK);
-		s.second->Serialize(mp);
+		serializer.second->Serialize(modelPart);
 	}
 
-	static_assert(std::is_convertible<OptionalString::value_type, std::string_view>::value);
-	static_assert(!std::is_convertible<OptionalString::value_type, std::string>::value);
-	static_assert(std::is_constructible<OptionalString::value_type, std::string>::value);
+	static_assert(std::is_convertible_v<OptionalString::value_type, std::string_view>);
+	static_assert(!std::is_convertible_v<OptionalString::value_type, std::string>);
+	static_assert(std::is_constructible_v<OptionalString::value_type, std::string>);
 }

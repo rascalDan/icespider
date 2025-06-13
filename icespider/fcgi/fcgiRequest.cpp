@@ -1,8 +1,9 @@
 #include "fcgiRequest.h"
 
 namespace IceSpider {
-	FcgiRequest::FcgiRequest(Core * c, FCGX_Request * r) :
-		CgiRequestBase(c, EnvNTL {r->envp}), inputbuf(r->in), input(&inputbuf), outputbuf(r->out), output(&outputbuf)
+	FcgiRequest::FcgiRequest(Core * core, FCGX_Request * req) :
+		CgiRequestBase(core, EnvNTL {req->envp}), inputbuf(req->in), input(&inputbuf), outputbuf(req->out),
+		output(&outputbuf)
 	{
 	}
 

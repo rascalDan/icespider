@@ -20,29 +20,29 @@ namespace IceSpider {
 		// Null terminated list, bsv will handle this and is convertible to span
 		using EnvNTL = std::basic_string_view<const char * const>;
 
-		CgiRequestBase(Core * c, const EnvArray envs, const EnvArray extra = {});
+		CgiRequestBase(Core * core, EnvArray envs, EnvArray extra = {});
 
 	public:
-		using VarMap = flatmap<std::string_view, std::string_view>;
-		using HdrMap = flatmap<std::string_view, std::string_view, AdHoc::case_less>;
-		using StrMap = flatmap<MaybeString, MaybeString>;
+		using VarMap = FlatMap<std::string_view, std::string_view>;
+		using HdrMap = FlatMap<std::string_view, std::string_view, AdHoc::case_less>;
+		using StrMap = FlatMap<MaybeString, MaybeString>;
 
 		[[nodiscard]] const PathElements & getRequestPath() const override;
 		[[nodiscard]] PathElements & getRequestPath() override;
 		[[nodiscard]] HttpMethod getRequestMethod() const override;
-		[[nodiscard]] OptionalString getQueryStringParamStr(const std::string_view key) const override;
-		[[nodiscard]] OptionalString getHeaderParamStr(const std::string_view key) const override;
-		[[nodiscard]] OptionalString getCookieParamStr(const std::string_view key) const override;
-		[[nodiscard]] OptionalString getEnvStr(const std::string_view key) const override;
+		[[nodiscard]] OptionalString getQueryStringParamStr(std::string_view key) const override;
+		[[nodiscard]] OptionalString getHeaderParamStr(std::string_view key) const override;
+		[[nodiscard]] OptionalString getCookieParamStr(std::string_view key) const override;
+		[[nodiscard]] OptionalString getEnvStr(std::string_view key) const override;
 		[[nodiscard]] bool isSecure() const override;
 
-		void response(short, const std::string_view) const override;
-		void setHeader(const std::string_view, const std::string_view) const override;
+		void response(short, std::string_view) const override;
+		void setHeader(std::string_view, std::string_view) const override;
 
-		std::ostream & dump(std::ostream & s) const override;
+		std::ostream & dump(std::ostream & strm) const override;
 
 	private:
-		template<typename MapType> static OptionalString optionalLookup(const std::string_view key, const MapType &);
+		template<typename MapType> static OptionalString optionalLookup(std::string_view key, const MapType &);
 
 		VarMap envmap {40};
 		StrMap qsmap;

@@ -16,25 +16,25 @@ namespace IceSpider {
 	public:
 		using MapVars = std::map<std::string, std::string, std::less<>>;
 
-		TestRequest(const Core * c, HttpMethod m, const std::string_view p);
+		TestRequest(const Core * core, HttpMethod method, std::string_view path);
 
 		const PathElements & getRequestPath() const override;
 		PathElements & getRequestPath() override;
 		HttpMethod getRequestMethod() const override;
-		OptionalString getEnvStr(const std::string_view key) const override;
-		OptionalString getQueryStringParamStr(const std::string_view key) const override;
-		OptionalString getCookieParamStr(const std::string_view key) const override;
-		OptionalString getHeaderParamStr(const std::string_view key) const override;
+		OptionalString getEnvStr(std::string_view key) const override;
+		OptionalString getQueryStringParamStr(std::string_view key) const override;
+		OptionalString getCookieParamStr(std::string_view key) const override;
+		OptionalString getHeaderParamStr(std::string_view key) const override;
 		bool isSecure() const override;
-		void setQueryStringParam(const std::string_view, const OptionalString &);
-		void setHeaderParam(const std::string_view, const OptionalString &);
-		void setCookieParam(const std::string_view, const OptionalString &);
-		void setEnv(const std::string_view, const OptionalString &);
+		void setQueryStringParam(std::string_view, const OptionalString &);
+		void setHeaderParam(std::string_view, const OptionalString &);
+		void setCookieParam(std::string_view, const OptionalString &);
+		void setEnv(std::string_view, const OptionalString &);
 		std::istream & getInputStream() const override;
 		std::ostream & getOutputStream() const override;
-		void response(short statusCode, const std::string_view statusMsg) const override;
-		void setHeader(const std::string_view header, const std::string_view value) const override;
-		std::ostream & dump(std::ostream & s) const override;
+		void response(short statusCode, std::string_view statusMsg) const override;
+		void setHeader(std::string_view header, std::string_view value) const override;
+		std::ostream & dump(std::ostream & strm) const override;
 
 		const MapVars & getResponseHeaders();
 
@@ -48,8 +48,8 @@ namespace IceSpider {
 		const HttpMethod method;
 
 	protected:
-		OptionalString get(const std::string_view, const MapVars &) const;
-		void set(const std::string_view, const OptionalString &, MapVars &);
+		static OptionalString get(std::string_view, const MapVars &);
+		static void set(std::string_view, const OptionalString &, MapVars &);
 
 	private:
 		MapVars responseHeaders;

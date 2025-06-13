@@ -5,7 +5,6 @@
 #include <Ice/ObjectAdapter.h>
 #include <Ice/PropertiesF.h>
 #include <algorithm>
-#include <compare>
 #include <compileTimeFormatter.h>
 #include <cstdlib>
 #include <cxxabi.h>
@@ -22,33 +21,31 @@ INSTANTIATEFACTORY(IceSpider::Plugin, Ice::CommunicatorPtr, Ice::PropertiesPtr);
 INSTANTIATEPLUGINOF(IceSpider::ErrorHandler);
 
 namespace IceSpider {
-	const std::filesystem::path Core::defaultConfig("config/ice.properties");
+	const std::filesystem::path Core::DEFAULT_CONFIG("config/ice.properties");
 
 	Core::Core(const Ice::StringSeq & args)
 	{
-		Ice::InitializationData id;
-		id.properties = Ice::createProperties();
-		id.properties->parseCommandLineOptions("", args);
-		auto config = id.properties->getPropertyWithDefault("IceSpider.Config", defaultConfig.string());
+		Ice::InitializationData initData;
+		initData.properties = Ice::createProperties();
+		initData.properties->parseCommandLineOptions("", args);
+		auto config = initData.properties->getPropertyWithDefault("IceSpider.Config", DEFAULT_CONFIG.string());
 		if (std::filesystem::exists(config)) {
-			id.properties->load(config);
+			initData.properties->load(config);
 		}
-		communicator = Ice::initialize(id);
+		communicator = Ice::initialize(initData);
 
 		// Initialize routes
-		for (const auto & rp : AdHoc::PluginManager::getDefault()->getAll<RouteHandlerFactory>()) {
-			allRoutes.push_back(rp->implementation()->create(this));
+		for (const auto & routeHandleFactory : AdHoc::PluginManager::getDefault()->getAll<RouteHandlerFactory>()) {
+			allRoutes.push_back(routeHandleFactory->implementation()->create(this));
 		}
-		std::sort(allRoutes.begin(), allRoutes.end(), [](const auto & a, const auto & b) {
-			return a->path < b->path;
-		});
+		std::ranges::sort(allRoutes, {}, &IRouteHandler::path);
 		// Load plugins
 		auto plugins = AdHoc::PluginManager::getDefault()->getAll<PluginFactory>();
 		if (!plugins.empty()) {
 			pluginAdapter = communicator->createObjectAdapterWithEndpoints("plugins", "default");
-			for (const auto & pf : plugins) {
-				auto p = pf->implementation()->create(communicator, communicator->getProperties());
-				pluginAdapter->add(p, Ice::stringToIdentity(pf->name));
+			for (const auto & plugin : plugins) {
+				pluginAdapter->add(plugin->implementation()->create(communicator, communicator->getProperties()),
+						Ice::stringToIdentity(plugin->name));
 			}
 			pluginAdapter->activate();
 		}
@@ -59,8 +56,8 @@ namespace IceSpider {
 		// Unload plugins
 		auto plugins = AdHoc::PluginManager::getDefault()->getAll<PluginFactory>();
 		if (!plugins.empty()) {
-			for (const auto & pf : plugins) {
-				pluginAdapter->remove(Ice::stringToIdentity(pf->name));
+			for (const auto & plugin : plugins) {
+				pluginAdapter->remove(Ice::stringToIdentity(plugin->name));
 			}
 			pluginAdapter->deactivate();
 			pluginAdapter->destroy();
@@ -85,7 +82,7 @@ namespace IceSpider {
 			handleError(request, e);
 		}
 		catch (...) {
-			request->response(Http500_InternalServerError::CODE, Http500_InternalServerError::MESSAGE);
+			request->response(Http500InternalServerError::CODE, Http500InternalServerError::MESSAGE);
 			request->dump(std::cerr);
 		}
 	}
@@ -95,14 +92,14 @@ namespace IceSpider {
 	Core::handleError(IHttpRequest * request, const std::exception & exception) const
 	{
 		auto errorHandlers = AdHoc::PluginManager::getDefault()->getAll<ErrorHandler>();
-		for (const auto & eh : errorHandlers) {
+		for (const auto & errorHandler : errorHandlers) {
 			try {
-				switch (eh->implementation()->handleError(request, exception)) {
-					case ErrorHandlerResult_Handled:
+				switch (errorHandler->implementation()->handleError(request, exception)) {
+					case ErrorHandlerResult::Handled:
 						return;
-					case ErrorHandlerResult_Unhandled:
+					case ErrorHandlerResult::Unhandled:
 						continue;
-					case ErrorHandlerResult_Modified:
+					case ErrorHandlerResult::Modified:
 						process(request, nullptr);
 						return;
 				}
@@ -112,7 +109,7 @@ namespace IceSpider {
 				return;
 			}
 			catch (...) {
-				std::cerr << "Error handler failed" << std::endl;
+				std::cerr << "Error handler failed\n";
 			}
 		}
 		defaultErrorReport(request, exception);
@@ -130,11 +127,11 @@ namespace IceSpider {
 	AdHocFormatter(LogExp, "Exception type: %?\nDetail: %?\n");
 
 	void
-	Core::defaultErrorReport(IHttpRequest * request, const std::exception & exception) const
+	Core::defaultErrorReport(IHttpRequest * request, const std::exception & exception)
 	{
 		auto buf = demangle(typeid(exception).name());
 		request->setHeader(H::CONTENT_TYPE, MIME::TEXT_PLAIN);
-		request->response(Http500_InternalServerError::CODE, buf.get());
+		request->response(Http500InternalServerError::CODE, buf.get());
 		LogExp::write(request->getOutputStream(), buf.get(), exception.what());
 		request->dump(std::cerr);
 		LogExp::write(std::cerr, buf.get(), exception.what());
@@ -148,12 +145,12 @@ namespace IceSpider {
 
 	CoreWithDefaultRouter::CoreWithDefaultRouter(const Ice::StringSeq & opts) : Core(opts)
 	{
-		for (const auto & r : allRoutes) {
-			if (routes.size() <= r->pathElementCount()) {
-				routes.resize(r->pathElementCount() + 1);
+		for (const auto & route : allRoutes) {
+			if (routes.size() <= route->pathElementCount()) {
+				routes.resize(route->pathElementCount() + 1);
 			}
-			auto & lroutes = routes[r->pathElementCount()];
-			lroutes.push_back(r);
+			auto & lroutes = routes[route->pathElementCount()];
+			lroutes.push_back(route);
 		}
 	}
 
@@ -163,22 +160,22 @@ namespace IceSpider {
 		const auto & pathparts = request->getRequestPath();
 		const auto method = request->getRequestMethod();
 		if (pathparts.size() >= routes.size()) {
-			throw Http404_NotFound();
+			throw Http404NotFound();
 		}
 		const auto & routeSet = routes[pathparts.size()];
 		bool match = false;
-		for (const auto & r : routeSet) {
-			if (r->matches(pathparts)) {
-				if (r->method == method) {
-					return r.get();
+		for (const auto & route : routeSet) {
+			if (route->matches(pathparts)) {
+				if (route->method == method) {
+					return route.get();
 				}
 				match = true;
 			}
 		}
 		if (!match) {
-			throw Http404_NotFound();
+			throw Http404NotFound();
 		}
-		throw Http405_MethodNotAllowed();
+		throw Http405MethodNotAllowed();
 	}
 
 }

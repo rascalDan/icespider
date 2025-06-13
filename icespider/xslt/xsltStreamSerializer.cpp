@@ -1,5 +1,4 @@
 #include "xsltStreamSerializer.h"
-#include <chrono>
 #include <filesystem>
 #include <libxml++/document.h>
 #include <libxml++/exceptions/exception.h>
@@ -52,12 +51,15 @@ namespace IceSpider {
 		return std::make_shared<XsltStreamSerializer>(strm, stylesheet.get());
 	}
 
-	XsltStreamSerializer::XsltStreamSerializer(std::ostream & os, xsltStylesheet * ss) : strm(os), stylesheet(ss) { }
+	XsltStreamSerializer::XsltStreamSerializer(std::ostream & strm, xsltStylesheet * stylesheet) :
+		strm(strm), stylesheet(stylesheet)
+	{
+	}
 
 	void
-	XsltStreamSerializer::Serialize(Slicer::ModelPartForRootParam mp)
+	XsltStreamSerializer::Serialize(Slicer::ModelPartForRootParam modelPart)
 	{
-		Slicer::XmlDocumentSerializer::Serialize(mp);
+		Slicer::XmlDocumentSerializer::Serialize(modelPart);
 		const auto result = std::unique_ptr<xmlDoc, decltype(&xmlFreeDoc)> {
 				xsltApplyStylesheet(stylesheet, doc.cobj(), nullptr), &xmlFreeDoc};
 		if (!result) {

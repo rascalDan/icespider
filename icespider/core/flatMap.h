@@ -3,14 +3,13 @@
 #include <algorithm>
 #include <cstddef>
 #include <functional>
-#include <iterator>
 #include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
 
 namespace IceSpider {
-	template<typename K, typename M, typename Comp = std::less<>> class flatmap : std::vector<std::pair<K, M>> {
+	template<typename K, typename M, typename Comp = std::less<>> class FlatMap : std::vector<std::pair<K, M>> {
 	public:
 		using V = std::pair<K, M>;
 		using S = std::vector<V>;
@@ -18,37 +17,44 @@ namespace IceSpider {
 	private:
 		template<typename N> struct KeyComp {
 			bool
-			operator()(const V & v, const N & n) const
+			operator()(const V & value, const N & name) const
 			{
-				return c(v.first, n);
+				return comparator(value.first, name);
 			}
 
 			bool
-			operator()(const N & n, const V & v) const
+			operator()(const N & name, const V & value) const
 			{
-				return c(n, v.first);
+				return comparator(name, value.first);
 			}
 
-			Comp c;
+			Comp comparator;
 		};
 
 	public:
-		flatmap() = default;
+		FlatMap() = default;
 
-		explicit flatmap(std::size_t n)
+		explicit FlatMap(std::size_t n)
 		{
 			reserve(n);
 		}
 
 		auto
-		insert(V v)
+		insert(V value)
 		{
-			return S::insert(lower_bound(v.first), std::move(v));
+			return S::insert(lower_bound(value.first), std::move(value));
+		}
+
+		auto
+		emplace(K key, M mapped)
+		{
+			auto pos = lower_bound(key);
+			return S::emplace(pos, std::move(key), std::move(mapped));
 		}
 
 		template<typename N>
 		[[nodiscard]] auto
-		lower_bound(const N & n) const
+		lower_bound(const N & n) const // NOLINT(readability-identifier-naming) - STL like
 		{
 			return std::lower_bound(begin(), end(), n, KeyComp<N> {});
 		}
@@ -64,22 +70,22 @@ namespace IceSpider {
 		[[nodiscard]] auto
 		find(const N & n) const
 		{
-			const auto lb = lower_bound(n);
-			if (lb == end()) {
-				return lb;
+			const auto lower = lower_bound(n);
+			if (lower == end()) {
+				return lower;
 			}
-			if (Comp {}(n, lb->first)) {
+			if (Comp {}(n, lower->first)) {
 				return end();
 			}
-			return lb;
+			return lower;
 		}
 
 		template<typename Ex = std::out_of_range, typename N>
 		[[nodiscard]] const auto &
 		at(const N & n) const
 		{
-			if (const auto i = find(n); i != end()) {
-				return i->second;
+			if (const auto iter = find(n); iter != end()) {
+				return iter->second;
 			}
 			if constexpr (std::is_constructible_v<Ex, N>) {
 				// NOLINTNEXTLINE(hicpp-no-array-decay)
@@ -107,7 +113,7 @@ namespace IceSpider {
 		using S::empty;
 		using S::reserve;
 		using S::size;
-		using iterator = typename S::iterator;
-		using const_iterator = typename S::const_iterator;
+		using iterator = typename S::iterator; // NOLINT(readability-identifier-naming) - STL like
+		using const_iterator = typename S::const_iterator; // NOLINT(readability-identifier-naming) - STL like
 	};
 }

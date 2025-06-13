@@ -1,11 +1,9 @@
 #pragma once
 
-#include "exceptions.h"
 #include "util.h"
 #include <Ice/Current.h>
 #include <boost/lexical_cast.hpp>
 #include <c++11Helpers.h>
-#include <charconv>
 #include <ctime>
 #include <http.h>
 #include <iosfwd>
@@ -41,36 +39,34 @@ namespace IceSpider {
 		virtual ~IHttpRequest() = default;
 		SPECIAL_MEMBERS_DEFAULT_MOVE_NO_COPY(IHttpRequest);
 
-		[[nodiscard]] Ice::Context getContext() const;
+		[[nodiscard]] static Ice::Context getContext();
 		[[nodiscard]] virtual const PathElements & getRequestPath() const = 0;
 		[[nodiscard]] virtual PathElements & getRequestPath() = 0;
 		[[nodiscard]] virtual HttpMethod getRequestMethod() const = 0;
 
-		[[nodiscard]] std::string_view getURLParamStr(const unsigned int) const;
-		[[nodiscard]] virtual OptionalString getQueryStringParamStr(const std::string_view) const = 0;
-		[[nodiscard]] virtual OptionalString getHeaderParamStr(const std::string_view) const = 0;
-		[[nodiscard]] virtual OptionalString getCookieParamStr(const std::string_view) const = 0;
-		[[nodiscard]] virtual OptionalString getEnvStr(const std::string_view) const = 0;
+		[[nodiscard]] std::string_view getURLParamStr(unsigned int) const;
+		[[nodiscard]] virtual OptionalString getQueryStringParamStr(std::string_view) const = 0;
+		[[nodiscard]] virtual OptionalString getHeaderParamStr(std::string_view) const = 0;
+		[[nodiscard]] virtual OptionalString getCookieParamStr(std::string_view) const = 0;
+		[[nodiscard]] virtual OptionalString getEnvStr(std::string_view) const = 0;
 		[[nodiscard]] virtual bool isSecure() const = 0;
 		[[nodiscard]] static Accepted parseAccept(std::string_view);
 		[[nodiscard]] virtual Slicer::DeserializerPtr getDeserializer() const;
 		[[nodiscard]] virtual ContentTypeSerializer getSerializer(const IRouteHandler *) const;
 		[[nodiscard]] virtual std::istream & getInputStream() const = 0;
 		[[nodiscard]] virtual std::ostream & getOutputStream() const = 0;
-		virtual void setHeader(const std::string_view, const std::string_view) const = 0;
+		virtual void setHeader(std::string_view, std::string_view) const = 0;
 
-		virtual std::ostream & dump(std::ostream & s) const = 0;
+		virtual std::ostream & dump(std::ostream & strm) const = 0;
 
 		template<typename T, typename K>
-		[[nodiscard]] inline std::optional<T>
+		[[nodiscard]] std::optional<T>
 		getFrom(const K key, OptionalString (IHttpRequest::*src)(const K) const) const
 		{
-			if (auto v = (this->*src)(key)) {
-				return convert<T>(*v);
+			if (auto value = (this->*src)(key)) {
+				return convert<T>(*value);
 			}
-			else {
-				return std::nullopt;
-			}
+			return std::nullopt;
 		}
 
 		template<typename T>
@@ -95,29 +91,30 @@ namespace IceSpider {
 				return {};
 			}
 
-			if (const auto i = map->find(key); i != map->end()) {
-				return convert<T>(i->second);
+			if (const auto iter = map->find(key); iter != map->end()) {
+				return convert<T>(iter->second);
 			}
 			return {};
 		}
 
-		void responseRedirect(const std::string_view url, const OptionalString & = {}) const;
-		void setCookie(const std::string_view, const std::string_view, const OptionalString & = {},
-				const OptionalString & = {}, bool = false, std::optional<time_t> = {});
+		void responseRedirect(std::string_view url, const OptionalString & = {}) const;
+		void setCookie(std::string_view, std::string_view, const OptionalString & = {}, const OptionalString & = {},
+				bool = false, std::optional<time_t> = {}) const;
 
 		template<typename T>
+			requires(!std::same_as<T, std::string_view>)
 		void
-		setCookie(const std::string_view n, const T & v, const OptionalString & d, const OptionalString & p, bool s,
-				std::optional<time_t> e)
+		setCookie(const std::string_view n, const T & value, const OptionalString & domain, const OptionalString & path,
+				bool secure, std::optional<time_t> expiry)
 		{
 			if constexpr (std::is_constructible_v<std::string_view, T>) {
-				setCookie(n, std::string_view(v), d, p, s, e);
+				setCookie(n, std::string_view(value), domain, path, secure, expiry);
 			}
-			else if constexpr (requires { std::to_string(v); }) {
-				setCookie(n, std::to_string(v), d, p, s, e);
+			else if constexpr (requires { std::to_string(value); }) {
+				setCookie(n, std::to_string(value), domain, path, secure, expiry);
 			}
 			else {
-				setCookie(n, boost::lexical_cast<std::string>(v), d, p, s, e);
+				setCookie(n, boost::lexical_cast<std::string>(value), domain, path, secure, expiry);
 			}
 		}
 
@@ -142,18 +139,18 @@ namespace IceSpider {
 			return getFrom<T, std::string_view>(key, &IHttpRequest::getCookieParamStr);
 		}
 
-		virtual void response(short, const std::string_view) const = 0;
+		virtual void response(short, std::string_view) const = 0;
 
 		template<typename T>
 		void
-		response(const IRouteHandler * route, const T & t) const
+		response(const IRouteHandler * route, const T & value) const
 		{
-			Slicer::ModelPart::OnRootFor(t, [this, route](Slicer::ModelPartForRootParam root) {
+			Slicer::ModelPart::OnRootFor(value, [this, route](Slicer::ModelPartForRootParam root) {
 				modelPartResponse(route, root);
 			});
 		}
 
-		void modelPartResponse(const IRouteHandler * route, const Slicer::ModelPartForRootParam) const;
+		void modelPartResponse(const IRouteHandler * route, Slicer::ModelPartForRootParam) const;
 
 		const Core * core;
 	};

@@ -1,10 +1,8 @@
 #pragma once
 
-#include <compare>
 #include <iosfwd>
 #include <string>
 #include <string_view>
-#include <type_traits>
 #include <utility>
 #include <variant>
 
@@ -14,54 +12,54 @@ namespace IceSpider {
 		MaybeString() = default;
 
 		// cppcheck-suppress noExplicitConstructor; NOLINTNEXTLINE(hicpp-explicit-conversions)
-		inline MaybeString(std::string s) : value_ {std::move(s)} { }
+		MaybeString(std::string str) : valueContainer {std::move(str)} { }
 
 		// cppcheck-suppress noExplicitConstructor; NOLINTNEXTLINE(hicpp-explicit-conversions)
-		inline MaybeString(std::string_view s) : value_ {s} { }
+		MaybeString(std::string_view str) : valueContainer {str} { }
 
 		// NOLINTNEXTLINE(hicpp-explicit-conversions)
-		[[nodiscard]] inline operator std::string_view() const
+		[[nodiscard]] operator std::string_view() const
 		{
-			if (value_.index() == 0) {
-				return std::get<0>(value_);
+			if (valueContainer.index() == 0) {
+				return std::get<0>(valueContainer);
 			}
-			return std::get<1>(value_);
+			return std::get<1>(valueContainer);
 		}
 
-		[[nodiscard]] inline std::string_view
+		[[nodiscard]] std::string_view
 		value() const
 		{
 			return *this;
 		}
 
-		[[nodiscard]] inline bool
+		[[nodiscard]] bool
 		isString() const
 		{
-			return value_.index() > 0;
+			return valueContainer.index() > 0;
 		}
 
-		[[nodiscard]] inline bool
-		operator<(const MaybeString & o) const
+		[[nodiscard]] bool
+		operator<(const MaybeString & other) const
 		{
-			return value() < o.value();
+			return value() < other.value();
 		}
 
-		[[nodiscard]] inline bool
-		operator<(const std::string_view o) const
+		[[nodiscard]] bool
+		operator<(const std::string_view other) const
 		{
-			return value() < o;
+			return value() < other;
 		}
 
 	private:
-		using value_type = std::variant<std::string_view, std::string>;
-		value_type value_;
+		using ValueType = std::variant<std::string_view, std::string>;
+		ValueType valueContainer;
 	};
 };
 
 namespace std {
 	inline std::ostream &
-	operator<<(std::ostream & s, const IceSpider::MaybeString & ms)
+	operator<<(std::ostream & strm, const IceSpider::MaybeString & value)
 	{
-		return s << ms.value();
+		return strm << value.value();
 	}
 }

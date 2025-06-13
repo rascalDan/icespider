@@ -14,12 +14,12 @@
 	}
 
 namespace IceSpider {
-	DeclareHttpEx(Http400_BadRequest);
-	DeclareHttpEx(Http404_NotFound);
-	DeclareHttpEx(Http405_MethodNotAllowed);
-	DeclareHttpEx(Http406_NotAcceptable);
-	DeclareHttpEx(Http415_UnsupportedMediaType);
-	DeclareHttpEx(Http500_InternalServerError);
+	DeclareHttpEx(Http400BadRequest);
+	DeclareHttpEx(Http404NotFound);
+	DeclareHttpEx(Http405MethodNotAllowed);
+	DeclareHttpEx(Http406NotAcceptable);
+	DeclareHttpEx(Http415UnsupportedMediaType);
+	DeclareHttpEx(Http500InternalServerError);
 }
 
 #undef DeclareHttpEx

@@ -22,10 +22,10 @@ namespace IceSpider {
 
 	class DLL_PUBLIC IRouteHandler : public Path {
 	public:
-		const static RouteOptions defaultRouteOptions;
+		const static RouteOptions DEFAULT_ROUTE_OPTIONS;
 
-		IRouteHandler(HttpMethod, const std::string_view path);
-		IRouteHandler(HttpMethod, const std::string_view path, const RouteOptions &);
+		IRouteHandler(HttpMethod, std::string_view path);
+		IRouteHandler(HttpMethod, std::string_view path, const RouteOptions &);
 		SPECIAL_MEMBERS_MOVE_RO(IRouteHandler);
 		virtual ~IRouteHandler() = default;
 
@@ -40,13 +40,13 @@ namespace IceSpider {
 		using RouteSerializers = std::map<MimeType, StreamSerializerFactoryPtr>;
 		RouteSerializers routeSerializers;
 
-		[[noreturn]] void requiredParameterNotFound(const char *, const std::string_view key) const;
+		[[noreturn]] static void requiredParameterNotFound(const char *, std::string_view key);
 
 		template<typename T, typename K>
-		inline T
-		requiredParameterNotFound(const char * s, const K & key) const
+		static T
+		requiredParameterNotFound(const char * source, const K & key)
 		{
-			requiredParameterNotFound(s, key);
+			requiredParameterNotFound(source, key);
 		}
 
 		void addRouteSerializer(const MimeType &, const StreamSerializerFactoryPtr &);

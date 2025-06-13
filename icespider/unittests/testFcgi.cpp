@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
+#include <exceptions.h>
 #include <http.h>
 #include <ihttpRequest.h>
 #include <iostream>
@@ -21,11 +22,11 @@
 #include <vector>
 
 namespace IceSpider {
-	class Http400_BadRequest;
+	class Http400BadRequest;
 }
 
 namespace IceSpider {
-	class Http405_MethodNotAllowed;
+	class Http405MethodNotAllowed;
 }
 
 using namespace std::literals;
@@ -106,7 +107,7 @@ BOOST_FIXTURE_TEST_SUITE(CgiRequestBase, IceSpider::CoreWithDefaultRouter);
 
 BOOST_AUTO_TEST_CASE(NoEnvironment)
 {
-	BOOST_REQUIRE_THROW({ TestRequest r(this, {}); }, IceSpider::Http400_BadRequest);
+	BOOST_REQUIRE_THROW({ TestRequest r(this, {}); }, IceSpider::Http400BadRequest);
 }
 
 BOOST_AUTO_TEST_CASE(script_name_root)
@@ -206,13 +207,13 @@ BOOST_AUTO_TEST_CASE(requestmethod_post)
 BOOST_AUTO_TEST_CASE(requestmethod_bad)
 {
 	TestRequest r(this, {{"SCRIPT_NAME=/", "REQUEST_METHOD=No"}});
-	BOOST_REQUIRE_THROW((void)r.getRequestMethod(), IceSpider::Http405_MethodNotAllowed);
+	BOOST_REQUIRE_THROW((void)r.getRequestMethod(), IceSpider::Http405MethodNotAllowed);
 }
 
 BOOST_AUTO_TEST_CASE(requestmethod_missing)
 {
 	TestRequest r {this, {{"SCRIPT_NAME=/"}}};
-	BOOST_REQUIRE_THROW((void)r.getRequestMethod(), IceSpider::Http400_BadRequest);
+	BOOST_REQUIRE_THROW((void)r.getRequestMethod(), IceSpider::Http400BadRequest);
 }
 
 BOOST_AUTO_TEST_CASE(acceptheader)

@@ -5,8 +5,6 @@
 #include <formatters.h>
 #include <optional>
 #include <pathparts.h>
-#include <set>
-#include <sstream>
 #include <string>
 #include <utility>
 
@@ -17,29 +15,34 @@ namespace IceSpider {
 	static const std::string JSON = "json";
 	static const std::string APPLICATION_JSON = MimeTypeFmt::get(APPLICATION, JSON);
 
-	const RouteOptions IRouteHandler::defaultRouteOptions {};
+	const RouteOptions IRouteHandler::DEFAULT_ROUTE_OPTIONS {};
 
-	IRouteHandler::IRouteHandler(HttpMethod m, const std::string_view p) :
-		IRouteHandler(m, p, defaultRouteOptions) { }
-
-	IRouteHandler::IRouteHandler(HttpMethod m, const std::string_view p, const RouteOptions & ro) : Path(p), method(m)
+	IRouteHandler::IRouteHandler(HttpMethod method, const std::string_view path) :
+		IRouteHandler(method, path, DEFAULT_ROUTE_OPTIONS)
 	{
-		if (ro.addDefaultSerializers) {
+	}
+
+	IRouteHandler::IRouteHandler(HttpMethod method, const std::string_view path, const RouteOptions & routeOpts) :
+		Path(path), method(method)
+	{
+		if (routeOpts.addDefaultSerializers) {
 			auto globalSerializers = AdHoc::PluginManager::getDefault()->getAll<Slicer::StreamSerializerFactory>();
-			for (const auto & gs : globalSerializers) {
-				auto slash = gs->name.find('/');
+			for (const auto & serializer : globalSerializers) {
+				auto slash = serializer->name.find('/');
 				routeSerializers.insert(
-						{{gs->name.substr(0, slash), gs->name.substr(slash + 1)}, gs->implementation()});
+						{{.group = serializer->name.substr(0, slash), .type = serializer->name.substr(slash + 1)},
+								serializer->implementation()});
 			}
 		}
 	}
 
 	ContentTypeSerializer
-	IRouteHandler::getSerializer(const Accept & a, std::ostream & strm) const
+	IRouteHandler::getSerializer(const Accept & accept, std::ostream & strm) const
 	{
-		for (const auto & rs : routeSerializers) {
-			if ((!a.group || rs.first.group == a.group) && (!a.type || rs.first.type == a.type)) {
-				return {rs.first, rs.second->create(strm)};
+		for (const auto & serializer : routeSerializers) {
+			if ((!accept.group || serializer.first.group == accept.group)
+					&& (!accept.type || serializer.first.type == accept.type)) {
+				return {serializer.first, serializer.second->create(strm)};
 			}
 		}
 		return {};
@@ -48,19 +51,20 @@ namespace IceSpider {
 	ContentTypeSerializer
 	IRouteHandler::defaultSerializer(std::ostream & strm) const
 	{
-		return {{APPLICATION, JSON}, Slicer::StreamSerializerFactory::createNew(APPLICATION_JSON, strm)};
+		return {{.group = APPLICATION, .type = JSON},
+				Slicer::StreamSerializerFactory::createNew(APPLICATION_JSON, strm)};
 	}
 
 	void
-	IRouteHandler::requiredParameterNotFound(const char *, const std::string_view) const
+	IRouteHandler::requiredParameterNotFound(const char *, const std::string_view)
 	{
-		throw Http400_BadRequest();
+		throw Http400BadRequest();
 	}
 
 	void
-	IRouteHandler::addRouteSerializer(const MimeType & ct, const StreamSerializerFactoryPtr & ssfp)
+	IRouteHandler::addRouteSerializer(const MimeType & contentType, const StreamSerializerFactoryPtr & ssfp)
 	{
-		routeSerializers.erase(ct);
-		routeSerializers.insert({ct, ssfp});
+		routeSerializers.erase(contentType);
+		routeSerializers.emplace(contentType, ssfp);
 	}
 }

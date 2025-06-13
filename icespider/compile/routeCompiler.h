@@ -18,10 +18,10 @@ namespace IceSpider::Compile {
 
 		RouteCompiler();
 
-		[[nodiscard]] RouteConfigurationPtr loadConfiguration(const std::filesystem::path &) const;
+		[[nodiscard]] static RouteConfigurationPtr loadConfiguration(const std::filesystem::path &);
 		[[nodiscard]] Units loadUnits(const RouteConfigurationPtr &) const;
 
-		void applyDefaults(const RouteConfigurationPtr &, const Units & u) const;
+		static void applyDefaults(const RouteConfigurationPtr &, const Units & units);
 		void compile(const std::filesystem::path & input, const std::filesystem::path & output) const;
 
 		std::vector<std::filesystem::path> searchPath;
@@ -30,17 +30,17 @@ namespace IceSpider::Compile {
 		using Proxies = std::map<std::string, int>;
 
 #pragma GCC visibility push(hidden)
-		void processConfiguration(FILE * output, FILE * outputh, const std::string & name,
-				const RouteConfigurationPtr &, const Units &) const;
-		void processBases(FILE * output, FILE * outputh, const RouteConfigurationPtr &, const Units &) const;
-		void processBase(FILE * output, FILE * outputh, const RouteBases::value_type &, const Units &) const;
-		void processRoutes(FILE * output, const RouteConfigurationPtr &, const Units &) const;
-		void processRoute(FILE * output, const Routes::value_type &, const Units &) const;
-		void registerOutputSerializers(FILE * output, const RoutePtr &) const;
-		[[nodiscard]] Proxies initializeProxies(FILE * output, const RoutePtr &) const;
-		void declareProxies(FILE * output, const Proxies &) const;
-		void addSingleOperation(FILE * output, const RoutePtr &, const Slice::OperationPtr &) const;
-		void addMashupOperations(FILE * output, const RoutePtr &, const Proxies &, const Units &) const;
+		static void processConfiguration(
+				FILE * output, FILE * outputh, const std::string & name, const RouteConfigurationPtr &, const Units &);
+		static void processBases(FILE * output, FILE * outputh, const RouteConfigurationPtr &, const Units &);
+		static void processBase(FILE * output, FILE * outputh, const RouteBases::value_type &, const Units &);
+		static void processRoutes(FILE * output, const RouteConfigurationPtr &, const Units &);
+		static void processRoute(FILE * output, const Routes::value_type &, const Units &);
+		static void registerOutputSerializers(FILE * output, const RoutePtr &);
+		[[nodiscard]] static Proxies initializeProxies(FILE * output, const RoutePtr &);
+		static void declareProxies(FILE * output, const Proxies &);
+		static void addSingleOperation(FILE * output, const RoutePtr &, const Slice::OperationPtr &);
+		static void addMashupOperations(FILE * output, const RoutePtr &, const Proxies &, const Units &);
 		using ParameterMap = std::map<std::string, Slice::ParamDeclPtr>;
 		static ParameterMap findParameters(const RoutePtr &, const Units &);
 		static Slice::OperationPtr findOperation(const std::string &, const Units &);

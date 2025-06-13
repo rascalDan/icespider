@@ -1,10 +1,9 @@
 #include "cgiRequest.h"
 #include <iostream>
-#include <span>
 
 namespace IceSpider {
-	CgiRequest::CgiRequest(Core * c, int argc, char ** argv, char ** env) :
-		CgiRequestBase(c, EnvNTL {env}, EnvArray {argv, static_cast<size_t>(argc)})
+	CgiRequest::CgiRequest(Core * core, int argc, char ** argv, char ** env) :
+		CgiRequestBase(core, EnvNTL {env}, EnvArray {argv, static_cast<size_t>(argc)})
 	{
 	}
 
